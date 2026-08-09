@@ -145,7 +145,9 @@ class _SocialLoginSection extends StatelessWidget {
         _SocialButton(
           iconPath: 'assets/icons/facebook.png',
           label: 'Đăng nhập bằng Facebook',
-          onPressed: () {},
+          onPressed: () {
+            context.read<SignInBloc>().add(SignInWithFacebook());
+          },
         ),
       ],
     );

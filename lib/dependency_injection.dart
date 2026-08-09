@@ -6,6 +6,7 @@ import 'package:shipgo/core/storage/token_storage.dart';
 import 'package:shipgo/features/auth/data/data_sources/remote/auth_api_service.dart';
 import 'package:shipgo/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:shipgo/features/auth/domain/repository/auth_repository.dart';
+import 'package:shipgo/features/auth/domain/usecases/sign_in_with_facebook_usecase.dart';
 import 'package:shipgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 
@@ -25,16 +26,22 @@ Future<void> initializeDependencies() async {
 
   // Đăng ký các repository
   di.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(di<AuthAPIService>()),
+    () => AuthRepositoryImpl(di<AuthAPIService>(), di<TokenStorage>()),
   );
 
   // Đăng ký các usecase
   di.registerLazySingleton<SignInWithGoogleUsecase>(
     () => SignInWithGoogleUsecase(di<AuthRepository>()),
   );
+  di.registerLazySingleton<SignInWithFacebookUsecase>(
+    () => SignInWithFacebookUsecase(di<AuthRepository>()),
+  );
 
   // Đăng ký các bloc
   di.registerLazySingleton<SignInBloc>(
-    () => SignInBloc(signInWithGoogleUsecase: di<SignInWithGoogleUsecase>()),
+    () => SignInBloc(
+      signInWithGoogleUsecase: di<SignInWithGoogleUsecase>(),
+      signInWithFacebookUsecase: di<SignInWithFacebookUsecase>(),
+    ),
   );
 }

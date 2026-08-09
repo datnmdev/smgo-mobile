@@ -6,7 +6,4 @@ part 'env.g.dart';
 abstract class Env {
   @EnviedField(varName: 'API_BASE_URL', obfuscate: true)
   static final String apiBaseUrl = _Env.apiBaseUrl;
-
-  @EnviedField(varName: 'GOOGLE_WEB_CLIENT_ID', obfuscate: true)
-  static final String googleWebClientId = _Env.googleWebClientId;
 }
