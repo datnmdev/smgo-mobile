@@ -5,8 +5,6 @@ class LocationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Đây là trang định vị của tôi'),
-    );
+    return SafeArea(child: Scaffold());
   }
 }

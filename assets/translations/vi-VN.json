@@ -30,5 +30,17 @@
   },
   "check_authentication": {
     "loading": "Đang xác thực người dùng..."
+  },
+  "explore": {
+    "tab_label": "Khám phá"
+  },
+  "location": {
+    "tab_label": "Đã lưu"
+  },
+  "route": {
+    "tab_label": "Lộ trình"
+  },
+  "person": {
+    "tab_label": "Cá nhân"
   }
 }

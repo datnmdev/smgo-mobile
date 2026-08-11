@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
+import 'package:shipgo/core/resources/app_strings.dart';
 
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -42,22 +43,22 @@ class AppNavigationBar extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             activeIcon: Icon(Icons.explore),
-            label: 'Khám phá',
+            label: AppStrings.exploreTabLabel,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border),
             activeIcon: Icon(Icons.bookmark),
-            label: 'Đã lưu',
+            label: AppStrings.locationTabLabel,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.alt_route),
             activeIcon: Icon(Icons.map),
-            label: 'Lộ trình',
+            label: AppStrings.routeTabLabel,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Cá nhân',
+            label: AppStrings.personTabLabel,
           ),
         ],
       ),
