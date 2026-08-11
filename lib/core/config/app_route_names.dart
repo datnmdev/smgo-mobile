@@ -3,6 +3,9 @@ abstract class AppRouteNames {
 
   static final splash = 'splash';
   static final signIn = 'sign-in';
-  static final routeManagement = 'route-management';
-  static final myLocationList = 'my-location-list';
+  static final main = 'main';
+  static final explore = 'explore';
+  static final location = 'location';
+  static final route = 'route';
+  static final person = 'person';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shipgo/core/resources/app_colors.dart';
 
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -12,19 +13,11 @@ class AppNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy màu chủ đạo dựa theo theme màu xanh của ứng dụng từ ảnh (Shipgo)
-    final Color primaryGreen = const Color(
-      0xFF2E8B57,
-    ); // Hoặc mã màu xanh tương đương trong ảnh
-    final Color backgroundColor = const Color(
-      0xFF133822,
-    ); // Màu nền tối tone xanh sâu cho bar (hoặc dùng Colors.white tùy thiết kế)
-
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withAlpha(15),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -34,10 +27,8 @@ class AppNavigationBar extends StatelessWidget {
         currentIndex: currentIndex,
         onTap: onTap,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white, // Hoặc nền tối nếu muốn hợp mood app
-        selectedItemColor: const Color(
-          0xFF238c55,
-        ), // Màu xanh lá sáng nổi bật giống logo Shipgo
+        backgroundColor: Colors.white,
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
         selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.bold,
