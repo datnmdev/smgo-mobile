@@ -1,4 +1,4 @@
-import 'package:shipgo/core/exception/app_exception.dart';
+import 'package:shipgo/core/exceptions/app_exception.dart';
 
 class UnauthenticatedException extends AppException {
   UnauthenticatedException({

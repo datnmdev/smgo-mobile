@@ -5,12 +5,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shipgo/app_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/core/config/env.dart';
+import 'package:shipgo/core/localization/domain/repository/localization_repository.dart';
 import 'package:shipgo/core/network/api_enpoints.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
   final Dio dio;
+  final LocalizationRepository localizationRepository;
 
-  AuthInterceptor(this.dio);
+  AuthInterceptor({required this.dio, required this.localizationRepository});
 
   @override
   void onRequest(
@@ -18,9 +20,11 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestInterceptorHandler handler,
   ) async {
     final accessToken = await _getAccessToken();
+    final localeTag = await localizationRepository.getLocaleTag();
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
+    options.queryParameters.addAll({"locale": localeTag});
     handler.next(options);
   }
 

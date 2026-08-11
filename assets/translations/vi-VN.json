@@ -1,0 +1,34 @@
+{
+  "app_title": "Shipgo",
+  "slogan": "Tối ưu lộ trình & tiết kiệm chi phí",
+  "sign_in_with_google": "Đăng nhập bằng google",
+  "sign_in_with_facebook": "Đăng nhập bằng facebook",
+  "sign_in": {
+    "loading": "Đang đăng nhập..."
+  },
+  "check_app_version": {
+    "initial": "Chuẩn bị kiểm tra cập nhật",
+    "loading": "Đang kiểm tra bản cập nhật...",
+    "done": "Kiểm tra bản cập nhật đã hoàn tất...",
+    "failed": "Không thể kiểm tra bản cập nhật, đã có lỗi xảy ra. Vui lòng khởi động lại ứng dụng!"
+  },
+  "app_update": {
+    "title": "Yêu cầu cập nhật",
+    "desc": "Phiên bản hiện tại của bạn đã cũ. Vui lòng chọn hành động bên dưới để tiếp tục",
+    "update_button": {
+      "title": "Cập nhật ngay",
+      "desc": "Tải phiên bản mới nhất từ Cửa hàng"
+    },
+    "update_later_button": {
+      "title": "Để sau",
+      "desc": "Tiếp tục dùng phiên bản hiện tại"
+    }
+  },
+  "maintenance_app": {
+    "title": "Hệ thống đang bảo trì",
+    "message": "Chúng tôi đang tiến hành nâng cấp hệ thống để mang lại trải nghiệm tốt nhất. Ứng dụng sẽ tự động hoạt động trở lại sau khi hoàn tất"
+  },
+  "check_authentication": {
+    "loading": "Đang xác thực người dùng..."
+  }
+}

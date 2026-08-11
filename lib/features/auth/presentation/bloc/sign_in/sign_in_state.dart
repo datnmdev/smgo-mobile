@@ -3,7 +3,7 @@ import 'package:shipgo/features/auth/domain/entities/auth_token_entity.dart';
 
 abstract class SignInState extends Equatable {
   final AuthTokensEntity? authTokens;
-  final dynamic error;
+  final Object? error;
 
   const SignInState({this.authTokens, this.error});
 
@@ -24,5 +24,5 @@ class SignInDone extends SignInState {
 }
 
 class SignInError extends SignInState {
-  const SignInError(dynamic error) : super(error: error);
+  const SignInError(Object error) : super(error: error);
 }

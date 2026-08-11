@@ -91,5 +91,10 @@
 		<string>de7bca3346c698a2b7cab5eb1eeab8d3</string>
 		<key>FacebookDisplayName</key>
 		<string>Shipgo</string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>itms-apps</string>
+			<string>https</string>
+		</array>
 	</dict>
 </plist>
