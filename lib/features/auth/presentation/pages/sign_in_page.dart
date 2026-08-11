@@ -118,20 +118,14 @@ class _SocialLoginSection extends StatelessWidget {
         BlocListener<SessionBloc, SessionState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              context.goNamed(
-                AppRouteNames.main,
-                pathParameters: {'tabName': AppRouteNames.explore},
-              );
+              context.goNamed(AppRouteNames.explore);
             }
           },
         ),
         BlocListener<SignInBloc, SignInState>(
           listener: (context, state) {
             if (state is SignInDone) {
-              context.goNamed(
-                AppRouteNames.main,
-                pathParameters: {'tabName': AppRouteNames.explore},
-              );
+              context.goNamed(AppRouteNames.explore);
             } else if (state is SignInError) {
               String message = "";
               if (state.error is DioException) {
