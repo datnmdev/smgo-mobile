@@ -1,4 +1,4 @@
-package com.example.shipbox
+package com.techbox.shipgo
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -6,15 +6,13 @@ import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_event.dar
 import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final SignInWithGoogleUsecase _signInWithGoogleUsecase;
-  final SignInWithFacebookUsecase _signInWithFacebookUsecase;
+  final SignInWithGoogleUsecase signInWithGoogleUsecase;
+  final SignInWithFacebookUsecase signInWithFacebookUsecase;
 
   SignInBloc({
-    required SignInWithGoogleUsecase signInWithGoogleUsecase,
-    required SignInWithFacebookUsecase signInWithFacebookUsecase,
-  }) : _signInWithGoogleUsecase = signInWithGoogleUsecase,
-       _signInWithFacebookUsecase = signInWithFacebookUsecase,
-       super(const SignInInitial()) {
+    required this.signInWithGoogleUsecase,
+    required this.signInWithFacebookUsecase,
+  }) : super(const SignInInitial()) {
     on<SignInWithGoogle>(onSignInWithGoogle);
     on<SignInWithFacebook>(onSignInWithFacebook);
   }
@@ -24,10 +22,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) async {
     emit(SignInLoading());
-    final dataState = await _signInWithGoogleUsecase.call();
+    final dataState = await signInWithGoogleUsecase.call();
     if (dataState is DataSuccess) {
       emit(SignInDone(dataState.data!));
-    } else if (dataState is DataFailed) {
+    } else {
       emit(SignInError(dataState.error!));
     }
   }
@@ -37,7 +35,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     Emitter<SignInState> emit,
   ) async {
     emit(SignInLoading());
-    final dataState = await _signInWithFacebookUsecase.call();
+    final dataState = await signInWithFacebookUsecase.call();
     if (dataState is DataSuccess) {
       emit(SignInDone(dataState.data!));
     } else if (dataState is DataFailed) {

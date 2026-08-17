@@ -6,21 +6,20 @@ import 'package:shipgo/features/auth/domain/repository/auth_repository.dart';
 
 class SignInWithFacebookUsecase
     implements Usecase<DataState<AuthTokensEntity>, void> {
-  final AuthRepository _authRepository;
-  final TokenRepository _tokenRepository;
+  final TokenRepository tokenRepository;
+  final AuthRepository authRepository;
 
   const SignInWithFacebookUsecase({
-    required AuthRepository authRepository,
-    required TokenRepository tokenRepository,
-  }) : _authRepository = authRepository,
-       _tokenRepository = tokenRepository;
+    required this.authRepository,
+    required this.tokenRepository,
+  });
 
   @override
   Future<DataState<AuthTokensEntity>> call({params}) async {
-    final dataState = await _authRepository.signInWithFacebook();
+    final dataState = await authRepository.signInWithFacebook();
     if (dataState is DataSuccess) {
-      _tokenRepository.saveAccessToken(dataState.data!.accessToken);
-      _tokenRepository.saveRefreshToken(dataState.data!.refreshToken);
+      tokenRepository.saveAccessToken(dataState.data!.accessToken);
+      tokenRepository.saveRefreshToken(dataState.data!.refreshToken);
     }
     return dataState;
   }

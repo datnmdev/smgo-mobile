@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/app_router.dart';
-import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/splash/domain/usecase/check_app_version_usecase.dart';
 import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
@@ -8,9 +6,9 @@ import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check
 
 class CheckAppVersionBloc
     extends Bloc<CheckAppVersionEvent, CheckAppVersionState> {
-  final CheckAppVersionUsecase _checkAppVersionUsecase;
+  final CheckAppVersionUsecase checkAppVersionUsecase;
 
-  CheckAppVersionBloc(this._checkAppVersionUsecase)
+  CheckAppVersionBloc({required this.checkAppVersionUsecase})
     : super(const CheckAppVersionInitial()) {
     on<CheckAppVersion>(handleCheckVersion);
   }
@@ -20,7 +18,7 @@ class CheckAppVersionBloc
     Emitter<CheckAppVersionState> emit,
   ) async {
     emit(CheckAppVersionLoading());
-    final dataState = await _checkAppVersionUsecase.call();
+    final dataState = await checkAppVersionUsecase.call();
     if (dataState is DataSuccess) {
       final result = dataState.data!;
       if (result is Maintenance) {
@@ -34,12 +32,8 @@ class CheckAppVersionBloc
             storeAppId: result.storeAppId,
           ),
         );
-        if (!result.isForceUpdate) {
-          appRouter.replaceNamed(AppRouteNames.signIn);
-        }
       } else {
         emit(CheckAppVersionUpToDate());
-        appRouter.replaceNamed(AppRouteNames.signIn);
       }
     } else {
       emit(CheckAppVersionFailed(error: dataState.error!));

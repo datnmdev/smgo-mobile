@@ -52,7 +52,7 @@ class _AuthApiService implements AuthApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/auth/google',
+            '/auth/oauth/google',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -86,7 +86,7 @@ class _AuthApiService implements AuthApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/auth/facebook',
+            '/auth/oauth/facebook',
             queryParameters: queryParameters,
             data: _data,
           )

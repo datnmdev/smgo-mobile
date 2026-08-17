@@ -14,7 +14,10 @@ class MainPage extends StatelessWidget {
       bottomNavigationBar: AppNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) {
-          navigationShell.goBranch(index);
+          navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          );
         },
       ),
     );

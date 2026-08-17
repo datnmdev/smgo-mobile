@@ -43,3 +43,30 @@ Object? _$nullableGenericToJson<T>(
   T? input,
   Object? Function(T value) toJson,
 ) => input == null ? null : toJson(input);
+
+PaginationMeta _$PaginationMetaFromJson(Map<String, dynamic> json) =>
+    PaginationMeta(
+      totalCount: (json['totalCount'] as num).toInt(),
+      currentPage: (json['currentPage'] as num).toInt(),
+      pageSize: (json['pageSize'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$PaginationMetaToJson(PaginationMeta instance) =>
+    <String, dynamic>{
+      'totalCount': instance.totalCount,
+      'currentPage': instance.currentPage,
+      'pageSize': instance.pageSize,
+    };
+
+Pagination<T> _$PaginationFromJson<T>(
+  Map<String, dynamic> json,
+  T Function(Object? json) fromJsonT,
+) => Pagination<T>(
+  data: fromJsonT(json['data']),
+  meta: PaginationMeta.fromJson(json['meta'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$PaginationToJson<T>(
+  Pagination<T> instance,
+  Object? Function(T value) toJsonT,
+) => <String, dynamic>{'data': toJsonT(instance.data), 'meta': instance.meta};

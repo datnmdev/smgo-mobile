@@ -1,0 +1,285 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'location_api_service.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+GetSavedLocationsQuery _$GetSavedLocationsQueryFromJson(
+  Map<String, dynamic> json,
+) => GetSavedLocationsQuery(
+  keyword: json['keyword'] as String?,
+  page: (json['page'] as num?)?.toInt(),
+  limit: (json['limit'] as num?)?.toInt(),
+);
+
+Map<String, dynamic> _$GetSavedLocationsQueryToJson(
+  GetSavedLocationsQuery instance,
+) => <String, dynamic>{
+  'keyword': ?instance.keyword,
+  'page': ?instance.page,
+  'limit': ?instance.limit,
+};
+
+LocationDataRequest _$LocationDataRequestFromJson(Map<String, dynamic> json) =>
+    LocationDataRequest(
+      x: (json['x'] as num).toDouble(),
+      y: (json['y'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$LocationDataRequestToJson(
+  LocationDataRequest instance,
+) => <String, dynamic>{'x': instance.x, 'y': instance.y};
+
+SaveLocationBodyRequest _$SaveLocationBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => SaveLocationBodyRequest(
+  locationName: json['locationName'] as String,
+  contactName: json['contactName'] as String,
+  contactPhone: json['contactPhone'] as String,
+  address: json['address'] as String,
+  mediaIds: (json['mediaIds'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  note: json['note'] as String?,
+  location: json['location'] == null
+      ? null
+      : LocationDataRequest.fromJson(json['location'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$SaveLocationBodyRequestToJson(
+  SaveLocationBodyRequest instance,
+) => <String, dynamic>{
+  'locationName': instance.locationName,
+  'contactName': instance.contactName,
+  'contactPhone': instance.contactPhone,
+  'address': instance.address,
+  'mediaIds': instance.mediaIds,
+  'note': instance.note,
+  'location': instance.location,
+};
+
+UpdateLocationBodyRequest _$UpdateLocationBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => UpdateLocationBodyRequest(
+  locationName: json['locationName'] as String?,
+  contactName: json['contactName'] as String?,
+  contactPhone: json['contactPhone'] as String?,
+  address: json['address'] as String?,
+  mediaIds: (json['mediaIds'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  note: json['note'] as String?,
+  location: json['location'] == null
+      ? null
+      : LocationDataRequest.fromJson(json['location'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$UpdateLocationBodyRequestToJson(
+  UpdateLocationBodyRequest instance,
+) => <String, dynamic>{
+  'locationName': instance.locationName,
+  'contactName': instance.contactName,
+  'contactPhone': instance.contactPhone,
+  'address': instance.address,
+  'mediaIds': instance.mediaIds,
+  'note': instance.note,
+  'location': instance.location,
+};
+
+// dart format off
+
+// **************************************************************************
+// RetrofitGenerator
+// **************************************************************************
+
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
+
+class _LocationApiService implements LocationApiService {
+  _LocationApiService(this._dio, {this.baseUrl, this.errorLogger});
+
+  final Dio _dio;
+
+  String? baseUrl;
+
+  final ParseErrorLogger? errorLogger;
+
+  @override
+  Future<HttpResponse<ApiResponse<Pagination<List<LocationModel>>>>>
+  getSavedLocations({required GetSavedLocationsQuery query}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(query.toJson());
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<
+          HttpResponse<ApiResponse<Pagination<List<LocationModel>>>>
+        >(
+          Options(method: 'GET', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/user/locations',
+                queryParameters: queryParameters,
+                data: _data,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<Pagination<List<LocationModel>>> _value;
+    try {
+      _value = ApiResponse<Pagination<List<LocationModel>>>.fromJson(
+        _result.data!,
+        (json) => Pagination<List<LocationModel>>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => json is List<dynamic>
+              ? json
+                    .map<LocationModel>(
+                      (i) => LocationModel.fromJson(i as Map<String, dynamic>),
+                    )
+                    .toList()
+              : List.empty(),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<LocationModel>>> saveLocation({
+    required SaveLocationBodyRequest body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<HttpResponse<ApiResponse<LocationModel>>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/user/locations',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<LocationModel> _value;
+    try {
+      _value = ApiResponse<LocationModel>.fromJson(
+        _result.data!,
+        (json) => LocationModel.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> updateLocation({
+    required String locationId,
+    required UpdateLocationBodyRequest body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/user/locations/${locationId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteLocation({
+    required String locationId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/user/locations/${locationId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
+    return requestOptions;
+  }
+
+  String _combineBaseUrls(String dioBaseUrl, String? baseUrl) {
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      return dioBaseUrl;
+    }
+
+    final url = Uri.parse(baseUrl);
+
+    if (url.isAbsolute) {
+      return url.toString();
+    }
+
+    return Uri.parse(dioBaseUrl).resolveUri(url).toString();
+  }
+}
+
+// dart format on

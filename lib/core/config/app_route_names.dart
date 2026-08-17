@@ -5,6 +5,7 @@ abstract class AppRouteNames {
   static final signIn = 'sign-in';
   static final explore = 'explore';
   static final location = 'location';
+  static final addLocation = 'add-location';
   static final route = 'route';
   static final person = 'person';
 }

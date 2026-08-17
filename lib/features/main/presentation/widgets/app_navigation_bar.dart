@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -39,26 +40,26 @@ class AppNavigationBar extends StatelessWidget {
           fontWeight: FontWeight.normal,
           fontSize: 12,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             activeIcon: Icon(Icons.explore),
-            label: AppStrings.exploreTabLabel,
+            label: AppStrings.exploreTabLabel.tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border),
             activeIcon: Icon(Icons.bookmark),
-            label: AppStrings.locationTabLabel,
+            label: AppStrings.locationTabLabel.tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.alt_route),
             activeIcon: Icon(Icons.map),
-            label: AppStrings.routeTabLabel,
+            label: AppStrings.routeTabLabel.tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: AppStrings.personTabLabel,
+            label: AppStrings.personTabLabel.tr(),
           ),
         ],
       ),

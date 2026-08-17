@@ -5,21 +5,19 @@ import 'package:shipgo/features/splash/domain/repository/app_version_repository.
 
 class CheckAppVersionUsecase
     implements Usecase<DataState<CheckAppVersionResult>, void> {
-  final AppVersionRepository _appVersionRepository;
+  final AppVersionRepository appVersionRepository;
 
-  const CheckAppVersionUsecase(this._appVersionRepository);
+  const CheckAppVersionUsecase({required this.appVersionRepository});
 
   @override
   Future<DataState<CheckAppVersionResult>> call({params}) async {
-    final latestAppVersionDataState = await _appVersionRepository
+    final latestAppVersionDataState = await appVersionRepository
         .getLatestAppVersion();
     if (latestAppVersionDataState is DataSuccess) {
       final latestAppVersion = latestAppVersionDataState.data!;
       if (latestAppVersion.isMaintenance) {
         return DataSuccess(
-          Maintenance(
-            messageMap: latestAppVersion.maintenanceMessage,
-          ),
+          Maintenance(messageMap: latestAppVersion.maintenanceMessage),
         );
       } else {
         final currentAppVersionName = await PackageInfoUtil.getVersionName();

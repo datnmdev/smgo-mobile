@@ -6,14 +6,14 @@ import 'package:shipgo/features/splash/data/models/app_version_model.dart';
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
 
 class AppVersionRepositoryImpl implements AppVersionRepository {
-  final AppVersionApiService _appVersionApiService;
+  final AppVersionApiService appVersionApiService;
 
-  const AppVersionRepositoryImpl(this._appVersionApiService);
+  const AppVersionRepositoryImpl({required this.appVersionApiService});
 
   @override
   Future<DataState<AppVersionModel>> getLatestAppVersion() async {
     try {
-      final httpResponse = await _appVersionApiService.getLatestAppVersion(
+      final httpResponse = await appVersionApiService.getLatestAppVersion(
         platform: PlatformUtil.getPlatformName(),
       );
       return DataSuccess(httpResponse.data.data!);

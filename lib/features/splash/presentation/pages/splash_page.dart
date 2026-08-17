@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/core/resources/app_assets.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
@@ -41,67 +43,70 @@ class _MainContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                _HeaderSection(),
-                SizedBox(height: 16),
-                _ProgressStateView(),
-              ],
+    return BlocListener<CheckAppVersionBloc, CheckAppVersionState>(
+      listener: (context, state) {
+        if (state is CheckAppVersionMaintenance) {
+          showDialog(
+            context: context,
+            useRootNavigator: true,
+            barrierDismissible: false,
+            barrierColor: Colors.black.withAlpha(70),
+            builder: (context) => _MaintenanceDialog(
+              description: state.messageMap?['message'],
+              estimatedTime: state.messageMap?['estimated_time'],
+            ),
+          );
+        } else if (state is CheckAppVersionUpdateRequired) {
+          late OverlayEntry overlayEntry;
+          overlayEntry = OverlayEntry(
+            builder: (dialogContext) => BlocProvider.value(
+              value: context.read<CheckAppVersionBloc>(),
+              child: Material(
+                color: Colors.transparent,
+                child: Stack(
+                  children: [
+                    ModalBarrier(
+                      color: Colors.black.withAlpha(70),
+                      dismissible: false,
+                    ),
+                    Center(
+                      child: _UpdateAppDialog(
+                        storeAppId: state.storeAppId ?? "",
+                        onDismiss: () {
+                          overlayEntry.remove();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+          Overlay.of(context, rootOverlay: true).insert(overlayEntry);
+          if (!state.isForceUpdate) {
+            context.replaceNamed(AppRouteNames.signIn);
+          }
+        } else if (state is CheckAppVersionUpToDate) {
+          context.replaceNamed(AppRouteNames.signIn);
+        }
+      },
+      child: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  _HeaderSection(),
+                  SizedBox(height: 16),
+                  _ProgressStateView(),
+                ],
+              ),
             ),
           ),
-        ),
-        BlocConsumer<CheckAppVersionBloc, CheckAppVersionState>(
-          builder: (context, state) => SizedBox.shrink(),
-          listener: (context, state) {
-            if (state is CheckAppVersionMaintenance) {
-              showDialog(
-                context: context,
-                useRootNavigator: true,
-                barrierDismissible: false,
-                barrierColor: Colors.black.withAlpha(70),
-                builder: (context) => _MaintenanceDialog(
-                  description: state.messageMap?['message'],
-                  estimatedTime: state.messageMap?['estimated_time'],
-                ),
-              );
-            } else if (state is CheckAppVersionUpdateRequired) {
-              late OverlayEntry overlayEntry;
-              overlayEntry = OverlayEntry(
-                builder: (dialogContext) => BlocProvider.value(
-                  value: context.read<CheckAppVersionBloc>(),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Stack(
-                      children: [
-                        ModalBarrier(
-                          color: Colors.black.withAlpha(70),
-                          dismissible: false,
-                        ),
-                        Center(
-                          child: _UpdateAppDialog(
-                            storeAppId: state.storeAppId ?? "",
-                            onDismiss: () {
-                              overlayEntry.remove();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-
-              Overlay.of(context, rootOverlay: true).insert(overlayEntry);
-            }
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -156,6 +161,7 @@ class _UpdateAppDialog extends StatelessWidget {
 
               // Các tùy chọn dạng Card/Button
               _BuildOptionCard(
+                primaryColor: AppColors.primary,
                 title: AppStrings.appUpdateButtonTitle.tr(),
                 subtitle: AppStrings.appUpdateButtonDesc.tr(),
                 icon: Icons.download_rounded,
@@ -174,6 +180,7 @@ class _UpdateAppDialog extends StatelessWidget {
                     children: [
                       const SizedBox(height: 12),
                       _BuildOptionCard(
+                        primaryColor: AppColors.primary,
                         title: AppStrings.appUpdateButtonLaterTitle.tr(),
                         subtitle: AppStrings.appUpdateButtonLaterDesc.tr(),
                         icon: Icons.history_rounded,
@@ -205,7 +212,7 @@ class _BuildOptionCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.isPrimary,
-    this.primaryColor = AppColors.primary,
+    required this.primaryColor,
     this.onTap,
   });
 
@@ -219,10 +226,10 @@ class _BuildOptionCard extends StatelessWidget {
         onTap: onTap,
         splashColor: isPrimary
             ? Colors.white.withAlpha(20)
-            : primaryColor!.withAlpha(15),
+            : primaryColor.withAlpha(15),
         highlightColor: isPrimary
             ? Colors.white.withAlpha(10)
-            : primaryColor!.withAlpha(5),
+            : primaryColor.withAlpha(5),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(

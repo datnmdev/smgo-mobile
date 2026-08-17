@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/auth/data/data_sources/auth_api_service.dart';
 import 'package:shipgo/features/auth/data/exceptions/unauthenticated_exception.dart';
@@ -11,18 +12,21 @@ import 'package:shipgo/features/auth/data/models/auth_token_model.dart';
 import 'package:shipgo/features/auth/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthApiService _authApiService;
+  final AuthApiService authApiService;
 
-  const AuthRepositoryImpl(this._authApiService);
+  const AuthRepositoryImpl({required this.authApiService});
 
   @override
   Future<DataState<AuthTokensModel>> signInWithGoogle() async {
     try {
       // Xác thực phía google
+      await GoogleSignIn.instance.initialize(
+        serverClientId: Env.googleServerClientId
+      );
       final GoogleSignInAccount googleUser = await GoogleSignIn.instance
           .authenticate();
       // Xác thực phía backend
-      final httpResponse = await _authApiService.signInWithGoogle(
+      final httpResponse = await authApiService.signInWithGoogle(
         body: SignInWithGoogleBodyRequest(
           idToken: googleUser.authentication.idToken!,
         ),
@@ -35,7 +39,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     } on DioException catch (error) {
       return DataFailed(error);
-    } on GoogleSignInException {
+    } on GoogleSignInException catch (e) {
       return DataFailed(UserCanceledException());
     } catch (e) {
       return DataFailed(UnauthenticatedException());
@@ -51,9 +55,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       if (result.status == LoginStatus.success) {
         // Xác thực phía backend
-        final httpResponse = await _authApiService.signInWithFacebook(
+        final httpResponse = await authApiService.signInWithFacebook(
           body: SignInWithFacebookBodyRequest(
-            inputToken: result.accessToken!.token,
+            inputToken: result.accessToken!.tokenString,
           ),
         );
         if (httpResponse.response.statusCode == HttpStatus.created) {
@@ -70,6 +74,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (error) {
       return DataFailed(error);
     } catch (e) {
+      print(e);
       return DataFailed(UnauthenticatedException());
     }
   }

@@ -15,6 +15,21 @@ import 'package:shipgo/features/auth/domain/usecases/sign_in_with_facebook_useca
 import 'package:shipgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'package:shipgo/features/auth/presentation/bloc/session/session_bloc.dart';
 import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
+import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
+import 'package:shipgo/features/location/data/data_sources/storage_api_service.dart';
+import 'package:shipgo/features/location/data/repository/location_repository_impl.dart';
+import 'package:shipgo/features/location/data/repository/storage_repository_impl.dart';
+import 'package:shipgo/features/location/domain/repository/location_repository.dart';
+import 'package:shipgo/features/location/domain/repository/storage_repository.dart';
+import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/delete_location_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
+import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
 import 'package:shipgo/features/splash/data/data_sources/app_version_api_service.dart';
 import 'package:shipgo/features/splash/data/repository/app_version_repository_impl.dart';
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
@@ -26,7 +41,10 @@ final di = GetIt.instance;
 Future<void> initializeDependencies() async {
   // Đăng ký dio
   di.registerLazySingleton<Dio>(
-    () => createDio(localizationRepository: di<LocalizationRepository>()),
+    () => createDio(
+      localizationRepository: di<LocalizationRepository>(),
+      tokenRepository: di<TokenRepository>(),
+    ),
   );
 
   // Đăng ký các data source
@@ -38,6 +56,12 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<AppVersionApiService>(
     () => AppVersionApiService(di<Dio>()),
   );
+  di.registerLazySingleton<LocationApiService>(
+    () => LocationApiService(di<Dio>()),
+  );
+  di.registerLazySingleton<StorageApiService>(
+    () => StorageApiService(di<Dio>()),
+  );
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -47,15 +71,26 @@ Future<void> initializeDependencies() async {
     () => LocalizationRepositoryImpl(di<LocalizationDataSource>()),
   );
   di.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(di<AuthApiService>()),
+    () => AuthRepositoryImpl(authApiService: di<AuthApiService>()),
   );
   di.registerLazySingleton<AppVersionRepository>(
-    () => AppVersionRepositoryImpl(di<AppVersionApiService>()),
+    () => AppVersionRepositoryImpl(
+      appVersionApiService: di<AppVersionApiService>(),
+    ),
+  );
+  di.registerLazySingleton<LocationRepository>(
+    () => LocationRepositoryImpl(locationApiService: di<LocationApiService>()),
+  );
+  di.registerLazySingleton<StorageRepository>(
+    () => StorageRepositoryImpl(storageApiService: di<StorageApiService>()),
   );
 
   // Đăng ký các usecase
   di.registerLazySingleton<SignInWithGoogleUsecase>(
-    () => SignInWithGoogleUsecase(di<AuthRepository>()),
+    () => SignInWithGoogleUsecase(
+      authRepository: di<AuthRepository>(),
+      tokenRepository: di<TokenRepository>(),
+    ),
   );
   di.registerLazySingleton<SignInWithFacebookUsecase>(
     () => SignInWithFacebookUsecase(
@@ -64,10 +99,28 @@ Future<void> initializeDependencies() async {
     ),
   );
   di.registerLazySingleton<CheckAuthenticationUsecase>(
-    () => CheckAuthenticationUsecase(di<TokenRepository>()),
+    () => CheckAuthenticationUsecase(tokenRepository: di<TokenRepository>()),
   );
   di.registerLazySingleton<CheckAppVersionUsecase>(
-    () => CheckAppVersionUsecase(di<AppVersionRepository>()),
+    () => CheckAppVersionUsecase(
+      appVersionRepository: di<AppVersionRepository>(),
+    ),
+  );
+  di.registerLazySingleton<GetMyLocationsUsecase>(
+    () => GetMyLocationsUsecase(locationRepository: di<LocationRepository>()),
+  );
+  di.registerLazySingleton<GetUploadUrlUsecase>(
+    () => GetUploadUrlUsecase(storageRepository: di<StorageRepository>()),
+  );
+  di.registerLazySingleton<GetDownloadUrlUsecase>(
+    () => GetDownloadUrlUsecase(storageRepository: di<StorageRepository>()),
+  );
+  di.registerLazySingleton<UploadMediaUsecase>(() => UploadMediaUsecase());
+  di.registerLazySingleton<AddLocationUsecase>(
+    () => AddLocationUsecase(locationRepository: di<LocationRepository>()),
+  );
+  di.registerLazySingleton<DeleteLocationUsecase>(
+    () => DeleteLocationUsecase(locationRepository: di<LocationRepository>()),
   );
 
   // Đăng ký các bloc
@@ -78,9 +131,21 @@ Future<void> initializeDependencies() async {
     ),
   );
   di.registerFactory<CheckAppVersionBloc>(
-    () => CheckAppVersionBloc(di<CheckAppVersionUsecase>()),
+    () => CheckAppVersionBloc(
+      checkAppVersionUsecase: di<CheckAppVersionUsecase>(),
+    ),
   );
   di.registerFactory<SessionBloc>(
-    () => SessionBloc(di<CheckAuthenticationUsecase>()),
+    () => SessionBloc(
+      checkAuthenticationUsecase: di<CheckAuthenticationUsecase>(),
+    ),
   );
+  di.registerFactory<GetMyLocationsCubit>(
+    () =>
+        GetMyLocationsCubit(getMyLocationsUsecase: di<GetMyLocationsUsecase>()),
+  );
+  di.registerFactory<AddLocationFormCubit>(
+    () => AddLocationFormCubit(addLocationUsecase: di<AddLocationUsecase>()),
+  );
+  di.registerFactory<LocationSelectionCubit>(() => LocationSelectionCubit());
 }

@@ -42,5 +42,61 @@
   },
   "person": {
     "tab_label": "Cá nhân"
+  },
+  "google_map_picker_screen": {
+    "pick_location_error": "Vui lòng chọn 1 vị trí trên bản đồ",
+    "title": "Chọn vị trí",
+    "accept_button_title": "Xác nhận"
+  },
+  "m3_map": {
+    "select_location_error": "Vui lòng chọn 1 vị trí trên bản đồ",
+    "cannot_get_location_error": "Không thể lấy được vị trí hiện tại!"
+  },
+  "m3_image_picker_grid": {
+    "take_new_photo_title": "Chụp ảnh mới",
+    "select_from_library": "Chọn từ thư viện",
+    "camera_title": "Camera",
+    "image_library_title": "Ảnh thư viện",
+    "cancel_button_title": "Huỷ",
+    "open_settings_button_title": "Mở Cài đặt",
+    "request_permission_text": "Yêu cầu quyền {permissionName}",
+    "request_permission_content_text": "Ứng dụng cần quyền truy cập {permissionName} để chọn ảnh. Vui lòng bật lại quyền này trong Cài đặt.",
+    "add_image_button_title": "Thêm ảnh ({content})"
+  },
+  "location_page": {
+    "page_title": "Địa điểm đã lưu",
+    "search_location_hint_text": "Tìm địa điểm đã lưu...",
+    "data_emty_title": "Không tìm thấy dữ liệu",
+    "data_emty_desc": "Có vẻ bạn chưa lưu địa điểm nào. Hãy thử tìm kiếm địa điểm mới.",
+    "add_location_button_title": "Thêm địa điểm mới",
+    "error_message": "Đã xảy ra lỗi",
+    "select_all_button_title": "Chọn tất cả",
+    "delete_button_title": "Xoá ({quantity})"
+  },
+  "add_location_page": {
+    "page_title": "Thêm địa điểm mới",
+    "save_button_title": "Lưu",
+    "primary_info_label": "Thông tin chính",
+    "location_name_field_label": "Tên địa điểm",
+    "location_name_field_hint_text": "Nhập tên địa điểm",
+    "location_name_field_error": "Tên địa điểm không được bỏ trống",
+    "contact_name_field_label": "Tên người liên hệ",
+    "contact_name_field_hint_text": "Nhập tên người liên hệ",
+    "contact_name_field_error": "Tên người liên hệ không được bỏ trống",
+    "contact_phone_field_label": "Số điện thoại liên lạc",
+    "contact_phone_field_hint_text": "Nhập số điện thoại liên lạc",
+    "contact_phone_field_empty_error": "Số điện thoại không được bỏ trống",
+    "contact_phone_field_invalid_error": "Số điện thoại không được bỏ trống",
+    "address_field_label": "Địa chỉ",
+    "address_field_hint_text": "Nhập Tên hẻm/Số nhà, Tên đường, Tên phường/xã, Tên quận/huyện, Tên tỉnh/thành phố",
+    "address_field_error": "Địa chỉ không được bỏ trống",
+    "location_field_error": "Vui lòng chọn một vị trí trên bản đồ",
+    "secondary_info_label": "Thông tin bổ sung",
+    "note_field_label": "Ghi chú",
+    "note_field_hint_text": "Nhập bất cứ thứ gì bạn muốn (ví dụ tên gợi nhớ,...)",
+    "attached_image_label": "Ảnh đính kèm"
+  },
+  "m3_ai_ocr_scan_button": {
+    
   }
 }
