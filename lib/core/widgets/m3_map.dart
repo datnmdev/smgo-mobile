@@ -9,7 +9,9 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/utils/location_util.dart';
-import 'package:shipgo/core/widgets/google_map_picker_screen.dart';
+import 'package:shipgo/core/widgets/google_map_screen.dart';
+
+enum MapMode { view, select }
 
 class DirectionConePainter extends CustomPainter {
   final double heading;
@@ -58,6 +60,7 @@ class DirectionConePainter extends CustomPainter {
 }
 
 class M3MapWidget extends StatefulWidget {
+  final MapMode mode;
   final LatLng? center;
   final String? address;
   final double initialZoom;
@@ -77,6 +80,7 @@ class M3MapWidget extends StatefulWidget {
     this.cannotGetLocationError = 'Không thể lấy được vị trí hiện tại!',
     this.mapTemplateUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     required this.userAgentPackageName,
+    this.mode = MapMode.select,
   });
 
   @override
@@ -200,8 +204,11 @@ class _M3MapWidgetState extends State<M3MapWidget>
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GoogleMapsPickerScreen(
-          title: AppStrings.googleMapsPickerScreenTitle.tr(),
+        builder: (context) => GoogleMapsScreen(
+          googleMapMode: widget.mode == MapMode.view
+              ? GoogleMapMode.view
+              : GoogleMapMode.select,
+          title:  widget.mode == MapMode.view ? AppStrings.googleMapsViewScreenTitle.tr() : AppStrings.googleMapsPickerScreenTitle.tr(),
           pickLocationError: AppStrings.gMPSpickLocationError.tr(),
           acceptButtonTitle: AppStrings.gMPScceptButtonTitle.tr(),
           searchQuery: _address ?? '',
@@ -277,14 +284,15 @@ class _M3MapWidgetState extends State<M3MapWidget>
               right: 12,
               child: Row(
                 children: [
-                  FloatingActionButton.small(
-                    heroTag: 'refresh_map_btn',
-                    backgroundColor: colorScheme.surface,
-                    foregroundColor: colorScheme.onSurface,
-                    elevation: 3,
-                    onPressed: _resetCurrentCenter,
-                    child: const Icon(Icons.refresh),
-                  ),
+                  if (widget.mode == MapMode.select)
+                    FloatingActionButton.small(
+                      heroTag: 'refresh_map_btn',
+                      backgroundColor: colorScheme.surface,
+                      foregroundColor: colorScheme.onSurface,
+                      elevation: 3,
+                      onPressed: _resetCurrentCenter,
+                      child: const Icon(Icons.refresh),
+                    ),
                   FloatingActionButton.small(
                     heroTag: 'fullscreen_map_btn',
                     backgroundColor: colorScheme.surface,
@@ -322,31 +330,32 @@ class _M3MapWidgetState extends State<M3MapWidget>
                       child: const Icon(Icons.remove_rounded),
                     ),
                   if (_currentCenter != null) const SizedBox(height: 1),
-                  FloatingActionButton.small(
-                    heroTag: 'current_location_normal_btn',
-                    backgroundColor: colorScheme.surfaceContainerHigh,
-                    foregroundColor: colorScheme.onSurfaceVariant,
-                    elevation: 2,
-                    onPressed: () async {
-                      LatLng? currentPos =
-                          await LocationUtils.getCurrentLatLng();
-                      if (currentPos != null) {
-                        setState(() {
-                          // _userLocation = currentPos;
-                          _currentCenter = currentPos;
-                        });
-                        _animatedMapMove(currentPos, 18.0);
-                        widget.onLocationSelected?.call(currentPos);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(widget.cannotGetLocationError),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Icon(Icons.my_location_rounded),
-                  ),
+                  if (widget.mode == MapMode.select)
+                    FloatingActionButton.small(
+                      heroTag: 'current_location_normal_btn',
+                      backgroundColor: colorScheme.surfaceContainerHigh,
+                      foregroundColor: colorScheme.onSurfaceVariant,
+                      elevation: 2,
+                      onPressed: () async {
+                        LatLng? currentPos =
+                            await LocationUtils.getCurrentLatLng();
+                        if (currentPos != null) {
+                          setState(() {
+                            // _userLocation = currentPos;
+                            _currentCenter = currentPos;
+                          });
+                          _animatedMapMove(currentPos, 18.0);
+                          widget.onLocationSelected?.call(currentPos);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(widget.cannotGetLocationError),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Icon(Icons.my_location_rounded),
+                    ),
                 ],
               ),
             ),

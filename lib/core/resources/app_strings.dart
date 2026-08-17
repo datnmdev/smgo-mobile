@@ -30,8 +30,10 @@ abstract class AppStrings {
   static const String locationTabLabel = 'location.tab_label';
   static const String routeTabLabel = 'route.tab_label';
   static const String personTabLabel = 'person.tab_label';
+  static const String googleMapsViewScreenTitle =
+      'google_map_picker_screen.view_title';
   static const String googleMapsPickerScreenTitle =
-      'google_map_picker_screen.title';
+      'google_map_picker_screen.select_title';
   static const String gMPSpickLocationError =
       'google_map_picker_screen.pick_location_error';
   static const String gMPScceptButtonTitle =
@@ -68,6 +70,14 @@ abstract class AppStrings {
   static const String lPSelectAllButtonTitle =
       'location_page.select_all_button_title';
   static const String lPDeleteButtonTitle = 'location_page.delete_button_title';
+  static const String lPDeleteSelectedLocationsDialogTitle =
+      'location_page.delete_selected_locations_dialog_tile';
+  static const String lPDeleteSelectedLocationsDialogContent =
+      'location_page.delete_selected_locations_dialog_content';
+  static const String lPDeleteSelectedLocationsDialogDBtnTitle =
+      'location_page.delete_selected_locations_dialog_delete_btn_title';
+  static const String lPDeleteSelectedLocationsDialogCancelBtnTitle =
+      'location_page.delete_selected_locations_dialog_cancel_btn_title';
   static const String aLPPageTitle = 'add_location_page.page_title';
   static const String aLPSaveButtonTitle =
       'add_location_page.save_button_title';
@@ -108,4 +118,31 @@ abstract class AppStrings {
       'add_location_page.note_field_hint_text';
   static const String aLPAttachedImageLabel =
       'add_location_page.attached_image_label';
+  static const String lDPTitle = 'location_detail_page.title';
+  static const String lDPContactInfoLabel =
+      'location_detail_page.contact_info_label';
+  static const String lDPContactNameLabel =
+      'location_detail_page.contact_name_label';
+  static const String lDPContactPhoneLabel =
+      'location_detail_page.contact_phone_label';
+  static const String lDPCallButtonTitle =
+      'location_detail_page.call_button_title';
+  static const String lDPSMSButtonTitle =
+      'location_detail_page.sms_button_title';
+  static const String lDPZaloButtonTitle =
+      'location_detail_page.zalo_button_title';
+  static const String lDPLocationMapLabel =
+      'location_detail_page.location_map_Label';
+  static const String lDPEditButtonTitle =
+      'location_detail_page.edit_button_title';
+  static const String lDPDeleteButtonTitle =
+      'location_detail_page.delete_button_title';
+  static const String lDPDeleteLocationDialogTitle =
+      'location_detail_page.delete_location_dialog_tile';
+  static const String lDPDeleteLocationDialogContent =
+      'location_detail_page.delete_location_dialog_content';
+  static const String lDPDeleteLocationDialogCancelBtnTitle =
+      'location_detail_page.delete_location_dialog_cancel_btn_title';
+  static const String lDPDeleteLocationDialogDeleteBtnTitle =
+      'location_detail_page.delete_location_dialog_delete_btn_title';
 }

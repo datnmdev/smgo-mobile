@@ -15,6 +15,8 @@ import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_state.dart';
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_state.dart';
+import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
 import 'package:shipgo/features/location/presentation/widgets/location_contact_card.dart';
 
 class LocationPage extends StatelessWidget {
@@ -31,6 +33,9 @@ class LocationPage extends StatelessWidget {
           ),
           BlocProvider<LocationSelectionCubit>(
             create: (context) => di<LocationSelectionCubit>(),
+          ),
+          BlocProvider<SearchLocationsCubit>(
+            create: (context) => di<SearchLocationsCubit>(),
           ),
         ],
         child: Column(
@@ -85,23 +90,41 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: AppStrings.lPSearchLocationHintText.tr(),
-                      hintStyle: const TextStyle(color: Colors.black),
-                      prefixIcon: const Icon(Icons.search, color: Colors.black),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 12,
+                  child:
+                      BlocBuilder<SearchLocationsCubit, SearchLocationsState>(
+                        builder: (searchLocationContext, state) => TextField(
+                          onChanged: (value) {
+                            searchLocationContext
+                                .read<SearchLocationsCubit>()
+                                .call(
+                                  searchText: value,
+                                  cb: () {
+                                    context.read<GetMyLocationsCubit>().call(
+                                      GetMyLocationsParams(keyword: value),
+                                    );
+                                  },
+                                );
+                          },
+                          decoration: InputDecoration(
+                            hintText: AppStrings.lPSearchLocationHintText.tr(),
+                            hintStyle: const TextStyle(color: Colors.black),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Colors.black,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
                 ),
 
                 const SizedBox(width: 8),
@@ -111,7 +134,16 @@ class _Header extends StatelessWidget {
                   onPressed: () {
                     context.pushNamed(
                       AppRouteNames.addLocation,
-                      extra: context.read<GetMyLocationsCubit>(),
+                      extra: <String, Object>{
+                        'GetMyLocationsCubit': context
+                            .read<GetMyLocationsCubit>(),
+                        'GetMyLocationsParams': GetMyLocationsParams(
+                          keyword: context
+                              .read<SearchLocationsCubit>()
+                              .state
+                              .searchText,
+                        ),
+                      },
                     );
                   },
                   icon: const Icon(Icons.add, color: AppColors.primary),
@@ -205,7 +237,16 @@ class _Body extends StatelessWidget {
                         onTap: () {
                           context.pushNamed(
                             AppRouteNames.addLocation,
-                            extra: context.read<GetMyLocationsCubit>(),
+                            extra: <String, Object>{
+                              'GetMyLocationsCubit': context
+                                  .read<GetMyLocationsCubit>(),
+                              'GetMyLocationsParams': GetMyLocationsParams(
+                                keyword: context
+                                    .read<SearchLocationsCubit>()
+                                    .state
+                                    .searchText,
+                              ),
+                            },
                           );
                         },
                         child: Padding(
@@ -329,135 +370,156 @@ class _Body extends StatelessWidget {
                                         onTap:
                                             !state.isDeletingSelectedLocations
                                             ? () {
-                                                // Kiểm tra xem có phần tử nào được chọn hay chưa trước khi bật dialog
                                                 if (state
                                                     .selectedLocationIdsSet
                                                     .isEmpty)
                                                   return;
 
-                                                // Hiển thị Dialog xác nhận xóa
+                                                // 1. Lấy tham chiếu 2 Cubit từ Context của MÀN HÌNH (trước khi mở dialog)
+                                                final locationSelectionCubit =
+                                                    context
+                                                        .read<
+                                                          LocationSelectionCubit
+                                                        >();
+                                                final getMyLocationsCubit =
+                                                    context
+                                                        .read<
+                                                          GetMyLocationsCubit
+                                                        >();
+                                                final searchLocationCubit =
+                                                    context
+                                                        .read<
+                                                          SearchLocationsCubit
+                                                        >();
+
+                                                // Hiển thị Dialog
                                                 showDialog(
                                                   context: context,
-                                                  builder: (dialogContext) =>
-                                                      BlocBuilder<
-                                                        LocationSelectionCubit,
-                                                        LocationSelectionState
-                                                      >(
-                                                        bloc: context
-                                                            .read<
-                                                              LocationSelectionCubit
-                                                            >(), // Lắng nghe trực tiếp Cubit hiện tại
-                                                        builder: (context, dialogState) {
-                                                          return AlertDialog(
-                                                            title: const Text(
-                                                              'Xác nhận xóa',
-                                                            ),
-                                                            content: Text(
-                                                              'Bạn có chắc chắn muốn xóa ${dialogState.selectedLocationIdsSet.length} địa điểm đã chọn không?',
-                                                            ),
-                                                            actions: [
-                                                              // Nút Hủy
-                                                              TextButton(
-                                                                onPressed:
-                                                                    !dialogState
-                                                                        .isDeletingSelectedLocations
-                                                                    ? () => Navigator.of(
-                                                                        dialogContext,
-                                                                      ).pop()
-                                                                    : null,
-                                                                style: TextButton.styleFrom(
-                                                                  foregroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                      'Hủy',
+                                                  builder: (dialogContext) => BlocProvider.value(
+                                                    // 2. Truyền Cubit vào cây widget của Dialog
+                                                    value:
+                                                        locationSelectionCubit,
+                                                    child:
+                                                        BlocBuilder<
+                                                          LocationSelectionCubit,
+                                                          LocationSelectionState
+                                                        >(
+                                                          builder:
+                                                              (
+                                                                builderContext,
+                                                                dialogState,
+                                                              ) {
+                                                                return AlertDialog(
+                                                                  title: Text(
+                                                                    AppStrings
+                                                                        .lPDeleteSelectedLocationsDialogTitle
+                                                                        .tr(),
+                                                                  ),
+                                                                  content: Text(
+                                                                    AppStrings.lPDeleteSelectedLocationsDialogContent.tr(
+                                                                      namedArgs: {
+                                                                        'quantity': state
+                                                                            .selectedLocationIdsSet
+                                                                            .length
+                                                                            .toString(),
+                                                                      },
                                                                     ),
-                                                              ),
-
-                                                              // Nút Đồng ý xóa
-                                                              TextButton(
-                                                                onPressed:
-                                                                    !dialogState
-                                                                        .isDeletingSelectedLocations
-                                                                    ? () async {
-                                                                        final locationSelectionCubit = context
-                                                                            .read<
-                                                                              LocationSelectionCubit
-                                                                            >();
-
-                                                                        locationSelectionCubit
-                                                                            .startDeleteSelectedLocations();
-
-                                                                        // Thực hiện xoá lần lượt tất cả các mục đã chọn
-                                                                        await Future.wait(
-                                                                          locationSelectionCubit.state.selectedLocationIdsSet.map((
-                                                                            locationId,
-                                                                          ) async {
-                                                                            final dataState =
-                                                                                await di<
-                                                                                      DeleteLocationUsecase
-                                                                                    >()
-                                                                                    .call(
-                                                                                      params: DeleteLocationParams(
-                                                                                        locationId: locationId,
-                                                                                      ),
-                                                                                    );
-                                                                            if (dataState
-                                                                                is DataSuccess) {
-                                                                              locationSelectionCubit.deselectLocation(
-                                                                                locationId,
-                                                                              );
-                                                                            }
-                                                                          }),
-                                                                        );
-
-                                                                        locationSelectionCubit
-                                                                            .endDeleteSelectedLocations();
-
-                                                                        context
-                                                                            .read<
-                                                                              GetMyLocationsCubit
-                                                                            >()
-                                                                            .call(
-                                                                              GetMyLocationsParams(),
-                                                                            );
-
-                                                                        // Đóng Dialog
-                                                                        Navigator.of(
-                                                                          dialogContext,
-                                                                        ).pop();
-                                                                      }
-                                                                    : null, // Disable nút khi đang xóa
-                                                                style: TextButton.styleFrom(
-                                                                  foregroundColor:
-                                                                      Colors
-                                                                          .red,
-                                                                ),
-                                                                child:
-                                                                    dialogState
-                                                                        .isDeletingSelectedLocations
-                                                                    ? const SizedBox(
-                                                                        width:
-                                                                            16,
-                                                                        height:
-                                                                            16,
-                                                                        child: CircularProgressIndicator(
-                                                                          color:
-                                                                              Colors.red, // Hoặc Colors.white tùy theo background nút
-                                                                          strokeWidth:
-                                                                              2,
-                                                                        ),
-                                                                      )
-                                                                    : const Text(
-                                                                        'Xóa',
+                                                                  ),
+                                                                  actions: [
+                                                                    // Nút Hủy
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          !dialogState
+                                                                              .isDeletingSelectedLocations
+                                                                          ? () => Navigator.of(
+                                                                              dialogContext,
+                                                                            ).pop()
+                                                                          : null,
+                                                                      style: TextButton.styleFrom(
+                                                                        foregroundColor:
+                                                                            Colors.green,
                                                                       ),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      ),
+                                                                      child: Text(
+                                                                        AppStrings
+                                                                            .lPDeleteSelectedLocationsDialogCancelBtnTitle
+                                                                            .tr(),
+                                                                      ),
+                                                                    ),
+
+                                                                    // Nút Đồng ý xóa
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          !dialogState
+                                                                              .isDeletingSelectedLocations
+                                                                          ? () async {
+                                                                              locationSelectionCubit.startDeleteSelectedLocations();
+
+                                                                              // Thực hiện xoá lần lượt các mục
+                                                                              await Future.wait(
+                                                                                locationSelectionCubit.state.selectedLocationIdsSet.map(
+                                                                                  (
+                                                                                    locationId,
+                                                                                  ) async {
+                                                                                    final dataState =
+                                                                                        await di<
+                                                                                              DeleteLocationUsecase
+                                                                                            >()
+                                                                                            .call(
+                                                                                              params: DeleteLocationParams(
+                                                                                                locationId: locationId,
+                                                                                              ),
+                                                                                            );
+                                                                                    if (dataState
+                                                                                        is DataSuccess) {
+                                                                                      locationSelectionCubit.deselectLocation(
+                                                                                        locationId,
+                                                                                      );
+                                                                                    }
+                                                                                  },
+                                                                                ),
+                                                                              );
+
+                                                                              locationSelectionCubit.endDeleteSelectedLocations();
+
+                                                                              // 3. Dùng biến đã lưu từ trước, không dùng context.read() ở đây nữa
+                                                                              getMyLocationsCubit.call(
+                                                                                GetMyLocationsParams(
+                                                                                  keyword: searchLocationCubit.state.searchText,
+                                                                                ),
+                                                                              );
+
+                                                                              // Đóng Dialog
+                                                                              if (dialogContext.mounted) {
+                                                                                Navigator.of(
+                                                                                  dialogContext,
+                                                                                ).pop();
+                                                                              }
+                                                                            }
+                                                                          : null,
+                                                                      style: TextButton.styleFrom(
+                                                                        foregroundColor:
+                                                                            Colors.red,
+                                                                      ),
+                                                                      child:
+                                                                          dialogState
+                                                                              .isDeletingSelectedLocations
+                                                                          ? const SizedBox(
+                                                                              width: 16,
+                                                                              height: 16,
+                                                                              child: CircularProgressIndicator(
+                                                                                color: Colors.red,
+                                                                                strokeWidth: 2,
+                                                                              ),
+                                                                            )
+                                                                          : Text(
+                                                                              AppStrings.lPDeleteSelectedLocationsDialogDBtnTitle.tr(),
+                                                                            ),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                        ),
+                                                  ),
                                                 );
                                               }
                                             : null,
@@ -474,9 +536,7 @@ class _Body extends StatelessWidget {
                                                 color: Colors.white,
                                                 size: 20,
                                               ),
-
                                               const SizedBox(width: 6),
-
                                               Text(
                                                 AppStrings.lPDeleteButtonTitle.tr(
                                                   namedArgs: {
@@ -499,7 +559,6 @@ class _Body extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-
                                 // Nút thoát chế độ chọn nhiều
                                 IconButton(
                                   icon: const Icon(Icons.close),
@@ -521,7 +580,12 @@ class _Body extends StatelessWidget {
                 child: RefreshIndicator(
                   onRefresh: () async {
                     await context.read<GetMyLocationsCubit>().call(
-                      GetMyLocationsParams(),
+                      GetMyLocationsParams(
+                        keyword: context
+                            .read<SearchLocationsCubit>()
+                            .state
+                            .searchText,
+                      ),
                     );
                   },
                   child: content is! ListView
@@ -599,6 +663,21 @@ class _LocationContactCardItem extends StatelessWidget {
                 } else {
                   cubit.selectLocation(location.id);
                 }
+              } else {
+                context.pushNamed(
+                  AppRouteNames.locationDetail,
+                  pathParameters: {'id': location.id},
+                  extra: <String, Object>{
+                    'LocationPageContext': context,
+                    'LocationData': location,
+                    'GetMyLocationsParams': GetMyLocationsParams(
+                      keyword: context
+                          .read<SearchLocationsCubit>()
+                          .state
+                          .searchText,
+                    ),
+                  },
+                );
               }
             },
             onLongPress: () {

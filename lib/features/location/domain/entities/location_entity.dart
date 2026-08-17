@@ -9,7 +9,7 @@ class LocationEntity {
   final List<MediaEntity> media;
   final String? note;
   final String address;
-  final PointEntity? location;
+  final PointEntity location;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,7 +21,7 @@ class LocationEntity {
     required this.media,
     this.note,
     required this.address,
-    this.location,
+    required this.location,
     required this.createdAt,
     required this.updatedAt,
   });

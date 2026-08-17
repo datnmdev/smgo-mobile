@@ -37,10 +37,10 @@ class AddLocationPage extends StatelessWidget {
             // App bar
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.primary,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(80),
+                    color: Colors.black.withAlpha((0.8 * 255).round()),
                     offset: Offset(0, 0),
                     blurRadius: 4,
                   ),
@@ -56,8 +56,8 @@ class AddLocationPage extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.arrow_back),
-                            color: AppColors.primary,
+                            icon: Icon(Icons.arrow_back_ios_new),
+                            color: Colors.white,
                             onPressed: () {
                               context.pop();
                             },
@@ -65,7 +65,7 @@ class AddLocationPage extends StatelessWidget {
                           SizedBox(width: 12),
                           Text(
                             AppStrings.aLPPageTitle.tr(),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                         ],
                       ),
@@ -74,10 +74,16 @@ class AddLocationPage extends StatelessWidget {
                       BlocConsumer<AddLocationFormCubit, AddLocationFormState>(
                         listenWhen: (previous, current) => previous != current,
                         listener: (context, state) {
+                          final extra =
+                              (GoRouterState.of(context).extra)
+                                  as Map<String, Object>;
                           if (state is AddLocationFormDone) {
-                            (GoRouterState.of(context).extra
+                            (extra['GetMyLocationsCubit']
                                     as GetMyLocationsCubit)
-                                .call(GetMyLocationsParams());
+                                .call(
+                                  extra['GetMyLocationsParams']
+                                      as GetMyLocationsParams,
+                                );
 
                             context.pop();
                           }
@@ -92,6 +98,7 @@ class AddLocationPage extends StatelessWidget {
                                 width: 24,
                                 height: 24,
                                 child: CircularProgressIndicator(
+                                  color: Colors.white,
                                   strokeWidth: 4.0,
                                 ),
                               ),
@@ -104,7 +111,7 @@ class AddLocationPage extends StatelessWidget {
                             child: Text(
                               AppStrings.aLPSaveButtonTitle.tr(),
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),

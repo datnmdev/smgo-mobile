@@ -8,7 +8,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-class GoogleMapsPickerScreen extends StatefulWidget {
+enum GoogleMapMode { view, select }
+
+class GoogleMapsScreen extends StatefulWidget {
+  final GoogleMapMode googleMapMode;
   final String? searchQuery;
   final LatLng? pinnedLocation;
   final String title;
@@ -17,21 +20,22 @@ class GoogleMapsPickerScreen extends StatefulWidget {
 
   final Function(LatLng? location, String? placeName) onLocationSelected;
 
-  const GoogleMapsPickerScreen({
+  const GoogleMapsScreen({
     super.key,
     this.searchQuery,
     this.pinnedLocation,
     required this.onLocationSelected,
     this.pickLocationError = 'Vui lòng chọn 1 vị trí trên bản đồ',
-    this.title = 'Chọn vị trí',
+    this.googleMapMode = GoogleMapMode.select,
+    required this.title,
     this.acceptButtonTitle = 'Xác nhận',
   });
 
   @override
-  State<GoogleMapsPickerScreen> createState() => _GoogleMapsPickerScreenState();
+  State<GoogleMapsScreen> createState() => _GoogleMapsScreenState();
 }
 
-class _GoogleMapsPickerScreenState extends State<GoogleMapsPickerScreen> {
+class _GoogleMapsScreenState extends State<GoogleMapsScreen> {
   late final WebViewController _controller = _createWebViewController();
   bool _isLoading = true;
   bool _locationSelected = false;
@@ -47,7 +51,7 @@ class _GoogleMapsPickerScreenState extends State<GoogleMapsPickerScreen> {
   }
 
   @override
-  void didUpdateWidget(GoogleMapsPickerScreen oldWidget) {
+  void didUpdateWidget(GoogleMapsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     setState(() {
       if (oldWidget.searchQuery != widget.searchQuery) {
@@ -272,17 +276,18 @@ class _GoogleMapsPickerScreenState extends State<GoogleMapsPickerScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         actions: [
-          TextButton(
-            onPressed: _confirmSelection,
-            child: Text(
-              widget.acceptButtonTitle,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+          if (widget.googleMapMode == GoogleMapMode.select)
+            TextButton(
+              onPressed: _confirmSelection,
+              child: Text(
+                widget.acceptButtonTitle,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
             ),
-          ),
         ],
       ),
       body: Stack(

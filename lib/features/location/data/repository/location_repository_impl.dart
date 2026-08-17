@@ -42,12 +42,10 @@ class LocationRepositoryImpl implements LocationRepository {
                       .toList(),
                   note: locationModel.note,
                   address: locationModel.address,
-                  location: locationModel.location != null
-                      ? PointEntity(
-                          x: locationModel.location!.x,
-                          y: locationModel.location!.y,
-                        )
-                      : null,
+                  location: PointEntity(
+                    x: locationModel.location.x,
+                    y: locationModel.location.y,
+                  ),
                   createdAt: locationModel.createdAt,
                   updatedAt: locationModel.updatedAt,
                 ),
@@ -90,12 +88,10 @@ class LocationRepositoryImpl implements LocationRepository {
               .toList(),
           note: locationModel.note,
           address: locationModel.address,
-          location: locationModel.location != null
-              ? PointEntity(
-                  x: locationModel.location!.x,
-                  y: locationModel.location!.y,
-                )
-              : null,
+          location: PointEntity(
+            x: locationModel.location.x,
+            y: locationModel.location.y,
+          ),
           createdAt: locationModel.createdAt,
           updatedAt: locationModel.updatedAt,
         ),

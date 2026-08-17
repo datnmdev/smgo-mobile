@@ -95,6 +95,9 @@
 		<array>
 			<string>itms-apps</string>
 			<string>https</string>
+			<string>tel</string>
+			<string>sms</string>
+			<string>zalo</string>
 		</array>
 	</dict>
 </plist>

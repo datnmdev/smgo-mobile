@@ -45,7 +45,8 @@
   },
   "google_map_picker_screen": {
     "pick_location_error": "Vui lòng chọn 1 vị trí trên bản đồ",
-    "title": "Chọn vị trí",
+    "select_title": "Chọn vị trí",
+    "view_title": "Vị trí trên bản đồ",
     "accept_button_title": "Xác nhận"
   },
   "m3_map": {
@@ -71,7 +72,11 @@
     "add_location_button_title": "Thêm địa điểm mới",
     "error_message": "Đã xảy ra lỗi",
     "select_all_button_title": "Chọn tất cả",
-    "delete_button_title": "Xoá ({quantity})"
+    "delete_button_title": "Xoá ({quantity})",
+    "delete_selected_locations_dialog_tile": "Xác nhận xoá",
+    "delete_selected_locations_dialog_content": "Bạn có chắc chắn muốn xóa {quantity} địa điểm đã chọn không?",
+    "delete_selected_locations_dialog_delete_btn_title": "Xoá",
+    "delete_selected_locations_dialog_cancel_btn_title": "Huỷ"
   },
   "add_location_page": {
     "page_title": "Thêm địa điểm mới",
@@ -96,7 +101,20 @@
     "note_field_hint_text": "Nhập bất cứ thứ gì bạn muốn (ví dụ tên gợi nhớ,...)",
     "attached_image_label": "Ảnh đính kèm"
   },
-  "m3_ai_ocr_scan_button": {
-    
+  "location_detail_page": {
+    "title": "Chi tiết địa điểm",
+    "contact_info_label": "Thông tin liên hệ",
+    "contact_name_label": "Người liên hệ:",
+    "contact_phone_label": "Số điện thoại:",
+    "call_button_title": "Gọi điện",
+    "sms_button_title": "SMS",
+    "zalo_button_title": "Zalo",
+    "location_map_Label": "Vị trí & Bản đồ",
+    "edit_button_title": "Chỉnh sửa",
+    "delete_button_title": "Xoá địa điểm",
+    "delete_location_dialog_tile": "Xác nhận xoá",
+    "delete_location_dialog_content": "Bạn có chắc chắn muốn xóa địa điểm này không?",
+    "delete_location_dialog_delete_btn_title": "Xoá",
+    "delete_location_dialog_cancel_btn_title": "Huỷ"
   }
 }

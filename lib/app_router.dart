@@ -3,6 +3,7 @@ import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:shipgo/features/explore/presentation/pages/explore_page.dart';
 import 'package:shipgo/features/location/presentation/pages/add_location_page.dart';
+import 'package:shipgo/features/location/presentation/pages/location_detail_page.dart';
 import 'package:shipgo/features/location/presentation/pages/location_page.dart';
 import 'package:shipgo/features/main/presentation/pages/main_page.dart';
 import 'package:shipgo/features/person/presentation/pages/person_page.dart';
@@ -42,11 +43,18 @@ final appRouter = GoRouter(
               name: AppRouteNames.location,
               path: '/location',
               builder: (context, state) => const LocationPage(),
-            ),
-            GoRoute(
-              name: AppRouteNames.addLocation,
-              path: '/location/add',
-              builder: (context, state) => const AddLocationPage(),
+              routes: [
+                GoRoute(
+                  name: AppRouteNames.addLocation,
+                  path: '/add',
+                  builder: (context, state) => const AddLocationPage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.locationDetail,
+                  path: '/:id/detail-info',
+                  builder: (context, state) => const LocationDetailPage(),
+                ),
+              ],
             ),
           ],
         ),

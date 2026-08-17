@@ -8,4 +8,5 @@ abstract class AppRouteNames {
   static final addLocation = 'add-location';
   static final route = 'route';
   static final person = 'person';
+  static final locationDetail = 'location-detail';
 }

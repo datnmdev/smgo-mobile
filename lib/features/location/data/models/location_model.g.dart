@@ -19,9 +19,7 @@ LocationModel _$LocationModelFromJson(Map<String, dynamic> json) =>
           [],
       note: json['note'] as String?,
       address: json['address'] as String,
-      location: json['location'] == null
-          ? null
-          : PointModel.fromJson(json['location'] as Map<String, dynamic>),
+      location: PointModel.fromJson(json['location'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

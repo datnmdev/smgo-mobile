@@ -14,6 +14,7 @@ abstract class AppAssets {
   // --- Icons ---
   static const String icGoogle = '$_iconsPath/google.png';
   static const String icFacebook = '$_iconsPath/facebook.png';
+  static const String icZalo = '$_iconsPath/zalo.png';
 
   // --- Translations ----
   static const String translations = 'assets/translations';

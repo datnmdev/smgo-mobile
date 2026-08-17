@@ -28,8 +28,10 @@ import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecas
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_cubic.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
 import 'package:shipgo/features/splash/data/data_sources/app_version_api_service.dart';
 import 'package:shipgo/features/splash/data/repository/app_version_repository_impl.dart';
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
@@ -148,4 +150,9 @@ Future<void> initializeDependencies() async {
     () => AddLocationFormCubit(addLocationUsecase: di<AddLocationUsecase>()),
   );
   di.registerFactory<LocationSelectionCubit>(() => LocationSelectionCubit());
+  di.registerFactory<DeleteLocationCubic>(
+    () =>
+        DeleteLocationCubic(deleteLocationUsecase: di<DeleteLocationUsecase>()),
+  );
+  di.registerFactory<SearchLocationsCubit>(() => SearchLocationsCubit());
 }
