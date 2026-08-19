@@ -7,6 +7,7 @@ abstract class ApiEndpoints {
   static const userBaseUrl = '/user';
   static const locationBaseUrl = '$userBaseUrl/locations';
   static const storageBaseUrl = '/storage';
+  static const routeBaseUrl = '/route';
 
   // Authentication
   static const String signInWithGoogle = '$authBaseUrl/oauth/google';
@@ -23,4 +24,10 @@ abstract class ApiEndpoints {
   // Storage
   static const String getUploadUrl = '$storageBaseUrl/file/upload';
   static const String getDownloadUrl = '$storageBaseUrl/file/download';
+
+  // Route
+  static const String getMyRoutes = '$routeBaseUrl/mine';
+  static const String addRoute = '$routeBaseUrl/mine';
+  static const String updateMyRoute = '$routeBaseUrl/mine/{routeId}';
+  static const String deleteMyRoute = '$routeBaseUrl/mine/{routeId}';
 }

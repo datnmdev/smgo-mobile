@@ -37,6 +37,14 @@ class _LocationContactCardState extends State<LocationContactCard> {
     _fetchDownloadUrl();
   }
 
+  @override
+  void didUpdateWidget (LocationContactCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.media != widget.media) {
+      _fetchDownloadUrl();
+    }
+  }
+
   Future<void> _fetchDownloadUrl() async {
     if (widget.media.isNotEmpty) {
       setState(() {

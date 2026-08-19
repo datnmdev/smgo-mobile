@@ -12,7 +12,7 @@ class LocationRepositoryImpl implements LocationRepository {
   const LocationRepositoryImpl({required this.locationApiService});
 
   @override
-  Future<DataState<Pagination<List<LocationEntity>>>> getMyLocations({
+  Future<DataState<Pagination<LocationEntity>>> getMyLocations({
     GetMyLocationQuery? query,
   }) async {
     try {
@@ -21,6 +21,7 @@ class LocationRepositoryImpl implements LocationRepository {
           page: query?.pageNumber,
           limit: query?.pageSize,
           keyword: query?.keyword,
+          id: query?.id,
         ),
       );
       final data = dataState.data.data!;

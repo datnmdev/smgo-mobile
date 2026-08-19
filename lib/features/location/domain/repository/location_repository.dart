@@ -3,7 +3,7 @@ import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/location/domain/entities/location_entity.dart';
 
 abstract class LocationRepository {
-  Future<DataState<Pagination<List<LocationEntity>>>> getMyLocations({
+  Future<DataState<Pagination<LocationEntity>>> getMyLocations({
     GetMyLocationQuery? query,
   });
   Future<DataState<LocationEntity>> saveLocation({
@@ -20,8 +20,14 @@ class GetMyLocationQuery {
   final String? keyword;
   final int? pageNumber;
   final int? pageSize;
+  final String? id;
 
-  const GetMyLocationQuery({this.keyword, this.pageNumber, this.pageSize});
+  const GetMyLocationQuery({
+    this.keyword,
+    this.pageNumber,
+    this.pageSize,
+    this.id,
+  });
 }
 
 class LocationData {

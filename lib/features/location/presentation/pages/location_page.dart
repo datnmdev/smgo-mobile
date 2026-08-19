@@ -135,9 +135,9 @@ class _Header extends StatelessWidget {
                     context.pushNamed(
                       AppRouteNames.addLocation,
                       extra: <String, Object>{
-                        'GetMyLocationsCubit': context
+                        'GetMyLocationsCubitInLP': context
                             .read<GetMyLocationsCubit>(),
-                        'GetMyLocationsParams': GetMyLocationsParams(
+                        'GetMyLocationsParamsInLP': GetMyLocationsParams(
                           keyword: context
                               .read<SearchLocationsCubit>()
                               .state
@@ -238,9 +238,9 @@ class _Body extends StatelessWidget {
                           context.pushNamed(
                             AppRouteNames.addLocation,
                             extra: <String, Object>{
-                              'GetMyLocationsCubit': context
+                              'GetMyLocationsCubitInLP': context
                                   .read<GetMyLocationsCubit>(),
-                              'GetMyLocationsParams': GetMyLocationsParams(
+                              'GetMyLocationsParamsInLP': GetMyLocationsParams(
                                 keyword: context
                                     .read<SearchLocationsCubit>()
                                     .state
@@ -668,9 +668,10 @@ class _LocationContactCardItem extends StatelessWidget {
                   AppRouteNames.locationDetail,
                   pathParameters: {'id': location.id},
                   extra: <String, Object>{
-                    'LocationPageContext': context,
                     'LocationData': location,
-                    'GetMyLocationsParams': GetMyLocationsParams(
+                    'GetMyLocationsCubitInLP': context
+                        .read<GetMyLocationsCubit>(),
+                    'GetMyLocationsParamsInLP': GetMyLocationsParams(
                       keyword: context
                           .read<SearchLocationsCubit>()
                           .state

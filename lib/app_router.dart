@@ -5,9 +5,13 @@ import 'package:shipgo/features/explore/presentation/pages/explore_page.dart';
 import 'package:shipgo/features/location/presentation/pages/add_location_page.dart';
 import 'package:shipgo/features/location/presentation/pages/location_detail_page.dart';
 import 'package:shipgo/features/location/presentation/pages/location_page.dart';
+import 'package:shipgo/features/location/presentation/pages/update_location_page.dart';
 import 'package:shipgo/features/main/presentation/pages/main_page.dart';
 import 'package:shipgo/features/person/presentation/pages/person_page.dart';
+import 'package:shipgo/features/route/presentation/pages/add_route_page.dart';
+import 'package:shipgo/features/route/presentation/pages/route_detail_page.dart';
 import 'package:shipgo/features/route/presentation/pages/route_page.dart';
+import 'package:shipgo/features/route/presentation/pages/update_route_page.dart';
 import 'package:shipgo/features/splash/presentation/pages/splash_page.dart';
 
 final appRouter = GoRouter(
@@ -54,6 +58,11 @@ final appRouter = GoRouter(
                   path: '/:id/detail-info',
                   builder: (context, state) => const LocationDetailPage(),
                 ),
+                GoRoute(
+                  name: AppRouteNames.updateLocation,
+                  path: '/:id/update',
+                  builder: (context, state) => const UpdateLocationPage(),
+                ),
               ],
             ),
           ],
@@ -64,6 +73,23 @@ final appRouter = GoRouter(
               name: AppRouteNames.route,
               path: '/route',
               builder: (context, state) => const RoutePage(),
+              routes: [
+                GoRoute(
+                  name: AppRouteNames.addRoute,
+                  path: '/add',
+                  builder: (context, state) => const AddRoutePage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.routeDetail,
+                  path: '/:id/detail',
+                  builder: (context, state) => RouteDetailPage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.updateMyRoute,
+                  path: '/:id/update',
+                  builder: (context, state) => UpdateRoutePage(),
+                ),
+              ],
             ),
           ],
         ),

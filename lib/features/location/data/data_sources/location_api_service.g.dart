@@ -12,6 +12,7 @@ GetSavedLocationsQuery _$GetSavedLocationsQueryFromJson(
   keyword: json['keyword'] as String?,
   page: (json['page'] as num?)?.toInt(),
   limit: (json['limit'] as num?)?.toInt(),
+  id: json['id'] as String?,
 );
 
 Map<String, dynamic> _$GetSavedLocationsQueryToJson(
@@ -20,6 +21,7 @@ Map<String, dynamic> _$GetSavedLocationsQueryToJson(
   'keyword': ?instance.keyword,
   'page': ?instance.page,
   'limit': ?instance.limit,
+  'id': ?instance.id,
 };
 
 LocationDataRequest _$LocationDataRequestFromJson(Map<String, dynamic> json) =>
@@ -106,7 +108,7 @@ class _LocationApiService implements LocationApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HttpResponse<ApiResponse<Pagination<List<LocationModel>>>>>
+  Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>>
   getSavedLocations({required GetSavedLocationsQuery query}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -114,9 +116,7 @@ class _LocationApiService implements LocationApiService {
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options =
-        _setStreamType<
-          HttpResponse<ApiResponse<Pagination<List<LocationModel>>>>
-        >(
+        _setStreamType<HttpResponse<ApiResponse<Pagination<LocationModel>>>>(
           Options(method: 'GET', headers: _headers, extra: _extra)
               .compose(
                 _dio.options,
@@ -129,19 +129,13 @@ class _LocationApiService implements LocationApiService {
               ),
         );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<Pagination<List<LocationModel>>> _value;
+    late ApiResponse<Pagination<LocationModel>> _value;
     try {
-      _value = ApiResponse<Pagination<List<LocationModel>>>.fromJson(
+      _value = ApiResponse<Pagination<LocationModel>>.fromJson(
         _result.data!,
-        (json) => Pagination<List<LocationModel>>.fromJson(
+        (json) => Pagination<LocationModel>.fromJson(
           json as Map<String, dynamic>,
-          (json) => json is List<dynamic>
-              ? json
-                    .map<LocationModel>(
-                      (i) => LocationModel.fromJson(i as Map<String, dynamic>),
-                    )
-                    .toList()
-              : List.empty(),
+          (json) => LocationModel.fromJson(json as Map<String, dynamic>),
         ),
       );
     } on Object catch (e, s) {

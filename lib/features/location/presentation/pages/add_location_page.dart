@@ -78,10 +78,10 @@ class AddLocationPage extends StatelessWidget {
                               (GoRouterState.of(context).extra)
                                   as Map<String, Object>;
                           if (state is AddLocationFormDone) {
-                            (extra['GetMyLocationsCubit']
+                            (extra['GetMyLocationsCubitInLP']
                                     as GetMyLocationsCubit)
                                 .call(
-                                  extra['GetMyLocationsParams']
+                                  extra['GetMyLocationsParamsInLP']
                                       as GetMyLocationsParams,
                                 );
 
@@ -626,7 +626,9 @@ class AddLocationPage extends StatelessWidget {
                                       onImagesChanged: (images) {
                                         context
                                             .read<AddLocationFormCubit>()
-                                            .mediaIdsChanged(images);
+                                            .mediaIdsChanged(
+                                              images.map((e) => e.id).toList(),
+                                            );
                                       },
                                     ),
                                   ),

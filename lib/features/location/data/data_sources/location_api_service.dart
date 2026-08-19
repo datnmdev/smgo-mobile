@@ -12,7 +12,7 @@ abstract class LocationApiService {
   factory LocationApiService(Dio dio) = _LocationApiService;
 
   @GET(ApiEndpoints.locationBaseUrl)
-  Future<HttpResponse<ApiResponse<Pagination<List<LocationModel>>>>>
+  Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>>
   getSavedLocations({@Queries() required GetSavedLocationsQuery query});
 
   @POST(ApiEndpoints.locationBaseUrl)
@@ -37,10 +37,11 @@ class GetSavedLocationsQuery {
   final String? keyword;
   final int? page;
   final int? limit;
+  final String? id;
 
-  const GetSavedLocationsQuery({this.keyword, this.page, this.limit});
+  const GetSavedLocationsQuery({this.keyword, this.page, this.limit, this.id});
 
-   Map<String, dynamic> toJson() => _$GetSavedLocationsQueryToJson(this);
+  Map<String, dynamic> toJson() => _$GetSavedLocationsQueryToJson(this);
 }
 
 @JsonSerializable()
@@ -50,7 +51,8 @@ class LocationDataRequest {
 
   const LocationDataRequest({required this.x, required this.y});
 
-  factory LocationDataRequest.fromJson(Map<String, dynamic> json) => _$LocationDataRequestFromJson(json);
+  factory LocationDataRequest.fromJson(Map<String, dynamic> json) =>
+      _$LocationDataRequestFromJson(json);
 
   Map<String, dynamic> toJson() => _$LocationDataRequestToJson(this);
 }

@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/widgets/m3_image_picker.dart';
 import 'package:shipgo/features/location/data/models/point_model.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
@@ -50,8 +49,8 @@ class AddLocationFormCubit extends Cubit<AddLocationFormState> {
     emit(state.copyWith(note: value));
   }
 
-  void mediaIdsChanged(List<GridImageItem> value) {
-    emit(state.copyWith(mediaIds: value.map((e) => e.id).toList()));
+  void mediaIdsChanged(List<String> mediaIds) {
+    emit(state.copyWith(mediaIds: mediaIds));
   }
 
   void submit() async {

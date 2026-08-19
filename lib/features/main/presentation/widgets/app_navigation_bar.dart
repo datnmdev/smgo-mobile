@@ -42,8 +42,8 @@ class AppNavigationBar extends StatelessWidget {
         ),
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
+            icon: Icon(Icons.map_outlined),
+            activeIcon: Icon(Icons.map),
             label: AppStrings.exploreTabLabel.tr(),
           ),
           BottomNavigationBarItem(

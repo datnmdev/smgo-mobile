@@ -45,7 +45,7 @@ class PaginationMeta {
 
 @JsonSerializable(genericArgumentFactories: true)
 class Pagination<T> {
-  final T data;
+  final List<T> data;
   final PaginationMeta meta;
 
   const Pagination({required this.data, required this.meta});

@@ -7,7 +7,7 @@ import 'package:shipgo/features/location/domain/repository/location_repository.d
 class GetMyLocationsUsecase
     implements
         Usecase<
-          DataState<Pagination<List<LocationEntity>>>,
+          DataState<Pagination<LocationEntity>>,
           GetMyLocationsParams?
         > {
   final LocationRepository locationRepository;
@@ -15,7 +15,7 @@ class GetMyLocationsUsecase
   const GetMyLocationsUsecase({required this.locationRepository});
 
   @override
-  Future<DataState<Pagination<List<LocationEntity>>>> call({
+  Future<DataState<Pagination<LocationEntity>>> call({
     GetMyLocationsParams? params,
   }) {
     return locationRepository.getMyLocations(
@@ -23,6 +23,7 @@ class GetMyLocationsUsecase
         keyword: params?.keyword,
         pageNumber: params?.pageNumber,
         pageSize: params?.pageSize,
+        id: params?.id,
       ),
     );
   }
@@ -32,6 +33,12 @@ class GetMyLocationsParams {
   final String? keyword;
   final int? pageNumber;
   final int? pageSize;
+  final String? id;
 
-  const GetMyLocationsParams({this.keyword, this.pageNumber, this.pageSize});
+  const GetMyLocationsParams({
+    this.keyword,
+    this.pageNumber,
+    this.pageSize,
+    this.id,
+  });
 }

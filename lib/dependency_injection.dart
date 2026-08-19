@@ -26,12 +26,27 @@ import 'package:shipgo/features/location/domain/usecases/delete_location_usecase
 import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/features/location/domain/usecases/update_location_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_cubic.dart';
+import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_cubic.dart';
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
+import 'package:shipgo/features/route/data/data_sources/route_api_service.dart';
+import 'package:shipgo/features/route/data/repository/route_repository_impl.dart';
+import 'package:shipgo/features/route/domain/repository/route_repository.dart';
+import 'package:shipgo/features/route/domain/usecases/add_route_usecase.dart';
+import 'package:shipgo/features/route/domain/usecases/delete_my_route_usecase.dart';
+import 'package:shipgo/features/route/domain/usecases/get_my_routes_usecase.dart';
+import 'package:shipgo/features/route/domain/usecases/update_my_route_usecase.dart';
+import 'package:shipgo/features/route/presentation/bloc/add_route_form/add_route_form_cubit.dart';
+import 'package:shipgo/features/route/presentation/bloc/delete_my_routes/delete_my_routes_cubit.dart';
+import 'package:shipgo/features/route/presentation/bloc/get_my_routes/get_my_routes_cubit.dart';
+import 'package:shipgo/features/route/presentation/bloc/search_routes/search_routes_cubit.dart';
+import 'package:shipgo/features/route/presentation/bloc/update_route_form/update_route_form_cubit.dart';
 import 'package:shipgo/features/splash/data/data_sources/app_version_api_service.dart';
 import 'package:shipgo/features/splash/data/repository/app_version_repository_impl.dart';
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
@@ -64,6 +79,7 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<StorageApiService>(
     () => StorageApiService(di<Dio>()),
   );
+  di.registerLazySingleton<RouteApiService>(() => RouteApiService(di<Dio>()));
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -85,6 +101,9 @@ Future<void> initializeDependencies() async {
   );
   di.registerLazySingleton<StorageRepository>(
     () => StorageRepositoryImpl(storageApiService: di<StorageApiService>()),
+  );
+  di.registerLazySingleton<RouteRepository>(
+    () => RouteRepositoryImpl(routeApiService: di<RouteApiService>()),
   );
 
   // Đăng ký các usecase
@@ -124,6 +143,21 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<DeleteLocationUsecase>(
     () => DeleteLocationUsecase(locationRepository: di<LocationRepository>()),
   );
+  di.registerLazySingleton<UpdateLocationUsecase>(
+    () => UpdateLocationUsecase(locationRepository: di<LocationRepository>()),
+  );
+  di.registerLazySingleton<AddRouteUsecase>(
+    () => AddRouteUsecase(routeRepository: di<RouteRepository>()),
+  );
+  di.registerLazySingleton<GetMyRoutesUsecase>(
+    () => GetMyRoutesUsecase(routeRepository: di<RouteRepository>()),
+  );
+  di.registerLazySingleton<UpdateMyRouteUsecase>(
+    () => UpdateMyRouteUsecase(routeRepository: di<RouteRepository>()),
+  );
+  di.registerLazySingleton<DeleteMyRouteUsecase>(
+    () => DeleteMyRouteUsecase(routeRepository: di<RouteRepository>()),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -150,9 +184,33 @@ Future<void> initializeDependencies() async {
     () => AddLocationFormCubit(addLocationUsecase: di<AddLocationUsecase>()),
   );
   di.registerFactory<LocationSelectionCubit>(() => LocationSelectionCubit());
-  di.registerFactory<DeleteLocationCubic>(
+  di.registerFactory<DeleteLocationCubit>(
     () =>
-        DeleteLocationCubic(deleteLocationUsecase: di<DeleteLocationUsecase>()),
+        DeleteLocationCubit(deleteLocationUsecase: di<DeleteLocationUsecase>()),
   );
   di.registerFactory<SearchLocationsCubit>(() => SearchLocationsCubit());
+  di.registerFactoryParam<UpdateLocationFormCubit, String, void>(
+    (locationId, _) => UpdateLocationFormCubit(
+      updateLocationUsecase: di<UpdateLocationUsecase>(),
+      locationId: locationId,
+    ),
+  );
+  di.registerFactory<GetUrlsCubit>(
+    () => GetUrlsCubit(getDownloadUrlUsecase: di<GetDownloadUrlUsecase>()),
+  );
+  di.registerFactory<AddRouteFormCubit>(
+    () => AddRouteFormCubit(addRouteUsecase: di<AddRouteUsecase>()),
+  );
+  di.registerFactory<GetMyRoutesCubit>(
+    () => GetMyRoutesCubit(getMyRoutesUsecase: di<GetMyRoutesUsecase>()),
+  );
+  di.registerFactory<SearchRoutesCubit>(() => SearchRoutesCubit());
+  di.registerFactory<UpdateMyRouteFormCubit>(
+    () => UpdateMyRouteFormCubit(
+      updateMyRouteUsecase: di<UpdateMyRouteUsecase>(),
+    ),
+  );
+  di.registerFactory<DeleteMyRoutesCubit>(
+    () => DeleteMyRoutesCubit(deleteMyRouteUsecase: di<DeleteMyRouteUsecase>()),
+  );
 }

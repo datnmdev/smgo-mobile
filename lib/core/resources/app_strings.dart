@@ -78,6 +78,7 @@ abstract class AppStrings {
       'location_page.delete_selected_locations_dialog_delete_btn_title';
   static const String lPDeleteSelectedLocationsDialogCancelBtnTitle =
       'location_page.delete_selected_locations_dialog_cancel_btn_title';
+
   static const String aLPPageTitle = 'add_location_page.page_title';
   static const String aLPSaveButtonTitle =
       'add_location_page.save_button_title';
@@ -118,6 +119,7 @@ abstract class AppStrings {
       'add_location_page.note_field_hint_text';
   static const String aLPAttachedImageLabel =
       'add_location_page.attached_image_label';
+
   static const String lDPTitle = 'location_detail_page.title';
   static const String lDPContactInfoLabel =
       'location_detail_page.contact_info_label';
@@ -145,4 +147,149 @@ abstract class AppStrings {
       'location_detail_page.delete_location_dialog_cancel_btn_title';
   static const String lDPDeleteLocationDialogDeleteBtnTitle =
       'location_detail_page.delete_location_dialog_delete_btn_title';
+
+  static const String uLPPageTitle = 'update_location_page.page_title';
+  static const String uLPSaveButtonTitle =
+      'update_location_page.save_button_title';
+  static const String uLPPrimaryInfoLabel =
+      'update_location_page.primary_info_label';
+  static const String uLPLocationNameFieldLabel =
+      'update_location_page.location_name_field_label';
+  static const String uLPLocationNameFieldHintText =
+      'update_location_page.location_name_field_hint_text';
+  static const String uLPLocationNameFieldError =
+      'update_location_page.location_name_field_error';
+  static const String uLPContactNameFieldLabel =
+      'update_location_page.contact_name_field_label';
+  static const String uLPContactNameFieldHintText =
+      'update_location_page.contact_name_field_hint_text';
+  static const String uLPContactNameFieldError =
+      'update_location_page.contact_name_field_error';
+  static const String uLPContactPhoneFieldLabel =
+      'update_location_page.contact_phone_field_label';
+  static const String uLPContactPhoneFieldHintText =
+      'update_location_page.contact_phone_field_hint_text';
+  static const String uLPContactPhoneFieldEmptyError =
+      'update_location_page.contact_phone_field_empty_error';
+  static const String uLPContactPhoneFieldInvalidError =
+      'update_location_page.contact_phone_field_invalid_error';
+  static const String uLPAddressFieldLabel =
+      'update_location_page.address_field_label';
+  static const String uLPAddressFieldHintText =
+      'update_location_page.address_field_hint_text';
+  static const String uLPAddressFieldError =
+      'update_location_page.address_field_error';
+  static const String uLPLocationFieldError =
+      'update_location_page.location_field_error';
+  static const String uLPSecondaryInfoLabel =
+      'update_location_page.secondary_info_label';
+  static const String uLPNoteFieldLabel =
+      'update_location_page.note_field_label';
+  static const String uLPNoteFieldHintText =
+      'update_location_page.note_field_hint_text';
+  static const String uLPAttachedImageLabel =
+      'update_location_page.attached_image_label';
+
+  static const String aRPTitle = 'add_route_page.title';
+  static const String aRPSubmitButtonLabel =
+      'add_route_page.submit_button_label';
+  static const String aRPRouteInfoLabel = 'add_route_page.route_info_label';
+  static const String aRPRouteNameFieldLabel =
+      'add_route_page.route_name_field_label';
+  static const String aRPRouteNameFieldHintText =
+      'add_route_page.route_name_field_hint_text';
+  static const String aRPRouteNameFieldEmptyError =
+      'add_route_page.route_name_field_empty_error';
+
+  static const String uRPTitle = 'update_route_page.title';
+  static const String uRPSubmitButtonLabel =
+      'update_route_page.submit_button_label';
+  static const String uRPRouteInfoLabel = 'update_route_page.route_info_label';
+  static const String uRPRouteNameFieldLabel =
+      'update_route_page.route_name_field_label';
+  static const String uRPRouteNameFieldHintText =
+      'update_route_page.route_name_field_hint_text';
+  static const String uRPRouteNameFieldEmptyError =
+      'update_route_page.route_name_field_empty_error';
+
+  static const String rDPDeleteRouteDialogTitle =
+      'route_detail_page.delete_route_dialog_tile';
+  static const String rDPDeleteRouteDialogContent =
+      'route_detail_page.delete_route_dialog_content';
+  static const String rDPDeleteRouteDialogCancelBtnTitle =
+      'route_detail_page.delete_route_dialog_cancel_btn_title';
+  static const String rDPDeleteRouteDialogDeleteBtnTitle =
+      'route_detail_page.delete_route_dialog_delete_btn_title';
+  static const String rDPTitle = 'route_detail_page.title';
+  static const String rDPCreatedRouteDateString =
+      'route_detail_page.created_route_date_string';
+  static const String rDPSuccessCountLabel =
+      'route_detail_page.success_count_label';
+  static const String rDPFailedCountLabel =
+      'route_detail_page.failed_count_label';
+  static const String rDPRescheduledCountLabel =
+      'route_detail_page.rescheduled_count_label';
+  static const String rDPTotalCountLabel =
+      'route_detail_page.total_count_label';
+  static const String rDPOrdersLabel = 'route_detail_page.orders_label';
+  static const String rDPDeleteRouteBtnLabel =
+      'route_detail_page.delete_route_button_label';
+  static const String rDPInfoDetailTitle =
+      'route_detail_page.info_detail_title';
+  static const String rDPCreatedRouteDateLabel =
+      'route_detail_page.created_route_date_label';
+  static const String rDPTotalCheckedOrdersLabel =
+      'route_detail_page.total_checked_orders_label';
+  static const String rDPCountContent = 'route_detail_page.count_content';
+  static const String rDPTotalUncheckedOrdersLabel =
+      'route_detail_page.total_unchecked_orders_label';
+  static const String rDPTotalSuccessOrdersLabel =
+      'route_detail_page.total_success_orders_label';
+  static const String rDPTotalFailedOrdersLabel =
+      'route_detail_page.total_failed_orders_label';
+  static const String rDPTotalRescheduledOrdersLabel =
+      'route_detail_page.total_rescheduled_orders_label';
+  static const String rDPTotalOrdersLabel =
+      'route_detail_page.total_total_orders_label';
+
+  static const String rPDeleteSelectedRoutesDialogTitle =
+      'route_page.delete_selected_routes_dialog_tile';
+  static const String rPDeleteSelectedRoutesDialogContent =
+      'route_page.delete_selected_routes_dialog_content';
+  static const String rPDeleteSelectedRoutesDialogCancelBtnTitle =
+      'route_page.delete_selected_routes_dialog_cancel_btn_title';
+  static const String rPDeleteSelectedRoutesDialogDeleteBtnTitle =
+      'route_page.delete_selected_routes_dialog_delete_btn_title';
+  static const String rPSelectAllBtnLabel = 'route_page.select_all_label';
+  static const String rPSelectedRoutesCountContent =
+      'route_page.selected_routes_count_content';
+  static const String rPErrorMessage = 'route_page.error_message';
+  static const String rPRetryLabel = 'route_page.retry_label';
+  static const String rPDataEmpty = 'route_page.data_empty';
+  static const String rPHeaderSelectedRoutesCountContent =
+      'route_page.header_selected_routes_count_content';
+  static const String rPHeaderDeleteSelectedRoutesButtonLabel =
+      'route_page.header_delete_selected_routes_button_label';
+  static const String rPTitle = 'route_page.title';
+  static const String rPSearchHintText = 'route_page.search_hint_text';
+  static const String rPAddRouteButtonLabel =
+      'route_page.add_route_button_label';
+  static const String rPPrepareOrdersTabLabel =
+      'route_page.prepare_orders_tab_label';
+  static const String rPInProgressTabLabel = 'route_page.in_progress_tab_label';
+  static const String rPCompletedTabLabel = 'route_page.completed_tab_label';
+  static const String rPCreatedRouteDateString =
+      'route_page.created_route_date_string';
+  static const String rPCountContent = 'route_page.count_content';
+  static const String rPSuccessStatusOrderLabel =
+      'route_page.success_status_order_label';
+  static const String rPFailedStatusOrderLabel =
+      'route_page.failed_status_order_label';
+  static const String rPRescheduledStatusOrderLabel =
+      'route_page.rescheduled_status_order_label';
+  static const String rPPendingStatusOrderLabel =
+      'route_page.pending_status_order_label';
+  static const String rPCheckedStatusOrderLabel =
+      'route_page.checked_status_order_label';
+  static const String rPTotalOrdersLabel = 'route_page.total_orders_label';
 }
