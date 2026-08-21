@@ -7,7 +7,10 @@ abstract class ApiEndpoints {
   static const userBaseUrl = '/user';
   static const locationBaseUrl = '$userBaseUrl/locations';
   static const storageBaseUrl = '/storage';
-  static const routeBaseUrl = '/route';
+  static const deliveryRouteBaseUrl = '/delivery-route';
+  static const deliveryOrderBaseUrl =
+      '/delivery-route/{deliveryRouteId}/delivery-order';
+  static const aiBaseUrl = '/ai';
 
   // Authentication
   static const String signInWithGoogle = '$authBaseUrl/oauth/google';
@@ -25,9 +28,22 @@ abstract class ApiEndpoints {
   static const String getUploadUrl = '$storageBaseUrl/file/upload';
   static const String getDownloadUrl = '$storageBaseUrl/file/download';
 
-  // Route
-  static const String getMyRoutes = '$routeBaseUrl/mine';
-  static const String addRoute = '$routeBaseUrl/mine';
-  static const String updateMyRoute = '$routeBaseUrl/mine/{routeId}';
-  static const String deleteMyRoute = '$routeBaseUrl/mine/{routeId}';
+  // Delivery route
+  static const String getDeliveryRoutes = '$deliveryRouteBaseUrl';
+  static const String addDeliveryRoute = '$deliveryRouteBaseUrl';
+  static const String updateDeliveryRoute =
+      '$deliveryRouteBaseUrl/{deliveryRouteId}';
+  static const String deleteDeliveryRoute =
+      '$deliveryRouteBaseUrl/{deliveryRouteId}';
+
+  // Delivery order
+  static const String getDeliveryOrders = '$deliveryOrderBaseUrl';
+  static const String addDeliveryOrder = '$deliveryOrderBaseUrl';
+  static const String updateDeliveryOrder =
+      '$deliveryOrderBaseUrl/{deliveryOrderId}';
+  static const String deleteDeliveryOrder =
+      '$deliveryOrderBaseUrl/{deliveryOrderId}';
+
+  // Ai
+  static const String extractOrderInfo = '$aiBaseUrl/extract/order-info';
 }

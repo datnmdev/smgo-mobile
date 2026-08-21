@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/splash/domain/usecase/check_app_version_usecase.dart';

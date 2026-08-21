@@ -11,10 +11,6 @@ part 'location_api_service.g.dart';
 abstract class LocationApiService {
   factory LocationApiService(Dio dio) = _LocationApiService;
 
-  @GET(ApiEndpoints.locationBaseUrl)
-  Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>>
-  getSavedLocations({@Queries() required GetSavedLocationsQuery query});
-
   @POST(ApiEndpoints.locationBaseUrl)
   Future<HttpResponse<ApiResponse<LocationModel>>> saveLocation({
     @Body() required SaveLocationBodyRequest body,
@@ -30,18 +26,6 @@ abstract class LocationApiService {
   Future<HttpResponse<ApiResponse<dynamic>>> deleteLocation({
     @Path('locationId') required String locationId,
   });
-}
-
-@JsonSerializable(includeIfNull: false)
-class GetSavedLocationsQuery {
-  final String? keyword;
-  final int? page;
-  final int? limit;
-  final String? id;
-
-  const GetSavedLocationsQuery({this.keyword, this.page, this.limit, this.id});
-
-  Map<String, dynamic> toJson() => _$GetSavedLocationsQueryToJson(this);
 }
 
 @JsonSerializable()

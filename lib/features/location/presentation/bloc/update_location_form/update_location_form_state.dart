@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:shipgo/features/location/presentation/validators/address.dart';
-import 'package:shipgo/features/location/presentation/validators/contact_name.dart';
-import 'package:shipgo/features/location/presentation/validators/contact_phone.dart';
-import 'package:shipgo/features/location/presentation/validators/location.dart';
-import 'package:shipgo/features/location/presentation/validators/location_name.dart';
+import 'package:shipgo/features/location/presentation/inputs/address.dart';
+import 'package:shipgo/features/location/presentation/inputs/contact_name.dart';
+import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
+import 'package:shipgo/features/location/presentation/inputs/location.dart';
+import 'package:shipgo/features/location/presentation/inputs/location_name.dart';
 
 class UpdateLocationFormState extends Equatable with FormzMixin {
   final LocationName locationName;

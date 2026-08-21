@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shipgo/core/config/env.dart';
-import 'package:shipgo/core/widgets/m3_ai_ocr_scan_button.dart';
-import 'package:shipgo/features/explore/presentation/pages/order_info.dart';
+import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -71,14 +72,11 @@ class _ExplorePageState extends State<ExplorePage> {
       _isGenerating = false;
     }
   }
-  // ============================================================
-  // UI
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: AiOcrScanButton<OrderInfo>(
+      child: AiOcrScanButton<Map<String, dynamic>>(
         buttonText: 'Quét đơn hàng',
         buttonIcon: Icons.qr_code_scanner,
         dialogTitle: 'Chi Tiết Đơn Hàng',
@@ -87,14 +85,18 @@ class _ExplorePageState extends State<ExplorePage> {
         },
         promptBuilder: (ocrText) => ocrText,
         parser: (llmOutput) {
-          return OrderInfo.fromLlmOutput(llmOutput);
+          var cleanJson = llmOutput.trim();
+          cleanJson = cleanJson
+              .replaceFirst(RegExp(r'^```json\s*', caseSensitive: false), '')
+              .replaceFirst(RegExp(r'^```\s*'), '')
+              .replaceFirst(RegExp(r'\s*```$'), '')
+              .trim();
+          final startIndex = cleanJson.indexOf('{');
+          final endIndex = cleanJson.lastIndexOf('}');
+          cleanJson = cleanJson.substring(startIndex, endIndex + 1);
+          return jsonDecode(cleanJson);
         },
-        previewBuilder: (context, order) {
-          return const SizedBox.shrink();
-        },
-        onCompleted: (OrderInfo order) {
-          print(order.toString());
-        },
+        onCompleted: (Map<String, dynamic> data) {},
       ),
     );
   }

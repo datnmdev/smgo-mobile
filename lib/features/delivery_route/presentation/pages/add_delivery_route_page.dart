@@ -1,0 +1,197 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shipgo/core/resources/app_colors.dart';
+import 'package:shipgo/core/resources/app_strings.dart';
+import 'package:shipgo/shared/widgets/m3_error_text.dart';
+import 'package:shipgo/dependency_injection.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
+
+class AddDeliveryRoutePage extends StatefulWidget {
+  const AddDeliveryRoutePage({Key? key}) : super(key: key);
+
+  @override
+  State<AddDeliveryRoutePage> createState() => _AddDeliveryRoutePageState();
+}
+
+class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
+  final TextEditingController _deliveryRouteNameController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    _deliveryRouteNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const primaryGreen = AppColors.primary;
+    final extra = GoRouterState.of(context).extra as Map<String, Object>;
+    final getDeliveryRoutesCubitInRP =
+        extra['GetDeliveryRoutesCubitInRP'] as GetDeliveryRoutesCubit;
+    final getDeliveryRoutesUsecaseParamsInRP =
+        extra['GetDeliveryRoutesUsecaseParamsInRP']
+            as GetDeliveryRoutesUsecaseParams;
+
+    return BlocProvider<AddDeliveryRouteFormCubit>(
+      create: (context) => di<AddDeliveryRouteFormCubit>(),
+      child: BlocConsumer<AddDeliveryRouteFormCubit, AddDeliveryRouteFormState>(
+        builder: (context, state) => Scaffold(
+          backgroundColor: primaryGreen,
+          appBar: AppBar(
+            backgroundColor: primaryGreen,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 28,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              AppStrings.aRPTitle.tr(),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  context.read<AddDeliveryRouteFormCubit>().submit();
+                },
+                child: state is AddDeliveryRouteFormLoading
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 1.5,
+                        ),
+                      )
+                    : Text(
+                        AppStrings.aRPSubmitButtonLabel.tr(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.aRPRouteInfoLabel.tr(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  RichText(
+                    text: TextSpan(
+                      text: AppStrings.aRPRouteNameFieldLabel.tr(),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '*',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // TextField nhập tên lộ trình
+                  Column(
+                    children: [
+                      TextField(
+                        controller: _deliveryRouteNameController,
+                        onChanged: (value) => context
+                            .read<AddDeliveryRouteFormCubit>()
+                            .routeNameInputChanged(value),
+                        decoration: InputDecoration(
+                          hintText: AppStrings.aRPRouteNameFieldHintText.tr(),
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 14,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: primaryGreen,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      if (state.routeNameInput.displayError != null)
+                        SizedBox(height: 4),
+
+                      if (state.routeNameInput.displayError != null)
+                        M3ErrorText(
+                          errorText: AppStrings.aRPRouteNameFieldEmptyError
+                              .tr(),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        listener: (context, state) {
+          if (state is AddDeliveryRouteFormDone) {
+            getDeliveryRoutesCubitInRP.call(
+              params: getDeliveryRoutesUsecaseParamsInRP,
+            );
+            context.pop();
+          }
+        },
+      ),
+    );
+  }
+}

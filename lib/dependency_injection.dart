@@ -15,6 +15,12 @@ import 'package:shipgo/features/auth/domain/usecases/sign_in_with_facebook_useca
 import 'package:shipgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'package:shipgo/features/auth/presentation/bloc/session/session_bloc.dart';
 import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
+import 'package:shipgo/features/delivery_route/data/data_sources/ai_api_service.dart';
+import 'package:shipgo/features/delivery_route/data/repository/ai_repository_impl.dart';
+import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
 import 'package:shipgo/features/location/data/data_sources/storage_api_service.dart';
 import 'package:shipgo/features/location/data/repository/location_repository_impl.dart';
@@ -35,18 +41,18 @@ import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_cub
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
-import 'package:shipgo/features/route/data/data_sources/route_api_service.dart';
-import 'package:shipgo/features/route/data/repository/route_repository_impl.dart';
-import 'package:shipgo/features/route/domain/repository/route_repository.dart';
-import 'package:shipgo/features/route/domain/usecases/add_route_usecase.dart';
-import 'package:shipgo/features/route/domain/usecases/delete_my_route_usecase.dart';
-import 'package:shipgo/features/route/domain/usecases/get_my_routes_usecase.dart';
-import 'package:shipgo/features/route/domain/usecases/update_my_route_usecase.dart';
-import 'package:shipgo/features/route/presentation/bloc/add_route_form/add_route_form_cubit.dart';
-import 'package:shipgo/features/route/presentation/bloc/delete_my_routes/delete_my_routes_cubit.dart';
-import 'package:shipgo/features/route/presentation/bloc/get_my_routes/get_my_routes_cubit.dart';
-import 'package:shipgo/features/route/presentation/bloc/search_routes/search_routes_cubit.dart';
-import 'package:shipgo/features/route/presentation/bloc/update_route_form/update_route_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/data/data_sources/delivery_route_api_service.dart';
+import 'package:shipgo/features/delivery_route/data/repository/delivery_route_repository_impl.dart';
+import 'package:shipgo/features/delivery_route/domain/repository/delivery_route_repository.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_route_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_route_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/update_my_route_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_routes/delete_delivery_routes_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_cubit.dart';
 import 'package:shipgo/features/splash/data/data_sources/app_version_api_service.dart';
 import 'package:shipgo/features/splash/data/repository/app_version_repository_impl.dart';
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
@@ -79,7 +85,10 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<StorageApiService>(
     () => StorageApiService(di<Dio>()),
   );
-  di.registerLazySingleton<RouteApiService>(() => RouteApiService(di<Dio>()));
+  di.registerLazySingleton<DeliveryRouteApiService>(
+    () => DeliveryRouteApiService(di<Dio>()),
+  );
+  di.registerLazySingleton<AiApiService>(() => AiApiService(di<Dio>()));
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -102,8 +111,13 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<StorageRepository>(
     () => StorageRepositoryImpl(storageApiService: di<StorageApiService>()),
   );
-  di.registerLazySingleton<RouteRepository>(
-    () => RouteRepositoryImpl(routeApiService: di<RouteApiService>()),
+  di.registerLazySingleton<DeliveryRouteRepository>(
+    () => DeliveryRouteRepositoryImpl(
+      deliveryRouteApiService: di<DeliveryRouteApiService>(),
+    ),
+  );
+  di.registerLazySingleton<AiRepository>(
+    () => AiRepositoryImpl(aiApiService: di<AiApiService>()),
   );
 
   // Đăng ký các usecase
@@ -146,17 +160,33 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<UpdateLocationUsecase>(
     () => UpdateLocationUsecase(locationRepository: di<LocationRepository>()),
   );
-  di.registerLazySingleton<AddRouteUsecase>(
-    () => AddRouteUsecase(routeRepository: di<RouteRepository>()),
+  di.registerLazySingleton<AddDeliveryRouteUsecase>(
+    () => AddDeliveryRouteUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
   );
-  di.registerLazySingleton<GetMyRoutesUsecase>(
-    () => GetMyRoutesUsecase(routeRepository: di<RouteRepository>()),
+  di.registerLazySingleton<GetDeliveryRoutesUsecase>(
+    () => GetDeliveryRoutesUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
   );
-  di.registerLazySingleton<UpdateMyRouteUsecase>(
-    () => UpdateMyRouteUsecase(routeRepository: di<RouteRepository>()),
+  di.registerLazySingleton<UpdateDeliveryRouteUsecase>(
+    () => UpdateDeliveryRouteUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
   );
-  di.registerLazySingleton<DeleteMyRouteUsecase>(
-    () => DeleteMyRouteUsecase(routeRepository: di<RouteRepository>()),
+  di.registerLazySingleton<DeleteDeliveryRouteUsecase>(
+    () => DeleteDeliveryRouteUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
+  di.registerLazySingleton<AddDeliveryOrderUsecase>(
+    () => AddDeliveryOrderUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
+  di.registerLazySingleton<ExtractOrderInfoUsecase>(
+    () => ExtractOrderInfoUsecase(aiRepository: di<AiRepository>()),
   );
 
   // Đăng ký các bloc
@@ -198,19 +228,33 @@ Future<void> initializeDependencies() async {
   di.registerFactory<GetUrlsCubit>(
     () => GetUrlsCubit(getDownloadUrlUsecase: di<GetDownloadUrlUsecase>()),
   );
-  di.registerFactory<AddRouteFormCubit>(
-    () => AddRouteFormCubit(addRouteUsecase: di<AddRouteUsecase>()),
-  );
-  di.registerFactory<GetMyRoutesCubit>(
-    () => GetMyRoutesCubit(getMyRoutesUsecase: di<GetMyRoutesUsecase>()),
-  );
-  di.registerFactory<SearchRoutesCubit>(() => SearchRoutesCubit());
-  di.registerFactory<UpdateMyRouteFormCubit>(
-    () => UpdateMyRouteFormCubit(
-      updateMyRouteUsecase: di<UpdateMyRouteUsecase>(),
+  di.registerFactory<AddDeliveryRouteFormCubit>(
+    () => AddDeliveryRouteFormCubit(
+      addDeliveryRouteUsecase: di<AddDeliveryRouteUsecase>(),
     ),
   );
-  di.registerFactory<DeleteMyRoutesCubit>(
-    () => DeleteMyRoutesCubit(deleteMyRouteUsecase: di<DeleteMyRouteUsecase>()),
+  di.registerFactory<GetDeliveryRoutesCubit>(
+    () => GetDeliveryRoutesCubit(
+      getDeliveryRoutesUsecase: di<GetDeliveryRoutesUsecase>(),
+    ),
+  );
+  di.registerFactory<SearchDeliveryRoutesCubit>(
+    () => SearchDeliveryRoutesCubit(),
+  );
+  di.registerFactory<UpdateDeliveryRouteFormCubit>(
+    () => UpdateDeliveryRouteFormCubit(
+      updateDeliveryRouteUsecase: di<UpdateDeliveryRouteUsecase>(),
+    ),
+  );
+  di.registerFactory<DeleteDeliveryRoutesCubit>(
+    () => DeleteDeliveryRoutesCubit(
+      deleteDeliveryRouteUsecase: di<DeleteDeliveryRouteUsecase>(),
+    ),
+  );
+  di.registerFactoryParam<AddDeliveryOrderFormCubit, String, void>(
+    (deliveryRouteId, _) => AddDeliveryOrderFormCubit(
+      deliveryRouteId: deliveryRouteId,
+      addDeliveryOrderUsecase: di<AddDeliveryOrderUsecase>(),
+    ),
   );
 }

@@ -5,11 +5,11 @@ import 'package:shipgo/features/location/data/models/point_model.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_state.dart';
-import 'package:shipgo/features/location/presentation/validators/address.dart';
-import 'package:shipgo/features/location/presentation/validators/contact_name.dart';
-import 'package:shipgo/features/location/presentation/validators/contact_phone.dart';
-import 'package:shipgo/features/location/presentation/validators/location.dart';
-import 'package:shipgo/features/location/presentation/validators/location_name.dart';
+import 'package:shipgo/features/location/presentation/inputs/address.dart';
+import 'package:shipgo/features/location/presentation/inputs/contact_name.dart';
+import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
+import 'package:shipgo/features/location/presentation/inputs/location.dart';
+import 'package:shipgo/features/location/presentation/inputs/location_name.dart';
 
 class AddLocationFormCubit extends Cubit<AddLocationFormState> {
   final AddLocationUsecase addLocationUsecase;

@@ -9,9 +9,9 @@ import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/widgets/m3_error_text.dart';
-import 'package:shipgo/core/widgets/m3_image_picker.dart';
-import 'package:shipgo/core/widgets/m3_map.dart';
+import 'package:shipgo/shared/widgets/m3_error_text.dart';
+import 'package:shipgo/shared/widgets/m3_image_picker.dart';
+import 'package:shipgo/shared/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/location/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
@@ -23,7 +23,7 @@ import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_cub
 import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_state.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_state.dart';
-import 'package:shipgo/features/location/presentation/validators/contact_phone.dart';
+import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
 
 class UpdateLocationPage extends StatefulWidget {
   const UpdateLocationPage({super.key});

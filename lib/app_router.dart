@@ -1,6 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/add_delivery_order_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/delivery_route_page.dart';
 import 'package:shipgo/features/explore/presentation/pages/explore_page.dart';
 import 'package:shipgo/features/location/presentation/pages/add_location_page.dart';
 import 'package:shipgo/features/location/presentation/pages/location_detail_page.dart';
@@ -8,10 +12,10 @@ import 'package:shipgo/features/location/presentation/pages/location_page.dart';
 import 'package:shipgo/features/location/presentation/pages/update_location_page.dart';
 import 'package:shipgo/features/main/presentation/pages/main_page.dart';
 import 'package:shipgo/features/person/presentation/pages/person_page.dart';
-import 'package:shipgo/features/route/presentation/pages/add_route_page.dart';
-import 'package:shipgo/features/route/presentation/pages/route_detail_page.dart';
-import 'package:shipgo/features/route/presentation/pages/route_page.dart';
-import 'package:shipgo/features/route/presentation/pages/update_route_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/add_delivery_route_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/delivery_order_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/delivery_route_detail_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/update_delivery_route_page.dart';
 import 'package:shipgo/features/splash/presentation/pages/splash_page.dart';
 
 final appRouter = GoRouter(
@@ -70,24 +74,34 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              name: AppRouteNames.route,
-              path: '/route',
-              builder: (context, state) => const RoutePage(),
+              name: AppRouteNames.deliveryRoute,
+              path: '/delivery-route',
+              builder: (context, state) => const DeliveryRoutePage(),
               routes: [
                 GoRoute(
-                  name: AppRouteNames.addRoute,
+                  name: AppRouteNames.addDeliveryRoute,
                   path: '/add',
-                  builder: (context, state) => const AddRoutePage(),
+                  builder: (context, state) => const AddDeliveryRoutePage(),
                 ),
                 GoRoute(
-                  name: AppRouteNames.routeDetail,
+                  name: AppRouteNames.deliveryRouteDetail,
                   path: '/:id/detail',
-                  builder: (context, state) => RouteDetailPage(),
+                  builder: (context, state) => DeliveryRouteDetailPage(),
                 ),
                 GoRoute(
-                  name: AppRouteNames.updateMyRoute,
+                  name: AppRouteNames.updateDeliveryRoute,
                   path: '/:id/update',
-                  builder: (context, state) => UpdateRoutePage(),
+                  builder: (context, state) => UpdateDeliveryRoutePage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.deliveryOrder,
+                  path: '/:id/delivery-order',
+                  builder: (context, state) => DeliveryOrderPage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.addDeliveryOrder,
+                  path: '/:id/delivery-order/add',
+                  builder: (context, state) => AddDeliveryOrderPage(),
                 ),
               ],
             ),
