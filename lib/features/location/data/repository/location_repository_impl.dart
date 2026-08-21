@@ -1,9 +1,9 @@
 import 'package:shipgo/core/network/api_response.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
-import 'package:shipgo/features/location/domain/entities/media_entity.dart';
-import 'package:shipgo/features/location/domain/entities/point_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/media_entity.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 
 class LocationRepositoryImpl implements LocationRepository {
@@ -13,15 +13,15 @@ class LocationRepositoryImpl implements LocationRepository {
 
   @override
   Future<DataState<Pagination<LocationEntity>>> getMyLocations({
-    GetMyLocationQuery? query,
+    GetMyLocationParams? params,
   }) async {
     try {
-      final dataState = await locationApiService.getSavedLocations(
-        query: GetSavedLocationsQuery(
-          page: query?.pageNumber,
-          limit: query?.pageSize,
-          keyword: query?.keyword,
-          id: query?.id,
+      final dataState = await locationApiService.getMyLocations(
+        query: GetMyLocationsQuery(
+          page: params?.pageNumber,
+          limit: params?.pageSize,
+          keyword: params?.keyword,
+          id: params?.id,
         ),
       );
       final data = dataState.data.data!;
@@ -36,10 +36,7 @@ class LocationRepositoryImpl implements LocationRepository {
                   contactName: locationModel.contactName,
                   contactPhone: locationModel.contactPhone,
                   media: locationModel.media
-                      .map(
-                        (media) =>
-                            MediaEntity(id: media.id, fileKey: media.fileKey),
-                      )
+                      .map((media) => MediaEntity(id: media.id, url: media.url))
                       .toList(),
                   note: locationModel.note,
                   address: locationModel.address,
@@ -60,43 +57,27 @@ class LocationRepositoryImpl implements LocationRepository {
   }
 
   @override
-  Future<DataState<LocationEntity>> saveLocation({
-    required SaveLocationData data,
+  Future<DataState<dynamic>> createLocation({
+    required CreateLocationParams params,
   }) async {
     try {
-      final dataState = await locationApiService.saveLocation(
-        body: SaveLocationBodyRequest(
-          locationName: data.locationName,
-          contactName: data.contactName,
-          contactPhone: data.contactPhone,
-          address: data.address,
-          location: data.location != null
-              ? LocationDataRequest(x: data.location!.x, y: data.location!.y)
+      final dataState = await locationApiService.createLocation(
+        body: CreateLocationBodyRequest(
+          locationName: params.locationName,
+          contactName: params.contactName,
+          contactPhone: params.contactPhone,
+          address: params.address,
+          location: params.location != null
+              ? LocationBodyRequest(
+                  x: params.location!.x,
+                  y: params.location!.y,
+                )
               : null,
-          note: data.note,
-          mediaIds: data.mediaIds,
+          note: params.note,
+          mediaIds: params.mediaIds,
         ),
       );
-      final locationModel = dataState.data.data!;
-      return DataSuccess(
-        LocationEntity(
-          id: locationModel.id,
-          locationName: locationModel.locationName,
-          contactName: locationModel.contactName,
-          contactPhone: locationModel.contactPhone,
-          media: locationModel.media
-              .map((media) => MediaEntity(id: media.id, fileKey: media.fileKey))
-              .toList(),
-          note: locationModel.note,
-          address: locationModel.address,
-          location: PointEntity(
-            x: locationModel.location.x,
-            y: locationModel.location.y,
-          ),
-          createdAt: locationModel.createdAt,
-          updatedAt: locationModel.updatedAt,
-        ),
-      );
+      return DataSuccess(dataState.data.data);
     } catch (e) {
       return DataFailed(e);
     }
@@ -116,7 +97,7 @@ class LocationRepositoryImpl implements LocationRepository {
           contactPhone: data.contactPhone,
           address: data.address,
           location: data.location != null
-              ? LocationDataRequest(x: data.location!.x, y: data.location!.y)
+              ? LocationBodyRequest(x: data.location!.x, y: data.location!.y)
               : null,
           note: data.note,
           mediaIds: data.mediaIds,

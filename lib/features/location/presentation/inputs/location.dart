@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:shipgo/features/location/data/models/point_model.dart';
+import 'package:shipgo/shared/data/models/point_model.dart';
 
 enum LocationValidationError { empty }
 

@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shipgo/features/location/data/models/media_model.dart';
-import 'package:shipgo/features/location/data/models/point_model.dart';
+import 'package:shipgo/shared/data/models/media_model.dart';
+import 'package:shipgo/shared/data/models/point_model.dart';
 
 part 'location_model.g.dart';
 
@@ -10,7 +10,6 @@ class LocationModel {
   final String locationName;
   final String contactName;
   final String contactPhone;
-  @JsonKey(defaultValue: [])
   final List<MediaModel> media;
   final String? note;
   final String address;

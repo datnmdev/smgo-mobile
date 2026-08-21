@@ -10,6 +10,7 @@ import 'package:mime/mime.dart';
 import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/widgets/m3_image_picker.dart';
@@ -482,7 +483,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
           const SizedBox(height: 12),
 
-          _buildSavedAddressSuggestion(),
+          _buildSavedAddressSuggestions(
+            selectedIndex: 0,
+            suggestions: [],
+            onItemSelected: (value) {},
+          ),
 
           const SizedBox(height: 12),
 
@@ -687,7 +692,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Suggestion Card Component
   Widget _buildSavedAddressSuggestions({
-    required List<LocationE> suggestions,
+    required List<LocationEntity> suggestions,
     required int selectedIndex,
     required ValueChanged<int> onItemSelected,
   }) {
@@ -789,7 +794,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        item.name,
+                                        item.contactName,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
@@ -804,7 +809,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: primaryGreen.withOpacity(0.1),
+                                          color: primaryGreen.withAlpha(
+                                            (0.1 * 255).round(),
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -827,19 +834,26 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: item.isSavedByUser
-                                            ? Colors.blue.withOpacity(0.1)
-                                            : Colors.orange.withOpacity(0.1),
+                                        color:
+                                            // item.isSavedByUser
+                                            false
+                                            ? Colors.blue.withAlpha(
+                                                (0.1 * 255).round(),
+                                              )
+                                            : Colors.orange.withAlpha(
+                                                (0.1 * 255).round(),
+                                              ),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        item.isSavedByUser
-                                            ? 'Đã lưu'
-                                            : 'Cộng đồng',
+                                        // item.isSavedByUser
+                                        false ? 'Đã lưu' : 'Cộng đồng',
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w500,
-                                          color: item.isSavedByUser
+                                          color:
+                                              // item.isSavedByUser
+                                              false
                                               ? Colors.blue[700]
                                               : Colors.orange[800],
                                         ),
@@ -849,7 +863,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  item.phone,
+                                  item.contactPhone,
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.black87,

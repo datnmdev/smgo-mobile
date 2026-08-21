@@ -37,7 +37,6 @@ import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.da
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_cubic.dart';
 import 'package:shipgo/features/location/presentation/bloc/location_selection/location_selection_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
@@ -224,9 +223,6 @@ Future<void> initializeDependencies() async {
       updateLocationUsecase: di<UpdateLocationUsecase>(),
       locationId: locationId,
     ),
-  );
-  di.registerFactory<GetUrlsCubit>(
-    () => GetUrlsCubit(getDownloadUrlUsecase: di<GetDownloadUrlUsecase>()),
   );
   di.registerFactory<AddDeliveryRouteFormCubit>(
     () => AddDeliveryRouteFormCubit(

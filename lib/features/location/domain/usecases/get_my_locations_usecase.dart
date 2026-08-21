@@ -1,15 +1,12 @@
 import 'package:shipgo/core/network/api_response.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 
 class GetMyLocationsUsecase
     implements
-        Usecase<
-          DataState<Pagination<LocationEntity>>,
-          GetMyLocationsParams?
-        > {
+        Usecase<DataState<Pagination<LocationEntity>>, GetMyLocationsParams?> {
   final LocationRepository locationRepository;
 
   const GetMyLocationsUsecase({required this.locationRepository});
@@ -19,7 +16,7 @@ class GetMyLocationsUsecase
     GetMyLocationsParams? params,
   }) {
     return locationRepository.getMyLocations(
-      query: GetMyLocationQuery(
+      params: GetMyLocationParams(
         keyword: params?.keyword,
         pageNumber: params?.pageNumber,
         pageSize: params?.pageSize,

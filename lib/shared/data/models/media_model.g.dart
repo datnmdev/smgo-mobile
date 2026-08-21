@@ -7,7 +7,7 @@ part of 'media_model.dart';
 // **************************************************************************
 
 MediaModel _$MediaModelFromJson(Map<String, dynamic> json) =>
-    MediaModel(id: json['id'] as String, fileKey: json['fileKey'] as String);
+    MediaModel(id: json['id'] as String, url: json['url'] as String);
 
 Map<String, dynamic> _$MediaModelToJson(MediaModel instance) =>
-    <String, dynamic>{'id': instance.id, 'fileKey': instance.fileKey};
+    <String, dynamic>{'id': instance.id, 'url': instance.url};

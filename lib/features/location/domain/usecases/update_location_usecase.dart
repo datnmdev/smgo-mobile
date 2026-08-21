@@ -3,13 +3,15 @@ import 'package:shipgo/core/resources/usecase.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 
 class UpdateLocationUsecase
-    implements Usecase<DataState<dynamic>, UpdateLocationParams> {
+    implements Usecase<DataState<dynamic>, UpdateLocationUsecaseParams> {
   final LocationRepository locationRepository;
 
   UpdateLocationUsecase({required this.locationRepository});
 
   @override
-  Future<DataState<dynamic>> call({required UpdateLocationParams params}) {
+  Future<DataState<dynamic>> call({
+    required UpdateLocationUsecaseParams params,
+  }) {
     return locationRepository.updateLocation(
       locationId: params.locationId,
       data: UpdateLocationData(
@@ -25,7 +27,7 @@ class UpdateLocationUsecase
   }
 }
 
-class UpdateLocationParams {
+class UpdateLocationUsecaseParams {
   final String locationId;
   final String locationName;
   final String contactName;
@@ -35,7 +37,7 @@ class UpdateLocationParams {
   final String address;
   final LocationData location;
 
-  UpdateLocationParams({
+  UpdateLocationUsecaseParams({
     required this.locationId,
     required this.locationName,
     required this.contactName,

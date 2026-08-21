@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
+import 'package:shipgo/shared/domain/entities/media_entity.dart';
 
 class LocationContactCard extends StatefulWidget {
-  final List<String> media;
+  final List<MediaEntity> media;
   final String locationName;
   final String contactName;
   final String contactPhone;
@@ -26,53 +25,8 @@ class LocationContactCard extends StatefulWidget {
 }
 
 class _LocationContactCardState extends State<LocationContactCard> {
-  String? downloadUrl;
   bool isLoading = false;
-
   bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchDownloadUrl();
-  }
-
-  @override
-  void didUpdateWidget (LocationContactCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.media != widget.media) {
-      _fetchDownloadUrl();
-    }
-  }
-
-  Future<void> _fetchDownloadUrl() async {
-    if (widget.media.isNotEmpty) {
-      setState(() {
-        isLoading = true;
-      });
-
-      try {
-        final result = await di<GetDownloadUrlUsecase>().call(
-          params: GetDownloadUrlParams(
-            fileKey: widget.media[0],
-          ),
-        );
-
-        if (mounted) {
-          setState(() {
-            downloadUrl = result.data;
-            isLoading = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-    }
-  }
 
   void _handleTapDown(TapDownDetails details) {
     setState(() {
@@ -105,38 +59,16 @@ class _LocationContactCardState extends State<LocationContactCard> {
     Widget imageWidget;
 
     if (widget.media.isNotEmpty) {
-      if (isLoading) {
-        imageWidget = Container(
+      imageWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          widget.media[0].url,
           width: 64,
           height: 64,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Center(
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
-            ),
-          ),
-        );
-      } else if (downloadUrl != null && downloadUrl!.isNotEmpty) {
-        imageWidget = ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.network(
-            downloadUrl!,
-            width: 64,
-            height: 64,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _buildFallbackIcon(),
-          ),
-        );
-      } else {
-        imageWidget = _buildFallbackIcon();
-      }
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => _buildFallbackIcon(),
+        ),
+      );
     } else {
       imageWidget = ClipRRect(
         borderRadius: BorderRadius.circular(12),
@@ -285,11 +217,7 @@ class _LocationContactCardState extends State<LocationContactCard> {
         color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(
-        Icons.location_on,
-        color: AppColors.primary,
-        size: 32,
-      ),
+      child: Icon(Icons.location_on, color: AppColors.primary, size: 32),
     );
   }
 }

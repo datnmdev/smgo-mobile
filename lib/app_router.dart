@@ -60,7 +60,7 @@ final appRouter = GoRouter(
                 GoRoute(
                   name: AppRouteNames.locationDetail,
                   path: '/:id/detail-info',
-                  builder: (context, state) => const LocationDetailPage(),
+                  builder: (context, state) => LocationDetailPage(),
                 ),
                 GoRoute(
                   name: AppRouteNames.updateLocation,

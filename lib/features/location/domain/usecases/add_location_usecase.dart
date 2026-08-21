@@ -1,18 +1,17 @@
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 
 class AddLocationUsecase
-    implements Usecase<DataState<LocationEntity>, AddLocationParams> {
+    implements Usecase<DataState<dynamic>, AddLocationUsecaseParams> {
   final LocationRepository locationRepository;
 
   AddLocationUsecase({required this.locationRepository});
 
   @override
-  Future<DataState<LocationEntity>> call({required AddLocationParams params}) {
-    return locationRepository.saveLocation(
-      data: SaveLocationData(
+  Future<DataState<dynamic>> call({required AddLocationUsecaseParams params}) {
+    return locationRepository.createLocation(
+      params: CreateLocationParams(
         locationName: params.locationName,
         contactName: params.contactName,
         contactPhone: params.contactPhone,
@@ -25,7 +24,7 @@ class AddLocationUsecase
   }
 }
 
-class AddLocationParams {
+class AddLocationUsecaseParams {
   final String locationName;
   final String contactName;
   final String contactPhone;
@@ -34,7 +33,7 @@ class AddLocationParams {
   final String address;
   final LocationData location;
 
-  AddLocationParams({
+  AddLocationUsecaseParams({
     required this.locationName,
     required this.contactName,
     required this.contactPhone,

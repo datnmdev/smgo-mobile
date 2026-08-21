@@ -8,7 +8,7 @@ import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/usecases/delete_location_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
@@ -689,7 +689,7 @@ class _LocationContactCardItem extends StatelessWidget {
             locationName: location.locationName,
             contactName: location.contactName,
             contactPhone: location.contactPhone,
-            media: location.media.map((e) => e.fileKey).toList(),
+            media: location.media,
           ),
         ),
       ],

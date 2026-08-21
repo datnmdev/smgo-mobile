@@ -1,5 +1,5 @@
 import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 
 abstract class GetMyLocationsState {
   final Pagination<LocationEntity>? data;

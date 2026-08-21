@@ -1,28 +1,28 @@
 import 'package:shipgo/core/network/api_response.dart';
 import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 
 abstract class LocationRepository {
   Future<DataState<Pagination<LocationEntity>>> getMyLocations({
-    GetMyLocationQuery? query,
+    GetMyLocationParams? params,
   });
-  Future<DataState<LocationEntity>> saveLocation({
-    required SaveLocationData data,
+  Future<DataState<dynamic>> createLocation({
+    required CreateLocationParams params,
   });
-  Future<DataState<void>> updateLocation({
+  Future<DataState<dynamic>> updateLocation({
     required String locationId,
     required UpdateLocationData data,
   });
   Future<DataState<dynamic>> deleteLocation({required String locationId});
 }
 
-class GetMyLocationQuery {
+class GetMyLocationParams {
   final String? keyword;
   final int? pageNumber;
   final int? pageSize;
   final String? id;
 
-  const GetMyLocationQuery({
+  const GetMyLocationParams({
     this.keyword,
     this.pageNumber,
     this.pageSize,
@@ -37,7 +37,7 @@ class LocationData {
   const LocationData({required this.x, required this.y});
 }
 
-class SaveLocationData {
+class CreateLocationParams {
   String locationName;
   String contactName;
   String contactPhone;
@@ -46,7 +46,7 @@ class SaveLocationData {
   String? note;
   LocationData? location;
 
-  SaveLocationData({
+  CreateLocationParams({
     required this.locationName,
     required this.contactName,
     required this.contactPhone,

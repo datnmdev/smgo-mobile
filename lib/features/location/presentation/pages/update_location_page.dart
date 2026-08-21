@@ -13,14 +13,12 @@ import 'package:shipgo/shared/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/location/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_cubic.dart';
-import 'package:shipgo/features/location/presentation/bloc/get_urls/get_urls_state.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_state.dart';
 import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
@@ -33,34 +31,42 @@ class UpdateLocationPage extends StatefulWidget {
 }
 
 class _UpdateLocationPageState extends State<UpdateLocationPage> {
-  late UpdateLocationFormCubit _updateLocationFormCubit;
+  late LocationEntity locationData;
+  late TextEditingController locationNameController;
+  late TextEditingController contactNameController;
+  late TextEditingController contactPhoneController;
+  late TextEditingController addressController;
+  late TextEditingController noteController;
   bool _isInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    super.dispose();
+    locationNameController.dispose();
+    contactNameController.dispose();
+    contactPhoneController.dispose();
+    addressController.dispose();
+    noteController.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     if (!_isInitialized) {
       final extra = GoRouterState.of(context).extra as Map<String, Object>;
-      final locationData = extra['LocationData'] as LocationEntity;
-      _updateLocationFormCubit = di<UpdateLocationFormCubit>(
-        param1: locationData.id,
+      locationData = extra['LocationData'] as LocationEntity;
+      locationNameController = TextEditingController(
+        text: locationData.locationName,
       );
-      _updateLocationFormCubit.locationNameChanged(locationData.locationName);
-      _updateLocationFormCubit.contactNameChanged(locationData.contactName);
-      _updateLocationFormCubit.contactPhoneChanged(locationData.contactPhone);
-      _updateLocationFormCubit.addressChanged(locationData.address);
-      _updateLocationFormCubit.locationChanged(
-        LatLng(locationData.location.y, locationData.location.x),
+      contactNameController = TextEditingController(
+        text: locationData.contactName,
       );
-      _updateLocationFormCubit.noteChanged(locationData.note ?? '');
-      _updateLocationFormCubit.mediaIdsChanged(
-        locationData.media.map((e) => e.id).toList(),
+      contactPhoneController = TextEditingController(
+        text: locationData.contactPhone,
       );
+      addressController = TextEditingController(text: locationData.address);
+      noteController = TextEditingController(text: locationData.note ?? '');
       _isInitialized = true;
     }
   }
@@ -69,7 +75,6 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
-    final locationData = extra['LocationData'] as LocationEntity;
     final getMyLocationsCubitInLP =
         extra['GetMyLocationsCubitInLP'] as GetMyLocationsCubit;
     final getMyLocationsParamsInLP =
@@ -79,91 +84,87 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
     final getMyLocationsParamsInLDP =
         extra['GetMyLocationsParamsInLDP'] as GetMyLocationsParams;
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<UpdateLocationFormCubit>(
-          create: (context) => _updateLocationFormCubit,
-        ),
-        BlocProvider<GetUrlsCubit>(
-          create: (context) =>
-              di<GetUrlsCubit>()
-                ..call(locationData.media.map((e) => e.fileKey).toList()),
-        ),
-      ],
-      child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // App bar
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha((0.8 * 255).round()),
-                    offset: Offset(0, 0),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: statusBarHeight),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_back_ios_new),
-                            color: Colors.white,
-                            onPressed: () {
-                              context.pop();
-                            },
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            AppStrings.uLPPageTitle.tr(),
-                            style: TextStyle(fontSize: 20, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 16),
+    return BlocProvider<UpdateLocationFormCubit>(
+      create: (context) {
+        final cubit = di<UpdateLocationFormCubit>(param1: locationData.id);
+        cubit.locationNameChanged(locationData.locationName);
+        cubit.contactNameChanged(locationData.contactName);
+        cubit.contactPhoneChanged(locationData.contactPhone);
+        cubit.addressChanged(locationData.address);
+        cubit.noteChanged(locationData.note ?? '');
+        cubit.locationChanged(
+          LatLng(locationData.location.y, locationData.location.x),
+        );
+        cubit.mediaIdsChanged(locationData.media.map((e) => e.id).toList());
+        return cubit;
+      },
 
-                      BlocConsumer<
-                        UpdateLocationFormCubit,
-                        UpdateLocationFormState
-                      >(
-                        listenWhen: (previous, current) => previous != current,
-                        listener: (context, state) {
-                          if (state is UpdateLocationFormDone) {
-                            getMyLocationsCubitInLDP.call(
-                              getMyLocationsParamsInLDP,
-                            );
-                            getMyLocationsCubitInLP.call(
-                              getMyLocationsParamsInLP,
-                            );
-                            context.pop();
-                          }
-                        },
-                        buildWhen: (previous, current) =>
-                            current is! UpdateLocationFormInitial,
-                        builder: (context, state) {
-                          if (state is UpdateLocationFormLoading) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 4.0,
-                                ),
+      child: BlocConsumer<UpdateLocationFormCubit, UpdateLocationFormState>(
+        listener: (context, state) {
+          if (state is UpdateLocationFormDone) {
+            getMyLocationsCubitInLDP.call(getMyLocationsParamsInLDP);
+            getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
+            context.pop();
+          }
+        },
+        builder: (context, state) => Scaffold(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // App bar
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha((0.8 * 255).round()),
+                      offset: Offset(0, 0),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: statusBarHeight),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.arrow_back_ios_new),
+                              color: Colors.white,
+                              onPressed: () {
+                                context.pop();
+                              },
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              AppStrings.uLPPageTitle.tr(),
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
                               ),
-                            );
-                          }
-                          return TextButton(
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 16),
+
+                        if (state is UpdateLocationFormLoading)
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 4.0,
+                              ),
+                            ),
+                          )
+                        else
+                          TextButton(
                             onPressed: () {
                               context.read<UpdateLocationFormCubit>().submit();
                             },
@@ -175,50 +176,40 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Body
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Thông tin chính
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 16),
-                          Text(
-                            AppStrings.uLPPrimaryInfoLabel.tr(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
                           ),
-                          SizedBox(height: 12),
-                          Column(
-                            children: [
-                              // Tên địa điểm
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.locationName !=
-                                    current.locationName,
-                                builder: (context, state) => Column(
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Body
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Thông tin chính
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 16),
+                            Text(
+                              AppStrings.uLPPrimaryInfoLabel.tr(),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Column(
+                              children: [
+                                // Tên địa điểm
+                                Column(
                                   children: [
-                                    TextFormField(
-                                      initialValue: locationData.locationName,
+                                    TextField(
                                       onChanged: (value) => context
                                           .read<UpdateLocationFormCubit>()
                                           .locationNameChanged(value),
@@ -226,6 +217,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                         FocusManager.instance.primaryFocus
                                             ?.unfocus();
                                       },
+                                      controller: locationNameController,
                                       decoration: InputDecoration(
                                         labelText: AppStrings
                                             .uLPLocationNameFieldLabel
@@ -264,21 +256,14 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                       ),
                                   ],
                                 ),
-                              ),
 
-                              SizedBox(height: 12),
+                                SizedBox(height: 12),
 
-                              // Tên người liên hệ
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.contactName != current.contactName,
-                                builder: (context, state) => Column(
+                                // Tên người liên hệ
+                                Column(
                                   children: [
-                                    TextFormField(
-                                      initialValue: locationData.contactName,
+                                    TextField(
+                                      controller: contactNameController,
                                       onChanged: (value) => context
                                           .read<UpdateLocationFormCubit>()
                                           .contactNameChanged(value),
@@ -322,22 +307,14 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                       ),
                                   ],
                                 ),
-                              ),
 
-                              SizedBox(height: 12),
+                                SizedBox(height: 12),
 
-                              // Số điện thoại liên lạc
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.contactPhone !=
-                                    current.contactPhone,
-                                builder: (context, state) => Column(
+                                // Số điện thoại liên lạc
+                                Column(
                                   children: [
-                                    TextFormField(
-                                      initialValue: locationData.contactPhone,
+                                    TextField(
+                                      controller: contactPhoneController,
                                       onChanged: (value) => context
                                           .read<UpdateLocationFormCubit>()
                                           .contactPhoneChanged(value),
@@ -398,37 +375,30 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                       ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 32),
-                      // Vị trí
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Vị trí',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              ],
                             ),
-                          ),
-                          SizedBox(height: 12),
-                          Column(
-                            children: [
-                              // Địa chỉ
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.address != current.address,
-                                builder: (context, state) => Column(
+                          ],
+                        ),
+                        SizedBox(height: 32),
+                        // Vị trí
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Vị trí',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Column(
+                              children: [
+                                // Địa chỉ
+                                Column(
                                   children: [
-                                    TextFormField(
-                                      initialValue: locationData.address,
+                                    TextField(
+                                      controller: addressController,
                                       onChanged: (value) => context
                                           .read<UpdateLocationFormCubit>()
                                           .addressChanged(value),
@@ -472,19 +442,10 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                       ),
                                   ],
                                 ),
-                              ),
 
-                              SizedBox(height: 12),
+                                SizedBox(height: 12),
 
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.location != current.location ||
-                                    previous.address.value !=
-                                        current.address.value,
-                                builder: (context, state) => Column(
+                                Column(
                                   children: [
                                     M3MapWidget(
                                       userAgentPackageName: Env.packageName,
@@ -520,37 +481,30 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                       ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      // Thông tin bổ sung
-                      SizedBox(height: 32),
-                      // Vị trí
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppStrings.uLPSecondaryInfoLabel.tr(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              ],
                             ),
-                          ),
-                          SizedBox(height: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Ghi chú
-                              BlocBuilder<
-                                UpdateLocationFormCubit,
-                                UpdateLocationFormState
-                              >(
-                                buildWhen: (previous, current) =>
-                                    previous.note != current.note,
-                                builder: (context, state) => TextFormField(
-                                  initialValue: locationData.note,
+                          ],
+                        ),
+                        // Thông tin bổ sung
+                        SizedBox(height: 32),
+                        // Vị trí
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppStrings.uLPSecondaryInfoLabel.tr(),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Ghi chú
+                                TextField(
+                                  controller: noteController,
                                   onChanged: (value) => context
                                       .read<UpdateLocationFormCubit>()
                                       .noteChanged(value),
@@ -587,168 +541,133 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              SizedBox(height: 12),
+                                SizedBox(height: 12),
 
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppStrings.uLPAttachedImageLabel.tr(),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      AppStrings.uLPAttachedImageLabel.tr(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
+                                    SizedBox(height: 8),
 
-                                  BlocBuilder<
-                                    UpdateLocationFormCubit,
-                                    UpdateLocationFormState
-                                  >(
-                                    builder: (context, state) =>
-                                        BlocBuilder<GetUrlsCubit, GetUrlsState>(
-                                          builder: (context, state) => M3ImagePickerGrid(
-                                            key: ValueKey(
-                                              state is GetUrlsDone
-                                                  ? state.urls.hashCode
-                                                  : state.hashCode,
+                                    M3ImagePickerGrid(
+                                      initialImages: locationData.media
+                                          .map(
+                                            (e) => GridImageItem(
+                                              id: e.id,
+                                              path: e.url,
                                             ),
-                                            initialImages: [
-                                              if (state is GetUrlsDone)
-                                                for (
-                                                  int i = 0;
-                                                  i < locationData.media.length;
-                                                  ++i
-                                                )
-                                                  GridImageItem(
-                                                    id: locationData
-                                                        .media[i]
-                                                        .id,
-                                                    path: state.urls[i],
-                                                  ),
-                                            ],
-                                            takeNewPhotoTitle: AppStrings
-                                                .m3IPGTakeNewPhotoTitle
-                                                .tr(),
-                                            selectFromLibrary: AppStrings
-                                                .m3IPGSelectFromLibrary
-                                                .tr(),
-                                            cameraTitle: AppStrings
-                                                .m3IPGCameraTitle
-                                                .tr(),
-                                            imageLibraryTitle: AppStrings
-                                                .m3IPGImageLibraryTitle
-                                                .tr(),
-                                            cancelButtonTitle: AppStrings
-                                                .m3IPGCancelButtonTitle
-                                                .tr(),
-                                            openSettingsButtonTitle: AppStrings
-                                                .m3IPGOpenSettingsButtonTitle
-                                                .tr(),
-                                            requestPermissionText:
-                                                (permissionName) => AppStrings
-                                                    .m3IPGRequestPermissionText
-                                                    .tr(
-                                                      namedArgs: {
-                                                        "permissionName":
-                                                            permissionName,
-                                                      },
-                                                    ),
-                                            requestPermissionContentText:
-                                                (permissionName) => AppStrings
-                                                    .m3IPGRequestPermissionContentText
-                                                    .tr(
-                                                      namedArgs: {
-                                                        "permissionName":
-                                                            permissionName,
-                                                      },
-                                                    ),
-                                            addImageButtonTitle: (content) =>
-                                                AppStrings
-                                                    .m3IPGAddImageButtonTitle
-                                                    .tr(
-                                                      namedArgs: {
-                                                        'content': content,
-                                                      },
-                                                    ),
-                                            onUploadImage: (file) async {
-                                              final uploadUrlDataState =
-                                                  await di<
-                                                        GetUploadUrlUsecase
-                                                      >()
-                                                      .call();
-                                              if (uploadUrlDataState
-                                                  is DataSuccess) {
-                                                final fileBytes = await file
-                                                    .readAsBytes();
-                                                await di<UploadMediaUsecase>().call(
-                                                  params: UploadMediaParams(
-                                                    url: uploadUrlDataState
-                                                        .data!
-                                                        .uploadUrl,
-                                                    contentType:
-                                                        lookupMimeType(
-                                                          file.path,
-                                                        ) ??
-                                                        'application/octet-stream',
-                                                    file: fileBytes,
-                                                  ),
-                                                );
-                                                final pathDataState =
-                                                    await di<
-                                                          GetDownloadUrlUsecase
-                                                        >()
-                                                        .call(
-                                                          params: GetDownloadUrlParams(
-                                                            fileKey:
-                                                                uploadUrlDataState
-                                                                    .data!
-                                                                    .fileKey,
-                                                          ),
-                                                        );
-                                                if (pathDataState
-                                                    is DataSuccess) {
-                                                  return (
-                                                    id: uploadUrlDataState
-                                                        .data!
-                                                        .mediaId,
-                                                    path: pathDataState.data!,
+                                          )
+                                          .toList(),
+                                      takeNewPhotoTitle: AppStrings
+                                          .m3IPGTakeNewPhotoTitle
+                                          .tr(),
+                                      selectFromLibrary: AppStrings
+                                          .m3IPGSelectFromLibrary
+                                          .tr(),
+                                      cameraTitle: AppStrings.m3IPGCameraTitle
+                                          .tr(),
+                                      imageLibraryTitle: AppStrings
+                                          .m3IPGImageLibraryTitle
+                                          .tr(),
+                                      cancelButtonTitle: AppStrings
+                                          .m3IPGCancelButtonTitle
+                                          .tr(),
+                                      openSettingsButtonTitle: AppStrings
+                                          .m3IPGOpenSettingsButtonTitle
+                                          .tr(),
+                                      requestPermissionText: (permissionName) =>
+                                          AppStrings.m3IPGRequestPermissionText
+                                              .tr(
+                                                namedArgs: {
+                                                  "permissionName":
+                                                      permissionName,
+                                                },
+                                              ),
+                                      requestPermissionContentText:
+                                          (permissionName) => AppStrings
+                                              .m3IPGRequestPermissionContentText
+                                              .tr(
+                                                namedArgs: {
+                                                  "permissionName":
+                                                      permissionName,
+                                                },
+                                              ),
+                                      addImageButtonTitle: (content) =>
+                                          AppStrings.m3IPGAddImageButtonTitle
+                                              .tr(
+                                                namedArgs: {'content': content},
+                                              ),
+                                      onUploadImage: (file) async {
+                                        final uploadUrlDataState =
+                                            await di<GetUploadUrlUsecase>()
+                                                .call();
+                                        if (uploadUrlDataState is DataSuccess) {
+                                          final fileBytes = await file
+                                              .readAsBytes();
+                                          await di<UploadMediaUsecase>().call(
+                                            params: UploadMediaParams(
+                                              url: uploadUrlDataState
+                                                  .data!
+                                                  .uploadUrl,
+                                              contentType:
+                                                  lookupMimeType(file.path) ??
+                                                  'application/octet-stream',
+                                              file: fileBytes,
+                                            ),
+                                          );
+                                          final pathDataState =
+                                              await di<GetDownloadUrlUsecase>()
+                                                  .call(
+                                                    params:
+                                                        GetDownloadUrlParams(
+                                                          fileKey:
+                                                              uploadUrlDataState
+                                                                  .data!
+                                                                  .fileKey,
+                                                        ),
                                                   );
-                                                }
-                                              }
-                                              return null;
-                                            },
-                                            onImagesChanged: (images) {
-                                              context
-                                                  .read<
-                                                    UpdateLocationFormCubit
-                                                  >()
-                                                  .mediaIdsChanged(
-                                                    images
-                                                        .map(
-                                                          (image) => image.id,
-                                                        )
-                                                        .toList(),
-                                                  );
-                                            },
-                                          ),
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 16),
-                        ],
-                      ),
-                    ],
+                                          if (pathDataState is DataSuccess) {
+                                            return (
+                                              id: uploadUrlDataState
+                                                  .data!
+                                                  .mediaId,
+                                              path: pathDataState.data!,
+                                            );
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                      onImagesChanged: (images) {
+                                        context
+                                            .read<UpdateLocationFormCubit>()
+                                            .mediaIdsChanged(
+                                              images
+                                                  .map((image) => image.id)
+                                                  .toList(),
+                                            );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

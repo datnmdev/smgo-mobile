@@ -6,17 +6,16 @@ part of 'location_api_service.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-GetSavedLocationsQuery _$GetSavedLocationsQueryFromJson(
-  Map<String, dynamic> json,
-) => GetSavedLocationsQuery(
-  keyword: json['keyword'] as String?,
-  page: (json['page'] as num?)?.toInt(),
-  limit: (json['limit'] as num?)?.toInt(),
-  id: json['id'] as String?,
-);
+GetMyLocationsQuery _$GetMyLocationsQueryFromJson(Map<String, dynamic> json) =>
+    GetMyLocationsQuery(
+      keyword: json['keyword'] as String?,
+      page: (json['page'] as num?)?.toInt(),
+      limit: (json['limit'] as num?)?.toInt(),
+      id: json['id'] as String?,
+    );
 
-Map<String, dynamic> _$GetSavedLocationsQueryToJson(
-  GetSavedLocationsQuery instance,
+Map<String, dynamic> _$GetMyLocationsQueryToJson(
+  GetMyLocationsQuery instance,
 ) => <String, dynamic>{
   'keyword': ?instance.keyword,
   'page': ?instance.page,
@@ -24,19 +23,19 @@ Map<String, dynamic> _$GetSavedLocationsQueryToJson(
   'id': ?instance.id,
 };
 
-LocationDataRequest _$LocationDataRequestFromJson(Map<String, dynamic> json) =>
-    LocationDataRequest(
+LocationBodyRequest _$LocationBodyRequestFromJson(Map<String, dynamic> json) =>
+    LocationBodyRequest(
       x: (json['x'] as num).toDouble(),
       y: (json['y'] as num).toDouble(),
     );
 
-Map<String, dynamic> _$LocationDataRequestToJson(
-  LocationDataRequest instance,
+Map<String, dynamic> _$LocationBodyRequestToJson(
+  LocationBodyRequest instance,
 ) => <String, dynamic>{'x': instance.x, 'y': instance.y};
 
-SaveLocationBodyRequest _$SaveLocationBodyRequestFromJson(
+CreateLocationBodyRequest _$CreateLocationBodyRequestFromJson(
   Map<String, dynamic> json,
-) => SaveLocationBodyRequest(
+) => CreateLocationBodyRequest(
   locationName: json['locationName'] as String,
   contactName: json['contactName'] as String,
   contactPhone: json['contactPhone'] as String,
@@ -47,11 +46,11 @@ SaveLocationBodyRequest _$SaveLocationBodyRequestFromJson(
   note: json['note'] as String?,
   location: json['location'] == null
       ? null
-      : LocationDataRequest.fromJson(json['location'] as Map<String, dynamic>),
+      : LocationBodyRequest.fromJson(json['location'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$SaveLocationBodyRequestToJson(
-  SaveLocationBodyRequest instance,
+Map<String, dynamic> _$CreateLocationBodyRequestToJson(
+  CreateLocationBodyRequest instance,
 ) => <String, dynamic>{
   'locationName': instance.locationName,
   'contactName': instance.contactName,
@@ -75,7 +74,7 @@ UpdateLocationBodyRequest _$UpdateLocationBodyRequestFromJson(
   note: json['note'] as String?,
   location: json['location'] == null
       ? null
-      : LocationDataRequest.fromJson(json['location'] as Map<String, dynamic>),
+      : LocationBodyRequest.fromJson(json['location'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$UpdateLocationBodyRequestToJson(
@@ -108,8 +107,9 @@ class _LocationApiService implements LocationApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>>
-  getSavedLocations({required GetSavedLocationsQuery query}) async {
+  Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>> getMyLocations({
+    required GetMyLocationsQuery query,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(query.toJson());
@@ -147,15 +147,15 @@ class _LocationApiService implements LocationApiService {
   }
 
   @override
-  Future<HttpResponse<ApiResponse<LocationModel>>> saveLocation({
-    required SaveLocationBodyRequest body,
+  Future<HttpResponse<ApiResponse<dynamic>>> createLocation({
+    required CreateLocationBodyRequest body,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
-    final _options = _setStreamType<HttpResponse<ApiResponse<LocationModel>>>(
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -166,11 +166,11 @@ class _LocationApiService implements LocationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<LocationModel> _value;
+    late ApiResponse<dynamic> _value;
     try {
-      _value = ApiResponse<LocationModel>.fromJson(
+      _value = ApiResponse<dynamic>.fromJson(
         _result.data!,
-        (json) => LocationModel.fromJson(json as Map<String, dynamic>),
+        (json) => json as dynamic,
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);

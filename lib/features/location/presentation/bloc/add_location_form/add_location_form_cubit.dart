@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/location/data/models/point_model.dart';
+import 'package:shipgo/shared/data/models/point_model.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_state.dart';
@@ -71,7 +71,7 @@ class AddLocationFormCubit extends Cubit<AddLocationFormState> {
     if (state.isValid) {
       emit(AddLocationFormLoading(state: state));
       final dataState = await addLocationUsecase.call(
-        params: AddLocationParams(
+        params: AddLocationUsecaseParams(
           locationName: state.locationName.value,
           contactName: state.contactName.value,
           contactPhone: state.contactPhone.value,
@@ -87,6 +87,7 @@ class AddLocationFormCubit extends Cubit<AddLocationFormState> {
       if (dataState is DataSuccess) {
         emit(AddLocationFormDone(state: state));
       } else {
+        print(dataState.error);
         emit(AddLocationFormFailed(state: state, error: dataState.error!));
       }
     }
