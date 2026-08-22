@@ -1,5 +1,5 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
@@ -9,7 +9,6 @@ import 'package:shipgo/features/delivery_route/presentation/inputs/contact_name_
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/location_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/order_code_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/order_name_input.dart';
 
 class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
   final AddDeliveryOrderUsecase addDeliveryOrderUsecase;
@@ -19,16 +18,31 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     required this.addDeliveryOrderUsecase,
   }) : super(AddDeliveryOrderFormInitial(deliveryRouteId: deliveryRouteId));
 
+  void reset() {
+    emit(
+      state.copyWith(
+        orderCodeInput: OrderCodeInput.pure(),
+        orderName: null,
+        orderMediaId: null,
+        contactNameInput: ContactNameInput.pure(),
+        contactPhoneInput: ContactPhoneInput.pure(),
+        addressInput: AddressInput.pure(),
+        appliedLocationId: null,
+        locationInput: LocationInput.pure(),
+      ),
+    );
+  }
+
   void orderCodeInputChanged(String value) {
     emit(state.copyWith(orderCodeInput: OrderCodeInput.dirty(value)));
   }
 
-  void orderMediaIdChanged(String value) {
+  void orderMediaIdChanged(String? value) {
     emit(state.copyWith(orderMediaId: value));
   }
 
-  void orderNameInputChanged(String value) {
-    emit(state.copyWith(orderNameInput: OrderNameInput.dirty(value)));
+  void orderNameInputChanged(String? value) {
+    emit(state.copyWith(orderName: value));
   }
 
   void contactNameInputChanged(String value) {
@@ -43,7 +57,7 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     emit(state.copyWith(addressInput: AddressInput.dirty(value)));
   }
 
-  void appliedLocationIdChanged(String value) {
+  void appliedLocationIdChanged(String? value) {
     emit(state.copyWith(appliedLocationId: value));
   }
 
@@ -61,7 +75,6 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     emit(
       state.copyWith(
         orderCodeInput: OrderCodeInput.dirty(state.orderCodeInput.value),
-        orderNameInput: OrderNameInput.dirty(state.orderNameInput.value),
         contactNameInput: ContactNameInput.dirty(state.contactNameInput.value),
         contactPhoneInput: ContactPhoneInput.dirty(
           state.contactPhoneInput.value,
@@ -76,7 +89,7 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
         params: AddDeliveryOrderUsecaseParams(
           deliveryRouteId: state.deliveryRouteId,
           orderCode: state.orderCodeInput.value,
-          orderName: state.orderNameInput.value,
+          orderName: state.orderName,
           orderMediaId: state.orderMediaId,
           contactName: state.contactNameInput.value,
           contactPhone: state.contactPhoneInput.value,
@@ -91,6 +104,11 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
       if (dataState is DataSuccess) {
         emit(AddDeliveryOrderFormDone(state: state));
       } else if (dataState is DataFailed) {
+        print((dataState.error as DioException).response!.requestOptions.uri);
+        print(
+          (dataState.error as DioException).response!.requestOptions.method,
+        );
+        print((dataState.error as DioException).response!.data);
         emit(AddDeliveryOrderFormFailed(error: dataState.error!, state: state));
       }
     }

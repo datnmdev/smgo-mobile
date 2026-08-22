@@ -10,6 +10,7 @@ class LocationModel {
   final String locationName;
   final String contactName;
   final String contactPhone;
+  @JsonKey(defaultValue: [])
   final List<MediaModel> media;
   final String? note;
   final String address;

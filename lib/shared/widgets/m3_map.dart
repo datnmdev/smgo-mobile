@@ -65,10 +65,7 @@ class _M3MapWidgetState extends State<M3MapWidget>
   @override
   void didUpdateWidget(covariant M3MapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final bool centerChanged =
-        widget.center != null &&
-        (oldWidget.center?.latitude != widget.center?.latitude ||
-            oldWidget.center?.longitude != widget.center?.longitude);
+    final bool centerChanged = oldWidget.center != widget.center;
 
     if (oldWidget.address != widget.address) {
       _address = widget.address;

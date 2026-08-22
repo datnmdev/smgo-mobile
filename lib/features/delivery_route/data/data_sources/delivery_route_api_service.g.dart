@@ -55,7 +55,7 @@ AddDeliveryOrderBodyRequest _$AddDeliveryOrderBodyRequestFromJson(
   Map<String, dynamic> json,
 ) => AddDeliveryOrderBodyRequest(
   orderCode: json['orderCode'] as String,
-  orderName: json['orderName'] as String,
+  orderName: json['orderName'] as String?,
   orderMediaId: json['orderMediaId'] as String?,
   contactName: json['contactName'] as String,
   contactPhone: json['contactPhone'] as String,
@@ -68,12 +68,12 @@ Map<String, dynamic> _$AddDeliveryOrderBodyRequestToJson(
   AddDeliveryOrderBodyRequest instance,
 ) => <String, dynamic>{
   'orderCode': instance.orderCode,
-  'orderName': instance.orderName,
-  'orderMediaId': instance.orderMediaId,
+  'orderName': ?instance.orderName,
+  'orderMediaId': ?instance.orderMediaId,
   'contactName': instance.contactName,
   'contactPhone': instance.contactPhone,
   'address': instance.address,
-  'appliedLocationId': instance.appliedLocationId,
+  'appliedLocationId': ?instance.appliedLocationId,
   'location': instance.location,
 };
 

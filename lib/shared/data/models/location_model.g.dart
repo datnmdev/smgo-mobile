@@ -12,9 +12,11 @@ LocationModel _$LocationModelFromJson(Map<String, dynamic> json) =>
       locationName: json['locationName'] as String,
       contactName: json['contactName'] as String,
       contactPhone: json['contactPhone'] as String,
-      media: (json['media'] as List<dynamic>)
-          .map((e) => MediaModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      media:
+          (json['media'] as List<dynamic>?)
+              ?.map((e) => MediaModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       note: json['note'] as String?,
       address: json['address'] as String,
       location: PointModel.fromJson(json['location'] as Map<String, dynamic>),

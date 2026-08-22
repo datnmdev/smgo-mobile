@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +9,8 @@ import 'package:mime/mime.dart';
 import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/widgets/m3_error_text.dart';
@@ -70,10 +71,48 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
     deliveryRoute = extra['DeliveryRouteData'] as DeliveryRouteEntity;
 
-    return BlocProvider<AddDeliveryOrderFormCubit>(
-      create: (context) =>
-          di<AddDeliveryOrderFormCubit>(param1: deliveryRoute.id),
-      child: BlocBuilder<AddDeliveryOrderFormCubit, AddDeliveryOrderFormState>(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              di<AddDeliveryOrderFormCubit>(param1: deliveryRoute.id),
+        ),
+        BlocProvider(create: (context) => di<GetLocationSuggestionsCubit>()),
+      ],
+      child: BlocConsumer<AddDeliveryOrderFormCubit, AddDeliveryOrderFormState>(
+        listener: (context, state) {
+          final addDeliveryOrderFormCubit = context
+              .read<AddDeliveryOrderFormCubit>();
+
+          if (state is AddDeliveryOrderFormDone) {
+            // Hiển thị thông báo tạo đơn hàng thành công
+            showOrderSuccessDialog(
+              context: context,
+              trackingCode: state.orderCodeInput.value,
+              productName: state.orderName ?? '',
+              recipientName: state.contactNameInput.value,
+            );
+
+            // Reset lại trạng thái cubit
+            addDeliveryOrderFormCubit.reset();
+
+            // Reset lại giá trị form
+            orderCodeInputController.text = '';
+            orderNameInputController.text = '';
+            contactNameInputController.text = '';
+            contactPhoneInputController.text = '';
+            addressInputController.text = '';
+            context.read<GetLocationSuggestionsCubit>().call(
+              contactPhone: '',
+              address: '',
+            );
+          } else if (state is AddDeliveryOrderFormFailed) {
+            showOrderErrorDialog(
+              context: context,
+              errorMessage: 'Đã xảy ra lỗi. Vui lòng thử lại...',
+            );
+          }
+        },
         builder: (context, state) => Scaffold(
           backgroundColor: const Color(0xFFF5F6F8),
           appBar: AppBar(
@@ -134,6 +173,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 onCompleted: (Map<String, dynamic> data) {
                   final addDeliveryOrderFormCubit = context
                       .read<AddDeliveryOrderFormCubit>();
+                  final getLocationSuggestionsCubit = context
+                      .read<GetLocationSuggestionsCubit>();
                   final extractedOrderInfo = ExtractedOrderInfoEntity.fromJson(
                     data,
                   );
@@ -145,12 +186,6 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     );
                     orderCodeInputController.text =
                         extractedOrderInfo.orderCode;
-                    orderCodeInputController.selection =
-                        TextSelection.fromPosition(
-                          TextPosition(
-                            offset: orderCodeInputController.text.length,
-                          ),
-                        ); // Giữ
                   }
 
                   if (!lockedFields.contains(LockableField.orderName) &&
@@ -160,12 +195,6 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     );
                     orderNameInputController.text =
                         extractedOrderInfo.orderName;
-                    orderNameInputController.selection =
-                        TextSelection.fromPosition(
-                          TextPosition(
-                            offset: orderNameInputController.text.length,
-                          ),
-                        ); // Giữ
                   }
 
                   if (!lockedFields.contains(LockableField.contactName) &&
@@ -175,12 +204,6 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     );
                     contactNameInputController.text =
                         extractedOrderInfo.contactName;
-                    contactNameInputController.selection =
-                        TextSelection.fromPosition(
-                          TextPosition(
-                            offset: contactNameInputController.text.length,
-                          ),
-                        ); // Giữ
                   }
 
                   if (!lockedFields.contains(LockableField.contactPhone) &&
@@ -191,32 +214,45 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                         '',
                       ),
                     );
+                    getLocationSuggestionsCubit.call(
+                      contactPhone: extractedOrderInfo.contactPhone.replaceAll(
+                        RegExp(r'\D'),
+                        '',
+                      ),
+                      address:
+                          addDeliveryOrderFormCubit.state.addressInput.value,
+                    );
                     contactPhoneInputController.text = extractedOrderInfo
                         .contactPhone
                         .replaceAll(RegExp(r'\D'), '');
-                    contactPhoneInputController.selection =
-                        TextSelection.fromPosition(
-                          TextPosition(
-                            offset: contactPhoneInputController.text.length,
-                          ),
-                        ); // Giữ
                   }
 
                   if (!lockedFields.contains(LockableField.address) &&
                       extractedOrderInfo.address.isNotEmpty) {
+                    getLocationSuggestionsCubit.call(
+                      contactPhone: addDeliveryOrderFormCubit
+                          .state
+                          .contactPhoneInput
+                          .value,
+                      address: extractedOrderInfo.address,
+                    );
                     addDeliveryOrderFormCubit.addressInputChanged(
                       extractedOrderInfo.address,
                     );
                     addressInputController.text = extractedOrderInfo.address;
-                    addressInputController
-                        .selection = TextSelection.fromPosition(
-                      TextPosition(offset: addressInputController.text.length),
-                    ); // Giữ
                   }
                 },
               ),
 
-              _buildHeaderAction(icon: Icons.save_outlined, label: 'Lưu'),
+              _buildHeaderAction(
+                icon: Icons.save_outlined,
+                label: 'Lưu',
+                isLoading: state is AddDeliveryOrderFormLoading,
+                onTap: () {
+                  context.read<AddDeliveryOrderFormCubit>().submit();
+                },
+              ),
+
               const SizedBox(width: 8),
             ],
           ),
@@ -232,6 +268,165 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void showOrderSuccessDialog({
+    required BuildContext context,
+    required String trackingCode,
+    required String productName,
+    required String recipientName,
+    bool barrierDismissible = true,
+  }) {
+    const primaryColor = Color(0xFF1B8A49); // Màu xanh chủ đạo
+
+    showDialog(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon thành công
+                const Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: primaryColor,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+
+                // Tiêu đề
+                const Text(
+                  'Tạo đơn hàng thành công!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Phụ đề
+                const Text(
+                  'Mã vận đơn của bạn đã được lưu thành công.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+
+                // Box thông tin đơn hàng
+                Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildInfoRow('Mã vận đơn:', trackingCode),
+                      const SizedBox(height: 8),
+                      _buildInfoRow('Tên sản phẩm:', productName),
+                      const SizedBox(height: 8),
+                      _buildInfoRow('Tên người nhận:', recipientName),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showOrderErrorDialog({
+    required BuildContext context,
+    required String errorMessage,
+    bool barrierDismissible = true,
+  }) {
+    const errorColor = Color(0xFFD32F2F);
+
+    showDialog(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon cảnh báo thất bại
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: errorColor,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+
+                // Tiêu đề
+                const Text(
+                  'Tạo đơn hàng thất bại!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: errorColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Nội dung chi tiết lỗi
+                Text(
+                  errorMessage,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Hàm phụ trợ xây dựng dòng thông tin
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 105,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -272,15 +467,26 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
     required IconData icon,
     required String label,
     void Function()? onTap,
+    bool isLoading = false, // Thêm tham số trạng thái loading
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap, // Vô hiệu hóa tap khi đang loading
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 22),
+            // Thay thế icon bằng CircularProgressIndicator khi loading
+            isLoading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Icon(icon, color: Colors.white, size: 22),
             const SizedBox(height: 2),
             Text(
               label,
@@ -356,10 +562,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           ),
           const SizedBox(height: 8),
           _buildImagePickerList(
+            isReset: addDeliveryOrderFormCubit.state.orderMediaId == null,
             onImagesChanged: (images) {
-              if (images.isNotEmpty) {
-                addDeliveryOrderFormCubit.orderMediaIdChanged(images[0].id);
-              }
+              addDeliveryOrderFormCubit.orderMediaIdChanged(
+                images.isNotEmpty ? images[0].id : null,
+              );
             },
           ),
         ],
@@ -418,7 +625,13 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 placeholder: 'Nhập số điện thoại',
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: addDeliveryOrderFormCubit.contactPhoneInputChanged,
+                onChanged: (value) {
+                  addDeliveryOrderFormCubit.contactPhoneInputChanged(value);
+                  context.read<GetLocationSuggestionsCubit>().call(
+                    contactPhone: value,
+                    address: addDeliveryOrderFormCubit.state.addressInput.value,
+                  );
+                },
                 controller: contactPhoneInputController,
                 isLocked: lockedFields.contains(LockableField.contactPhone),
                 onLockToggle: () {
@@ -458,7 +671,14 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               _buildInputField(
                 label: 'Địa chỉ người nhận *',
                 placeholder: 'Nhập địa chỉ',
-                onChanged: addDeliveryOrderFormCubit.addressInputChanged,
+                onChanged: (value) {
+                  addDeliveryOrderFormCubit.addressInputChanged(value);
+                  context.read<GetLocationSuggestionsCubit>().call(
+                    contactPhone:
+                        addDeliveryOrderFormCubit.state.contactPhoneInput.value,
+                    address: value,
+                  );
+                },
                 controller: addressInputController,
                 isLocked: lockedFields.contains(LockableField.address),
                 onLockToggle: () {
@@ -483,10 +703,39 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
           const SizedBox(height: 12),
 
-          _buildSavedAddressSuggestions(
-            selectedIndex: 0,
-            suggestions: [],
-            onItemSelected: (value) {},
+          BlocBuilder<GetLocationSuggestionsCubit, GetLocationSuggestionsState>(
+            builder: (context, state) {
+              final addDeliveryOrderFormCubit = context
+                  .read<AddDeliveryOrderFormCubit>();
+              final suggestions = state is GetLocationSuggestionsDone
+                  ? state.locationSuggestions.data
+                  : <LocationEntity>[];
+              return _buildSavedAddressSuggestions(
+                selectedIndex: suggestions.indexWhere(
+                  (suggestion) =>
+                      suggestion.id ==
+                      addDeliveryOrderFormCubit.state.appliedLocationId,
+                ),
+                isLoading: state is GetLocationSuggestionsLoading,
+                suggestions: suggestions,
+                onItemSelected: (value) {
+                  if (addDeliveryOrderFormCubit.state.appliedLocationId ==
+                      value) {
+                    addDeliveryOrderFormCubit.appliedLocationIdChanged(null);
+                    addDeliveryOrderFormCubit.locationInputChanged(null);
+                    return;
+                  }
+                  addDeliveryOrderFormCubit.appliedLocationIdChanged(value);
+                  final location = suggestions
+                      .where((sug) => sug.id == value)
+                      .first
+                      .location;
+                  addDeliveryOrderFormCubit.locationInputChanged(
+                    PointUsecaseParam(x: location.x, y: location.y),
+                  );
+                },
+              );
+            },
           ),
 
           const SizedBox(height: 12),
@@ -496,32 +745,41 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           const SizedBox(height: 8),
-          Column(
-            children: [
-              _buildMapPreview(
-                address: addDeliveryOrderFormCubit.state.addressInput.value,
-                location: addDeliveryOrderFormCubit.state.locationInput.value,
-                onLocationSelected: (location) {
-                  if (location != null) {
-                    addDeliveryOrderFormCubit.locationInputChanged(
-                      PointUsecaseParam(
-                        x: location.longitude,
-                        y: location.latitude,
-                      ),
-                    );
-                  } else {
-                    addDeliveryOrderFormCubit.locationInputChanged(null);
-                  }
-                },
-              ),
-              if (addDeliveryOrderFormCubit.state.locationInput.displayError !=
-                  null) ...[
-                SizedBox(height: 4),
-                M3ErrorText(
-                  errorText: 'Vui lòng chọn vị trí người dùng trên bản đồ',
+          BlocBuilder<GetLocationSuggestionsCubit, GetLocationSuggestionsState>(
+            builder: (context, state) => Column(
+              children: [
+                _buildMapPreview(
+                  mapMode:
+                      addDeliveryOrderFormCubit.state.appliedLocationId != null
+                      ? MapMode.view
+                      : MapMode.select,
+                  address: addDeliveryOrderFormCubit.state.addressInput.value,
+                  location: addDeliveryOrderFormCubit.state.locationInput.value,
+                  onLocationSelected: (location) {
+                    if (location != null) {
+                      addDeliveryOrderFormCubit.locationInputChanged(
+                        PointUsecaseParam(
+                          x: location.longitude,
+                          y: location.latitude,
+                        ),
+                      );
+                    } else {
+                      addDeliveryOrderFormCubit.locationInputChanged(null);
+                    }
+                  },
                 ),
+                if (addDeliveryOrderFormCubit
+                        .state
+                        .locationInput
+                        .displayError !=
+                    null) ...[
+                  SizedBox(height: 4),
+                  M3ErrorText(
+                    errorText: 'Vui lòng chọn vị trí người dùng trên bản đồ',
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
@@ -571,6 +829,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           onTapOutside: (event) {
             FocusManager.instance.primaryFocus?.unfocus();
           },
+          readOnly: isLocked,
           controller: controller,
           onChanged: onChanged,
           decoration: InputDecoration(
@@ -608,9 +867,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Horizontal Image List Component
   Widget _buildImagePickerList({
+    bool isReset = false,
     required void Function(List<GridImageItem> images) onImagesChanged,
   }) {
     return M3ImagePickerGrid(
+      reset: isReset,
       initialImages: [],
       maxImages: 1,
       takeNewPhotoTitle: AppStrings.m3IPGTakeNewPhotoTitle.tr(),
@@ -694,11 +955,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
   Widget _buildSavedAddressSuggestions({
     required List<LocationEntity> suggestions,
     required int selectedIndex,
-    required ValueChanged<int> onItemSelected,
+    required ValueChanged<String> onItemSelected,
+    bool isLoading = false,
   }) {
-    // Chỉ hiển thị tối đa 10 mục khớp nhất
-    final displayList = suggestions.take(10).toList();
-
     return Container(
       decoration: BoxDecoration(
         color: lightGreenBg,
@@ -708,7 +967,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Phần Tiêu đề (Đã bỏ nút mũi tên góc phải)
+          // Phần Tiêu đề
           Row(
             children: const [
               Icon(Icons.lightbulb_outline, color: primaryGreen, size: 20),
@@ -736,158 +995,169 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           ),
           const SizedBox(height: 10),
 
-          // Danh sách item tối đa 10 mục
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: displayList.length,
-            itemBuilder: (context, index) {
-              final item = displayList[index];
-              final isSelected = (selectedIndex == index);
-              final isBestChoice =
-                  (index == 0); // Vị trí đầu tiên là lựa chọn tốt nhất
+          // Xử lý hiển thị tùy theo trạng thái isLoading
+          if (isLoading)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.0),
+                child: CircularProgressIndicator(
+                  color: primaryGreen,
+                  strokeWidth: 2.5,
+                ),
+              ),
+            )
+          else if (suggestions.isEmpty)
+            // (Tùy chọn) Hiển thị thông báo khi không có dữ liệu
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              child: Center(
+                child: Text(
+                  'Không tìm thấy gợi ý nào',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+            )
+          else
+            // Danh sách item tối đa 10 mục (Giữ nguyên logic cũ)
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) {
+                final item = suggestions[index];
+                final isSelected = (selectedIndex == index);
+                final isBestChoice = (index == 0);
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () =>
-                        onItemSelected(index), // Truyền callback ra bên ngoài
-                    borderRadius: BorderRadius.circular(8),
-                    splashColor: primaryGreen.withOpacity(0.12),
-                    highlightColor: primaryGreen.withOpacity(0.06),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected ? primaryGreen : Colors.transparent,
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          if (isSelected)
-                            BoxShadow(
-                              color: primaryGreen.withOpacity(0.15),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: primaryGreen,
-                            size: 20,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => onItemSelected(suggestions[index].id),
+                      borderRadius: BorderRadius.circular(8),
+                      splashColor: primaryGreen.withOpacity(0.12),
+                      highlightColor: primaryGreen.withOpacity(0.06),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? primaryGreen
+                                : Colors.transparent,
+                            width: 1.5,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Dòng tên và các Badge (Lựa chọn tốt nhất + Nguồn gốc)
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        item.contactName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
+                          boxShadow: [
+                            if (isSelected)
+                              BoxShadow(
+                                color: primaryGreen.withOpacity(0.15),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              color: primaryGreen,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          item.contactName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    // Marker: Lựa chọn tốt nhất nếu xếp hạng đầu tiên
-                                    if (isBestChoice) ...[
+                                      if (isBestChoice) ...[
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: primaryGreen.withAlpha(
+                                              (0.1 * 255).round(),
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Tốt nhất',
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                              color: primaryGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                      ],
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 6,
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: primaryGreen.withAlpha(
+                                          color: Colors.orange.withAlpha(
                                             (0.1 * 255).round(),
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Tốt nhất',
+                                        child: Text(
+                                          'Cộng đồng',
                                           style: TextStyle(
                                             fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                            color: primaryGreen,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.orange[800],
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 4),
                                     ],
-                                    // Marker: Lưu bởi bạn hoặc cộng đồng
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            // item.isSavedByUser
-                                            false
-                                            ? Colors.blue.withAlpha(
-                                                (0.1 * 255).round(),
-                                              )
-                                            : Colors.orange.withAlpha(
-                                                (0.1 * 255).round(),
-                                              ),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        // item.isSavedByUser
-                                        false ? 'Đã lưu' : 'Cộng đồng',
-                                        style: TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w500,
-                                          color:
-                                              // item.isSavedByUser
-                                              false
-                                              ? Colors.blue[700]
-                                              : Colors.orange[800],
-                                        ),
-                                      ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item.contactPhone,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black87,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  item.contactPhone,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black87,
                                   ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  item.address,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item.address,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+            ),
         ],
       ),
     );
@@ -895,11 +1165,13 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Map Preview Placeholder
   Widget _buildMapPreview({
+    MapMode mapMode = MapMode.select,
     required String address,
     Point? location,
     required void Function(LatLng?) onLocationSelected,
   }) {
     return M3MapWidget(
+      mode: mapMode,
       userAgentPackageName: Env.packageName,
       selectLocationError: AppStrings.m3MSelectLocationError.tr(),
       cannotGetLocationError: AppStrings.m3MCannotGetLocationError.tr(),

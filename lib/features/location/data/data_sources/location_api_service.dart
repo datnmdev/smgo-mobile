@@ -11,7 +11,7 @@ part 'location_api_service.g.dart';
 abstract class LocationApiService {
   factory LocationApiService(Dio dio) = _LocationApiService;
 
-  @GET(ApiEndpoints.locationBaseUrl)
+  @GET(ApiEndpoints.getMyLocations)
   Future<HttpResponse<ApiResponse<Pagination<LocationModel>>>> getMyLocations({
     @Queries() required GetMyLocationsQuery query,
   });

@@ -91,10 +91,10 @@ class PointRequestData {
       _$PointRequestDataFromJson(obj);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AddDeliveryOrderBodyRequest {
   final String orderCode;
-  final String orderName;
+  final String? orderName;
   final String? orderMediaId;
   final String contactName;
   final String contactPhone;

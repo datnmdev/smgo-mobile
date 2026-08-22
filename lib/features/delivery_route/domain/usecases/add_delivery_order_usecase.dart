@@ -38,7 +38,7 @@ class PointUsecaseParam {
 class AddDeliveryOrderUsecaseParams {
   final String deliveryRouteId;
   final String orderCode;
-  final String orderName;
+  final String? orderName;
   final String? orderMediaId;
   final String contactName;
   final String contactPhone;

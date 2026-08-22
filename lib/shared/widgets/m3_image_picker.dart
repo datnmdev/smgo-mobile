@@ -39,6 +39,7 @@ class M3ImagePickerGrid extends StatefulWidget {
   final String cancelButtonTitle;
   final String openSettingsButtonTitle;
   final String Function(String content) addImageButtonTitle;
+  final bool reset;
 
   const M3ImagePickerGrid({
     super.key,
@@ -55,6 +56,7 @@ class M3ImagePickerGrid extends StatefulWidget {
     this.cancelButtonTitle = 'Huỷ',
     this.openSettingsButtonTitle = 'Mở Cài đặt',
     this.addImageButtonTitle = _genAddImageButtonTitle,
+    this.reset = false,
   });
 
   @override
@@ -81,6 +83,16 @@ class _M3ImagePickerGridState extends State<M3ImagePickerGrid> {
   void initState() {
     super.initState();
     _images = List.from(widget.initialImages);
+  }
+
+  @override
+  void didUpdateWidget(M3ImagePickerGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.reset == true) {
+      setState(() {
+        _images.clear();
+      });
+    }
   }
 
   // --- XỬ LÝ QUYỀN VÀ NGUỒN ẢNH ---

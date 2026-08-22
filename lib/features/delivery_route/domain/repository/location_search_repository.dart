@@ -9,17 +9,15 @@ abstract class LocationSearchRepository {
 }
 
 class GetLocationSuggestionsParams {
-  final String contactName;
-  final String contactPhone;
-  final String address;
+  final String? contactPhone;
+  final String? address;
   final int pageNumber;
   final int pageSize;
 
   GetLocationSuggestionsParams({
-    required this.contactName,
-    required this.contactPhone,
-    required this.address,
+    this.contactPhone,
+    this.address,
     required this.pageNumber,
-    required this.pageSize
+    required this.pageSize,
   });
 }

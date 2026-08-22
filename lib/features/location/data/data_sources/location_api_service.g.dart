@@ -159,7 +159,7 @@ class _LocationApiService implements LocationApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/user/locations',
+            '/location',
             queryParameters: queryParameters,
             data: _data,
           )

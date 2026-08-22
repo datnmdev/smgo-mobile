@@ -20,7 +20,6 @@ class LocationSearchRepositoryImpl implements LocationSearchRepository {
         query: GetLocationSuggestionsQuery(
           pageNumber: params.pageNumber,
           pageSize: params.pageSize,
-          contactName: params.contactName,
           contactPhone: params.contactPhone,
           address: params.address,
         ),

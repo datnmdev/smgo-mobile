@@ -5,13 +5,14 @@ import 'package:shipgo/features/delivery_route/presentation/inputs/contact_name_
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/location_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/order_code_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/order_name_input.dart';
+
+const Object _absent = Object();
 
 class AddDeliveryOrderFormState extends Equatable with FormzMixin {
   final String deliveryRouteId;
   final OrderCodeInput orderCodeInput;
   final String? orderMediaId;
-  final OrderNameInput orderNameInput;
+  final String? orderName;
   final ContactNameInput contactNameInput;
   final ContactPhoneInput contactPhoneInput;
   final AddressInput addressInput;
@@ -22,7 +23,7 @@ class AddDeliveryOrderFormState extends Equatable with FormzMixin {
     required this.deliveryRouteId,
     this.orderCodeInput = const OrderCodeInput.pure(),
     this.orderMediaId,
-    this.orderNameInput = const OrderNameInput.pure(),
+    this.orderName,
     this.contactNameInput = const ContactNameInput.pure(),
     this.contactPhoneInput = const ContactPhoneInput.pure(),
     this.addressInput = const AddressInput.pure(),
@@ -34,7 +35,7 @@ class AddDeliveryOrderFormState extends Equatable with FormzMixin {
     : deliveryRouteId = other.deliveryRouteId,
       orderCodeInput = other.orderCodeInput,
       orderMediaId = other.orderMediaId,
-      orderNameInput = other.orderNameInput,
+      orderName = other.orderName,
       contactNameInput = other.contactNameInput,
       contactPhoneInput = other.contactPhoneInput,
       addressInput = other.addressInput,
@@ -43,23 +44,35 @@ class AddDeliveryOrderFormState extends Equatable with FormzMixin {
 
   AddDeliveryOrderFormState copyWith({
     OrderCodeInput? orderCodeInput,
-    String? orderMediaId,
-    OrderNameInput? orderNameInput,
+    Object? orderMediaId = _absent,
+    Object? orderName = _absent,
     ContactNameInput? contactNameInput,
     ContactPhoneInput? contactPhoneInput,
     AddressInput? addressInput,
-    String? appliedLocationId,
+    Object? appliedLocationId = _absent,
     LocationInput? locationInput,
   }) {
     return AddDeliveryOrderFormState(
       deliveryRouteId: deliveryRouteId,
       orderCodeInput: orderCodeInput ?? this.orderCodeInput,
-      orderMediaId: orderMediaId ?? this.orderMediaId,
-      orderNameInput: orderNameInput ?? this.orderNameInput,
+      orderMediaId: orderMediaId == _absent
+          ? this.orderMediaId
+          : orderMediaId == null
+          ? null
+          : orderMediaId as String,
+      orderName: orderName == _absent
+          ? this.orderName
+          : orderName == null
+          ? null
+          : orderName as String,
       contactNameInput: contactNameInput ?? this.contactNameInput,
       contactPhoneInput: contactPhoneInput ?? this.contactPhoneInput,
       addressInput: addressInput ?? this.addressInput,
-      appliedLocationId: appliedLocationId ?? this.appliedLocationId,
+      appliedLocationId: appliedLocationId == _absent
+          ? this.appliedLocationId
+          : appliedLocationId == null
+          ? null
+          : appliedLocationId as String,
       locationInput: locationInput ?? this.locationInput,
     );
   }
@@ -67,17 +80,19 @@ class AddDeliveryOrderFormState extends Equatable with FormzMixin {
   @override
   List<Object?> get props => [
     orderCodeInput,
-    orderNameInput,
+    orderName,
     contactNameInput,
     contactPhoneInput,
     addressInput,
     locationInput,
+    appliedLocationId,
+    orderMediaId,
+    deliveryRouteId,
   ];
 
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
     orderCodeInput,
-    orderNameInput,
     contactNameInput,
     contactPhoneInput,
     addressInput,

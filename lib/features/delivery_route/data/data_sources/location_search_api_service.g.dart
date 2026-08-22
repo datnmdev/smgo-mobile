@@ -11,9 +11,8 @@ GetLocationSuggestionsQuery _$GetLocationSuggestionsQueryFromJson(
 ) => GetLocationSuggestionsQuery(
   pageNumber: (json['pageNumber'] as num).toInt(),
   pageSize: (json['pageSize'] as num).toInt(),
-  contactName: json['contactName'] as String,
-  contactPhone: json['contactPhone'] as String,
-  address: json['address'] as String,
+  contactPhone: json['contactPhone'] as String?,
+  address: json['address'] as String?,
 );
 
 Map<String, dynamic> _$GetLocationSuggestionsQueryToJson(
@@ -21,9 +20,8 @@ Map<String, dynamic> _$GetLocationSuggestionsQueryToJson(
 ) => <String, dynamic>{
   'pageNumber': instance.pageNumber,
   'pageSize': instance.pageSize,
-  'contactName': instance.contactName,
-  'contactPhone': instance.contactPhone,
-  'address': instance.address,
+  'contactPhone': ?instance.contactPhone,
+  'address': ?instance.address,
 };
 
 // dart format off
@@ -56,7 +54,7 @@ class _LocationSearchApiService implements LocationSearchApiService {
           Options(method: 'GET', headers: _headers, extra: _extra)
               .compose(
                 _dio.options,
-                '/user/locations',
+                '/location/suggestions',
                 queryParameters: queryParameters,
                 data: _data,
               )
