@@ -45,15 +45,10 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
     const primaryGreen = AppColors.primary;
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
     final deliveryRouteData = extra['DeliveryRouteData'] as DeliveryRouteEntity;
-    final getDeliveryRoutesCubitInRP =
-        extra['GetDeliveryRoutesCubitInRP'] as GetDeliveryRoutesCubit;
-    final getDeliveryRoutesUsecaseParamsInRP =
-        extra['GetDeliveryRoutesUsecaseParamsInRP']
-            as GetDeliveryRoutesUsecaseParams;
-    final getDeliveryRoutesCubitInRDP =
-        extra['GetDeliveryRoutesCubitInRDP'] as GetDeliveryRoutesCubit;
-    final getDeliveryRoutesUsecaseParamsInRDP =
-        extra['GetDeliveryRoutesUsecaseParamsInRDP']
+    final getDeliveryRoutesCubitInDRDP =
+        extra['GetDeliveryRoutesCubitInDRDP'] as GetDeliveryRoutesCubit;
+    final getDeliveryRoutesUsecaseParamsInDRDP =
+        extra['GetDeliveryRoutesUsecaseParamsInDRDP']
             as GetDeliveryRoutesUsecaseParams;
 
     return BlocProvider<UpdateDeliveryRouteFormCubit>(
@@ -210,11 +205,8 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
             ),
             listener: (context, state) {
               if (state is UpdateDeliveryRouteFormDone) {
-                getDeliveryRoutesCubitInRP.call(
-                  params: getDeliveryRoutesUsecaseParamsInRP,
-                );
-                getDeliveryRoutesCubitInRDP.call(
-                  params: getDeliveryRoutesUsecaseParamsInRDP,
+                getDeliveryRoutesCubitInDRDP.call(
+                  params: getDeliveryRoutesUsecaseParamsInDRDP,
                 );
                 context.pop();
               }

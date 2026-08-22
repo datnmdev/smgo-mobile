@@ -13,8 +13,16 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 
-class DeliveryRouteDetailPage extends StatelessWidget {
+class DeliveryRouteDetailPage extends StatefulWidget {
   const DeliveryRouteDetailPage({super.key});
+
+  @override
+  State<DeliveryRouteDetailPage> createState() =>
+      _DeliveryRouteDetailPageState();
+}
+
+class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
+  DeliveryRouteEntity? deliveryRoute;
 
   // Khai báo màu sắc chủ đạo
   static const Color primaryGreen = AppColors.primary;
@@ -33,7 +41,8 @@ class DeliveryRouteDetailPage extends StatelessWidget {
     final getDeliveryRoutesUsecaseParamsInRP =
         extra['GetDeliveryRoutesUsecaseParamsInRP']
             as GetDeliveryRoutesUsecaseParams;
-    final deliveryRouteData = extra['DeliveryRouteData'] as DeliveryRouteEntity;
+    deliveryRoute =
+        deliveryRoute ?? extra['DeliveryRouteData'] as DeliveryRouteEntity;
 
     return Scaffold(
       appBar: AppBar(
@@ -68,7 +77,7 @@ class DeliveryRouteDetailPage extends StatelessWidget {
                 params: GetDeliveryRoutesUsecaseParams(
                   pageNumber: 1,
                   pageSize: 1,
-                  id: deliveryRouteData.id,
+                  id: deliveryRoute!.id,
                 ),
               ),
           ),
@@ -77,6 +86,14 @@ class DeliveryRouteDetailPage extends StatelessWidget {
           ),
         ],
         child: BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
+          listener: (context, state) {
+            if (state is GetDeliveryRoutesDone) {
+              deliveryRoute = state.routes.firstOrNull;
+              getDeliveryRoutesCubitInRP.call(
+                params: getDeliveryRoutesUsecaseParamsInRP,
+              );
+            }
+          },
           builder: (context, state) {
             if (state.isFirstLoad) {
               if (state is GetDeliveryRoutesLoading) {
@@ -89,7 +106,7 @@ class DeliveryRouteDetailPage extends StatelessWidget {
                   params: GetDeliveryRoutesUsecaseParams(
                     pageNumber: 1,
                     pageSize: 1,
-                    id: deliveryRouteData.id,
+                    id: deliveryRoute!.id,
                   ),
                 );
               },
@@ -99,26 +116,19 @@ class DeliveryRouteDetailPage extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildHeaderCard(
-                      deliveryRouteData: state is GetDeliveryRoutesDone
-                          ? state.routes.firstOrNull ?? deliveryRouteData
-                          : deliveryRouteData,
+                      deliveryRouteData: deliveryRoute!,
                       context: context,
                       getDeliveryRoutesCubitInRP: getDeliveryRoutesCubitInRP,
                       getDeliveryRoutesUsecaseParamsInRP:
                           getDeliveryRoutesUsecaseParamsInRP,
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailInfoCard(
-                      deliveryRouteData: state is GetDeliveryRoutesDone
-                          ? state.routes.firstOrNull ?? deliveryRouteData
-                          : deliveryRouteData,
-                    ),
+                    _buildDetailInfoCard(deliveryRouteData: deliveryRoute!),
                   ],
                 ),
               ),
             );
           },
-          listener: (context, state) {},
         ),
       ),
     );
@@ -235,17 +245,13 @@ class DeliveryRouteDetailPage extends StatelessWidget {
                                         .routes
                                         .firstOrNull ??
                                     deliveryRouteData,
-                                'GetDeliveryRoutesUsecaseParamsInRP':
-                                    getDeliveryRoutesUsecaseParamsInRP,
-                                'GetDeliveryRoutesCubitInRP':
-                                    getDeliveryRoutesCubitInRP,
-                                'GetDeliveryRoutesUsecaseParamsInRDP':
+                                'GetDeliveryRoutesUsecaseParamsInDRDP':
                                     GetDeliveryRoutesUsecaseParams(
                                       id: deliveryRouteData.id,
                                       pageNumber: 1,
                                       pageSize: 1,
                                     ),
-                                'GetDeliveryRoutesCubitInRDP':
+                                'GetDeliveryRoutesCubitInDRDP':
                                     getDeliveryRoutesCubitInRDP,
                               },
                             );
@@ -319,6 +325,14 @@ class DeliveryRouteDetailPage extends StatelessWidget {
                                 .routes
                                 .firstOrNull ??
                             deliveryRouteData,
+                        'GetDeliveryRoutesCubitInDRDP':
+                            getDeliveryRoutesCubitInRDP,
+                        'GetDeliveryRoutesUsecaseParamsInDRDP':
+                            GetDeliveryRoutesUsecaseParams(
+                              id: deliveryRouteData.id,
+                              pageNumber: 1,
+                              pageSize: 1,
+                            ),
                       },
                     );
                   },

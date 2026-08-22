@@ -12,7 +12,10 @@ class GetLocationSuggestionsCubit extends Cubit<GetLocationSuggestionsState> {
   GetLocationSuggestionsCubit({required this.getLocationSuggestionsUsecase})
     : super(const GetLocationSuggestionsInitial());
 
-  void call({required String contactPhone, required String address}) async {
+  void call({
+    required String contactPhone,
+    required String address,
+  }) async {
     _timer?.cancel();
     _timer = Timer(Duration(milliseconds: 500), () async {
       emit(const GetLocationSuggestionsLoading());

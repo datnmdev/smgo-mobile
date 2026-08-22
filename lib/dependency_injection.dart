@@ -19,6 +19,7 @@ import 'package:shipgo/features/delivery_route/data/data_sources/ai_api_service.
 import 'package:shipgo/features/delivery_route/data/data_sources/location_search_api_service.dart';
 import 'package:shipgo/features/delivery_route/data/repository/ai_repository_impl.dart';
 import 'package:shipgo/features/delivery_route/data/repository/location_search_repository_impl.dart';
+import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/location_search_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';

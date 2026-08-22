@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
@@ -71,7 +70,17 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     );
   }
 
-  void submit() async {
+  bool isOrderCodeDuplicated({
+    required List<DeliveryOrderEntity> existingDeliveryOrders,
+  }) {
+    return existingDeliveryOrders.any(
+      (order) => order.orderCode == state.orderCodeInput.value,
+    );
+  }
+
+  void submit({
+    required List<DeliveryOrderEntity> existingDeliveryOrders,
+  }) async {
     emit(
       state.copyWith(
         orderCodeInput: OrderCodeInput.dirty(state.orderCodeInput.value),
@@ -83,7 +92,10 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
         locationInput: LocationInput.dirty(state.locationInput.value),
       ),
     );
-    if (state.isValid) {
+    if (state.isValid &&
+        !isOrderCodeDuplicated(
+          existingDeliveryOrders: existingDeliveryOrders,
+        )) {
       emit(AddDeliveryOrderFormLoading(state: state));
       final dataState = await addDeliveryOrderUsecase.call(
         params: AddDeliveryOrderUsecaseParams(
@@ -104,11 +116,7 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
       if (dataState is DataSuccess) {
         emit(AddDeliveryOrderFormDone(state: state));
       } else if (dataState is DataFailed) {
-        print((dataState.error as DioException).response!.requestOptions.uri);
-        print(
-          (dataState.error as DioException).response!.requestOptions.method,
-        );
-        print((dataState.error as DioException).response!.data);
+        print(dataState.error);
         emit(AddDeliveryOrderFormFailed(error: dataState.error!, state: state));
       }
     }

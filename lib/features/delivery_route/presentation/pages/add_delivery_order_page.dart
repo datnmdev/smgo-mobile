@@ -9,6 +9,8 @@ import 'package:mime/mime.dart';
 import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
@@ -70,6 +72,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
     deliveryRoute = extra['DeliveryRouteData'] as DeliveryRouteEntity;
+    final getDeliveryRoutesCubitInDOP =
+        extra['GetDeliveryRoutesCubitInDOP'] as GetDeliveryRoutesCubit;
+    final getDeliveryRoutesUsecaseParamsInDOP =
+        extra['GetDeliveryRoutesUsecaseParamsInDOP']
+            as GetDeliveryRoutesUsecaseParams;
 
     return MultiBlocProvider(
       providers: [
@@ -80,7 +87,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
         BlocProvider(create: (context) => di<GetLocationSuggestionsCubit>()),
       ],
       child: BlocConsumer<AddDeliveryOrderFormCubit, AddDeliveryOrderFormState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           final addDeliveryOrderFormCubit = context
               .read<AddDeliveryOrderFormCubit>();
 
@@ -105,6 +112,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
             context.read<GetLocationSuggestionsCubit>().call(
               contactPhone: '',
               address: '',
+            );
+            getDeliveryRoutesCubitInDOP.call(
+              params: getDeliveryRoutesUsecaseParamsInDOP,
             );
           } else if (state is AddDeliveryOrderFormFailed) {
             showOrderErrorDialog(
@@ -249,7 +259,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 label: 'Lưu',
                 isLoading: state is AddDeliveryOrderFormLoading,
                 onTap: () {
-                  context.read<AddDeliveryOrderFormCubit>().submit();
+                  context.read<AddDeliveryOrderFormCubit>().submit(
+                    existingDeliveryOrders: deliveryRoute.orders,
+                  );
                 },
               ),
 
@@ -535,6 +547,12 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   null) ...[
                 SizedBox(height: 4),
                 M3ErrorText(errorText: 'Mã vận đơn không được bỏ trống'),
+              ],
+              if (addDeliveryOrderFormCubit.isOrderCodeDuplicated(
+                existingDeliveryOrders: deliveryRoute.orders,
+              )) ...[
+                SizedBox(height: 4),
+                M3ErrorText(errorText: 'Mã vận đơn đã tồn tại'),
               ],
             ],
           ),

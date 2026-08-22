@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
+import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 
 class RouteColors {
   static const green = Color(0xFF008C45);
@@ -22,75 +27,125 @@ class RouteColors {
   static const border = Color(0xFFE9EBF0);
 }
 
-// Widget chính
-class DeliveryOrderPage extends StatelessWidget {
-  late DeliveryRouteEntity deliveryRoute;
+class DeliveryOrderPage extends StatefulWidget {
+  const DeliveryOrderPage({super.key});
 
-  DeliveryOrderPage({super.key});
+  @override
+  State<DeliveryOrderPage> createState() => _DeliveryOrderPageState();
+}
+
+class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
+  DeliveryRouteEntity? deliveryRoute;
 
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
-    deliveryRoute = extra['DeliveryRouteData'] as DeliveryRouteEntity;
+    deliveryRoute =
+        deliveryRoute ?? extra['DeliveryRouteData'] as DeliveryRouteEntity;
+    final getDeliveryRoutesCubitInDRDP =
+        extra['GetDeliveryRoutesCubitInDRDP'] as GetDeliveryRoutesCubit;
+    final getDeliveryRoutesUsecaseParamsInDRDP =
+        extra['GetDeliveryRoutesUsecaseParamsInDRDP']
+            as GetDeliveryRoutesUsecaseParams;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          IntrinsicHeight(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 100),
-                  child: RouteHeader(),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: RouteSummary(deliveryRoute: deliveryRoute),
-                ),
-              ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<GetDeliveryRoutesCubit>(
+          create: (context) => di<GetDeliveryRoutesCubit>()
+            ..call(
+              params: GetDeliveryRoutesUsecaseParams(
+                pageNumber: 1,
+                pageSize: 1,
+                id: deliveryRoute!.id,
+                status: deliveryRoute!.status,
+              ),
             ),
-          ),
-
-          Expanded(
+        ),
+      ],
+      child: BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
+        listener: (context, state) {
+          if (state is GetDeliveryRoutesDone) {
+            deliveryRoute = state.routes.firstOrNull ?? deliveryRoute;
+            getDeliveryRoutesCubitInDRDP.call(
+              params: getDeliveryRoutesUsecaseParamsInDRDP,
+            );
+          }
+        },
+        builder: (context, state) => Scaffold(
+          backgroundColor: Colors.white,
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await context.read<GetDeliveryRoutesCubit>().call(
+                params: GetDeliveryRoutesUsecaseParams(
+                  pageNumber: 1,
+                  pageSize: 1,
+                  id: deliveryRoute!.id,
+                  status: deliveryRoute!.status,
+                ),
+              );
+            },
             child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 SliverToBoxAdapter(
-                  child: RouteProgress(deliveryRoute: deliveryRoute),
+                  child: IntrinsicHeight(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 100),
+                          child: RouteHeader(),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: RouteSummary(deliveryRoute: deliveryRoute!),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+
                 SliverFillRemaining(
-                  hasScrollBody: true, // Cho phép TabBarView cuộn bên trong
-                  child: _buildStatusContent(),
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: RouteProgress(deliveryRoute: deliveryRoute!),
+                      ),
+                      SliverFillRemaining(
+                        hasScrollBody:
+                            true, // Cho phép TabBarView cuộn bên trong
+                        child: _buildStatusContent(),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-
-          RouteActionBar(route: deliveryRoute),
-        ],
+          bottomNavigationBar: RouteActionBar(route: deliveryRoute!),
+        ),
       ),
     );
   }
 
   Widget _buildStatusContent() {
-    switch (deliveryRoute.status) {
+    switch (deliveryRoute!.status) {
       case DeliveryRouteStatus.pending:
-        return PendingView(deliveryRoute: deliveryRoute);
+        return PendingView(deliveryRoute: deliveryRoute!);
 
       case DeliveryRouteStatus.sorting:
-        return SortingView(deliveryRoute: deliveryRoute);
+        return SortingView(deliveryRoute: deliveryRoute!);
 
       case DeliveryRouteStatus.delivering:
-        return DeliveringView(deliveryRoute: deliveryRoute);
+        return DeliveringView(deliveryRoute: deliveryRoute!);
 
       case DeliveryRouteStatus.completed:
-        return CompletedView(deliveryRoute: deliveryRoute);
+        return CompletedView(deliveryRoute: deliveryRoute!);
 
       default:
-        return PendingView(deliveryRoute: deliveryRoute);
+        return PendingView(deliveryRoute: deliveryRoute!);
     }
   }
 }
@@ -102,7 +157,7 @@ class RouteHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 55, 20, 25),
+      padding: const EdgeInsets.fromLTRB(12, 55, 12, 25),
       decoration: const BoxDecoration(
         color: RouteColors.green,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
@@ -111,7 +166,12 @@ class RouteHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              _CircleButton(icon: Icons.arrow_back, onPressed: () {}),
+              _CircleButton(
+                icon: Icons.arrow_back_ios_new,
+                onPressed: () {
+                  context.pop();
+                },
+              ),
 
               const Expanded(
                 child: Column(
@@ -133,7 +193,7 @@ class RouteHeader extends StatelessWidget {
                 ),
               ),
 
-              _CircleButton(icon: Icons.tune, onPressed: () {}),
+              SizedBox(width: 22),
             ],
           ),
 
@@ -1536,7 +1596,18 @@ class RouteActionBar extends StatelessWidget {
               context.pushNamed(
                 AppRouteNames.addDeliveryOrder,
                 pathParameters: {'id': route.id},
-                extra: <String, Object>{'DeliveryRouteData': route},
+                extra: <String, Object>{
+                  'DeliveryRouteData': route,
+                  'GetDeliveryRoutesCubitInDOP': context
+                      .read<GetDeliveryRoutesCubit>(),
+                  'GetDeliveryRoutesUsecaseParamsInDOP':
+                      GetDeliveryRoutesUsecaseParams(
+                        id: route.id,
+                        pageNumber: 1,
+                        pageSize: 1,
+                        status: route.status,
+                      ),
+                },
               );
             },
           ),
@@ -1808,12 +1879,8 @@ class _CircleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      icon: Icon(icon, color: Colors.white, size: 20),
       onPressed: onPressed,
-      icon: Icon(icon, color: Colors.white),
-      style: IconButton.styleFrom(
-        side: const BorderSide(color: Colors.white54),
-        shape: const CircleBorder(),
-      ),
     );
   }
 }
