@@ -45,6 +45,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                           id: order.id,
                           orderCode: order.orderCode,
                           orderName: order.orderName,
+                          orderMediaId: order.orderMediaId,
                           orderMediaUrl: order.orderMediaUrl,
                           sequenceOrder: order.sequenceOrder,
                           status: order.status,
@@ -55,6 +56,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                             x: order.location.x,
                             y: order.location.y,
                           ),
+                          deliveryRouteId: order.deliveryRouteId,
                           createdAt: order.createdAt,
                           updatedAt: order.updatedAt,
                           checkedAt: order.checkedAt,
@@ -62,7 +64,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                           deliveredAt: order.deliveredAt,
                           cancelledAt: order.cancelledAt,
                           rescheduledAt: order.rescheduledAt,
-                          appliedLocation: order.appliedLocation,
+                          appliedLocationId: order.appliedLocationId,
                         ),
                       )
                       .toList(),
@@ -145,6 +147,49 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
         ),
       );
       return DataSuccess(httpResponse.data.data!);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> updateDeliveryOrder({
+    required UpdateDeliveryOrderParams params,
+  }) async {
+    try {
+      final httpResponse = await deliveryRouteApiService.updateDeliveryOrder(
+        deliveryRouteId: params.deliveryRouteId,
+        deliveryOrderId: params.deliveryOrderId,
+        body: UpdateDeliveryOrderBodyRequest(
+          orderCode: params.orderCode,
+          orderName: params.orderName,
+          orderMediaId: params.orderMediaId,
+          status: params.status,
+          contactName: params.contactName,
+          contactPhone: params.contactPhone,
+          address: params.address,
+          location: params.location != null
+              ? PointRequestData(x: params.location!.x, y: params.location!.y)
+              : null,
+          appliedLocationId: params.appliedLocationId,
+        ),
+      );
+      return DataSuccess(httpResponse.data.data);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> deleteDeliveryOrder({
+    required DeleteDeliveryOrderParams params,
+  }) async {
+    try {
+      final httpResponse = await deliveryRouteApiService.deleteDeliveryOrder(
+        deliveryRouteId: params.deliveryRouteId,
+        deliveryOrderId: params.deliveryOrderId,
+      );
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }

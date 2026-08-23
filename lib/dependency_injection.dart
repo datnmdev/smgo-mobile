@@ -19,14 +19,17 @@ import 'package:shipgo/features/delivery_route/data/data_sources/ai_api_service.
 import 'package:shipgo/features/delivery_route/data/data_sources/location_search_api_service.dart';
 import 'package:shipgo/features/delivery_route/data/repository/ai_repository_impl.dart';
 import 'package:shipgo/features/delivery_route/data/repository/location_search_repository_impl.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/location_search_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
 import 'package:shipgo/features/location/data/data_sources/storage_api_service.dart';
 import 'package:shipgo/features/location/data/repository/location_repository_impl.dart';
@@ -35,7 +38,6 @@ import 'package:shipgo/features/location/domain/repository/location_repository.d
 import 'package:shipgo/features/location/domain/repository/storage_repository.dart';
 import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/delete_location_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/update_location_usecase.dart';
@@ -160,9 +162,6 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<GetUploadUrlUsecase>(
     () => GetUploadUrlUsecase(storageRepository: di<StorageRepository>()),
   );
-  di.registerLazySingleton<GetDownloadUrlUsecase>(
-    () => GetDownloadUrlUsecase(storageRepository: di<StorageRepository>()),
-  );
   di.registerLazySingleton<UploadMediaUsecase>(() => UploadMediaUsecase());
   di.registerLazySingleton<AddLocationUsecase>(
     () => AddLocationUsecase(locationRepository: di<LocationRepository>()),
@@ -204,6 +203,16 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<GetLocationSuggestionsUsecase>(
     () => GetLocationSuggestionsUsecase(
       locationSearchRepository: di<LocationSearchRepository>(),
+    ),
+  );
+  di.registerLazySingleton<UpdateDeliveryOrderUsecase>(
+    () => UpdateDeliveryOrderUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
+  di.registerLazySingleton<DeleteDeliveryOrderUsecase>(
+    () => DeleteDeliveryOrderUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
 
@@ -275,6 +284,18 @@ Future<void> initializeDependencies() async {
   di.registerFactory<GetLocationSuggestionsCubit>(
     () => GetLocationSuggestionsCubit(
       getLocationSuggestionsUsecase: di<GetLocationSuggestionsUsecase>(),
+    ),
+  );
+  di.registerFactoryParam<UpdateDeliveryOrderFormCubit, String, String>(
+    (deliveryRouteId, deliveryOrderId) => UpdateDeliveryOrderFormCubit(
+      deliveryRouteId: deliveryRouteId,
+      deliveryOrderId: deliveryOrderId,
+      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
+    ),
+  );
+  di.registerFactory<DeleteDeliveryOrdersCubit>(
+    () => DeleteDeliveryOrdersCubit(
+      deleteDeliveryOrderUsecase: di<DeleteDeliveryOrderUsecase>(),
     ),
   );
 }

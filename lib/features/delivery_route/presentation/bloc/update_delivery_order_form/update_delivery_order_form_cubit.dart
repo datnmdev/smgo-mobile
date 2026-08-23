@@ -1,33 +1,64 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shipgo/core/resources/data_state.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_state.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/address_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_name_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/location_input.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/order_code_input.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
 
-class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
-  final AddDeliveryOrderUsecase addDeliveryOrderUsecase;
+const _absent = Object();
 
-  AddDeliveryOrderFormCubit({
+class UpdateDeliveryOrderFormCubit extends Cubit<UpdateDeliveryOrderFormState> {
+  final UpdateDeliveryOrderUsecase updateDeliveryOrderUsecase;
+
+  UpdateDeliveryOrderFormCubit({
     required String deliveryRouteId,
-    required this.addDeliveryOrderUsecase,
-  }) : super(AddDeliveryOrderFormInitial(deliveryRouteId: deliveryRouteId));
+    required String deliveryOrderId,
+    required this.updateDeliveryOrderUsecase,
+  }) : super(
+         UpdateDeliveryOrderFormInitial(
+           deliveryRouteId: deliveryRouteId,
+           deliveryOrderId: deliveryOrderId,
+         ),
+       );
 
-  void reset() {
+  void initialize({
+    String? orderCode,
+    Object? orderName = _absent,
+    Object? orderMediaId = _absent,
+    String? contactName,
+    String? contactPhone,
+    String? address,
+    Object? appliedLocationId = _absent,
+    Point? location,
+  }) {
     emit(
       state.copyWith(
-        orderCodeInput: OrderCodeInput.pure(),
-        orderName: null,
-        orderMediaId: null,
-        contactNameInput: ContactNameInput.pure(),
-        contactPhoneInput: ContactPhoneInput.pure(),
-        addressInput: AddressInput.pure(),
-        appliedLocationId: null,
-        locationInput: LocationInput.pure(),
+        orderCodeInput: OrderCodeInput.pure(
+          orderCode ?? state.orderCodeInput.value,
+        ),
+        orderName: orderName == _absent ? state.orderName : orderName,
+        orderMediaId: orderMediaId == _absent
+            ? state.orderMediaId
+            : orderMediaId,
+        contactNameInput: ContactNameInput.pure(
+          contactName ?? state.contactNameInput.value,
+        ),
+        contactPhoneInput: ContactPhoneInput.pure(
+          contactPhone ?? state.contactPhoneInput.value,
+        ),
+        addressInput: AddressInput.pure(address ?? state.addressInput.value),
+        appliedLocationId: appliedLocationId == _absent
+            ? state.appliedLocationId
+            : appliedLocationId,
+        locationInput: location != null
+            ? LocationInput.pure(location)
+            : state.locationInput,
       ),
     );
   }
@@ -38,6 +69,10 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
 
   void orderMediaIdChanged(String? value) {
     emit(state.copyWith(orderMediaId: value));
+  }
+
+  void orderMediaUrlChanged(String? value) {
+    emit(state.copyWith(orderMediaUrl: value));
   }
 
   void orderNameInputChanged(String? value) {
@@ -60,25 +95,29 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     emit(state.copyWith(appliedLocationId: value));
   }
 
-  void locationInputChanged(PointUsecaseParam? value) {
+  void locationInputChanged(PointEntity? point) {
     emit(
       state.copyWith(
-        locationInput: value != null
-            ? LocationInput.dirty(Point(x: value.x, y: value.y))
+        locationInput: point != null
+            ? LocationInput.dirty(Point(x: point.x, y: point.y))
             : LocationInput.dirty(null),
       ),
     );
   }
 
   bool isOrderCodeDuplicated({
+    required String oldOrderCode,
     required List<DeliveryOrderEntity> existingDeliveryOrders,
   }) {
     return existingDeliveryOrders.any(
-      (order) => order.orderCode == state.orderCodeInput.value,
+      (order) =>
+          state.orderCodeInput.value != oldOrderCode &&
+          order.orderCode == state.orderCodeInput.value,
     );
   }
 
   void submit({
+    required String oldOrderCode,
     required List<DeliveryOrderEntity> existingDeliveryOrders,
   }) async {
     emit(
@@ -94,12 +133,14 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
     );
     if (state.isValid &&
         !isOrderCodeDuplicated(
+          oldOrderCode: oldOrderCode,
           existingDeliveryOrders: existingDeliveryOrders,
         )) {
-      emit(AddDeliveryOrderFormLoading(state: state));
-      final dataState = await addDeliveryOrderUsecase.call(
-        params: AddDeliveryOrderUsecaseParams(
+      emit(UpdateDeliveryOrderFormLoading(state: state));
+      final dataState = await updateDeliveryOrderUsecase.call(
+        params: UpdateDeliveryOrderUsecaseParams(
           deliveryRouteId: state.deliveryRouteId,
+          deliveryOrderId: state.deliveryOrderId,
           orderCode: state.orderCodeInput.value,
           orderName: state.orderName,
           orderMediaId: state.orderMediaId,
@@ -107,16 +148,18 @@ class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
           contactPhone: state.contactPhoneInput.value,
           address: state.addressInput.value,
           appliedLocationId: state.appliedLocationId,
-          location: PointUsecaseParam(
+          location: PointEntity(
             x: state.locationInput.value!.x,
             y: state.locationInput.value!.y,
           ),
         ),
       );
       if (dataState is DataSuccess) {
-        emit(AddDeliveryOrderFormDone(state: state));
+        emit(UpdateDeliveryOrderFormDone(state: state));
       } else if (dataState is DataFailed) {
-        emit(AddDeliveryOrderFormFailed(error: dataState.error!, state: state));
+        emit(
+          UpdateDeliveryOrderFormFailed(error: dataState.error!, state: state),
+        );
       }
     }
   }

@@ -67,6 +67,44 @@ class AddDeliveryOrderParams {
   });
 }
 
+class UpdateDeliveryOrderParams {
+  final String deliveryRouteId;
+  final String deliveryOrderId;
+  final String? orderCode;
+  final String? orderName;
+  final String? orderMediaId;
+  final String? status;
+  final String? contactName;
+  final String? contactPhone;
+  final String? address;
+  final PointParam? location;
+  final String? appliedLocationId;
+
+  UpdateDeliveryOrderParams({
+    required this.deliveryRouteId,
+    required this.deliveryOrderId,
+    this.orderCode,
+    this.orderName,
+    this.orderMediaId,
+    this.status,
+    this.contactName,
+    this.contactPhone,
+    this.address,
+    this.location,
+    this.appliedLocationId,
+  });
+}
+
+class DeleteDeliveryOrderParams {
+  final String deliveryRouteId;
+  final String deliveryOrderId;
+
+  DeleteDeliveryOrderParams({
+    required this.deliveryOrderId,
+    required this.deliveryRouteId,
+  });
+}
+
 abstract class DeliveryRouteRepository {
   Future<DataState<Pagination<DeliveryRouteEntity>>> getDeliveryRoutes({
     required GetDeliveryRoutesParams params,
@@ -85,5 +123,11 @@ abstract class DeliveryRouteRepository {
   // Delivery order
   Future<DataState<dynamic>> addDeliveryOrder({
     required AddDeliveryOrderParams params,
+  });
+  Future<DataState<dynamic>> updateDeliveryOrder({
+    required UpdateDeliveryOrderParams params,
+  });
+  Future<DataState<dynamic>> deleteDeliveryOrder({
+    required DeleteDeliveryOrderParams params,
   });
 }

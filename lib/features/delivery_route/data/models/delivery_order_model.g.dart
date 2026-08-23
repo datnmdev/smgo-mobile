@@ -9,20 +9,25 @@ part of 'delivery_order_model.dart';
 DeliveryOrderModel _$DeliveryOrderModelFromJson(Map<String, dynamic> json) =>
     DeliveryOrderModel(
       id: json['id'] as String,
+      orderMediaId: json['orderMediaId'] as String?,
       orderMediaUrl: json['orderMediaUrl'] as String?,
       orderCode: json['orderCode'] as String,
-      orderName: json['orderName'] as String,
+      orderName: json['orderName'] as String?,
       sequenceOrder: (json['sequenceOrder'] as num?)?.toInt(),
       status: json['status'] as String,
       contactName: json['contactName'] as String,
       contactPhone: json['contactPhone'] as String,
       address: json['address'] as String,
       location: Point.fromJson(json['location'] as Map<String, dynamic>),
-      appliedLocation: json['appliedLocation'] as String?,
+      appliedLocationId: json['appliedLocationId'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      deliveryRouteId: json['deliveryRouteId'] as String,
       checkedAt: json['checkedAt'] == null
           ? null
           : DateTime.parse(json['checkedAt'] as String),
+      sortedAt: json['sortedAt'] == null
+          ? null
+          : DateTime.parse(json['sortedAt'] as String),
       deliveringAt: json['deliveringAt'] == null
           ? null
           : DateTime.parse(json['deliveringAt'] as String),
@@ -41,6 +46,7 @@ DeliveryOrderModel _$DeliveryOrderModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DeliveryOrderModelToJson(DeliveryOrderModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'orderMediaId': instance.orderMediaId,
       'orderMediaUrl': instance.orderMediaUrl,
       'orderCode': instance.orderCode,
       'orderName': instance.orderName,
@@ -50,9 +56,11 @@ Map<String, dynamic> _$DeliveryOrderModelToJson(DeliveryOrderModel instance) =>
       'contactPhone': instance.contactPhone,
       'address': instance.address,
       'location': instance.location,
-      'appliedLocation': instance.appliedLocation,
+      'appliedLocationId': instance.appliedLocationId,
+      'deliveryRouteId': instance.deliveryRouteId,
       'createdAt': instance.createdAt.toIso8601String(),
       'checkedAt': instance.checkedAt?.toIso8601String(),
+      'sortedAt': instance.sortedAt?.toIso8601String(),
       'deliveringAt': instance.deliveringAt?.toIso8601String(),
       'deliveredAt': instance.deliveredAt?.toIso8601String(),
       'cancelledAt': instance.cancelledAt?.toIso8601String(),

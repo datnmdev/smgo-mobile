@@ -9,6 +9,7 @@ import 'package:shipgo/core/resources/app_assets.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/utils/external_url_util.dart';
+import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
 import 'package:shipgo/shared/widgets/image_slider.dart';
 import 'package:shipgo/shared/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
@@ -20,10 +21,15 @@ import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class LocationDetailPage extends StatelessWidget {
-  LocationEntity? location;
+class LocationDetailPage extends StatefulWidget {
+  const LocationDetailPage({super.key});
 
-  LocationDetailPage({super.key});
+  @override
+  State<LocationDetailPage> createState() => _LocationDetailPageState();
+}
+
+class _LocationDetailPageState extends State<LocationDetailPage> {
+  LocationEntity? location;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +79,12 @@ class LocationDetailPage extends StatelessWidget {
           ),
           actions: [],
         ),
-        body: BlocBuilder<GetMyLocationsCubit, GetMyLocationsState>(
+        body: BlocConsumer<GetMyLocationsCubit, GetMyLocationsState>(
+          listener: (context, state) {
+            if (state is GetMyLocationsDone) {
+              getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
+            }
+          },
           builder: (context, state) => RefreshIndicator(
             onRefresh: () async {
               await context.read<GetMyLocationsCubit>().call(
@@ -241,13 +252,13 @@ class LocationDetailPage extends StatelessWidget {
                                       AppStrings.lDPCallButtonTitle.tr(),
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 13,
+                                        fontSize: 12,
                                       ),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primary,
                                       padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
+                                        vertical: 10,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
@@ -278,7 +289,7 @@ class LocationDetailPage extends StatelessWidget {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 11,
+                                        fontSize: 12,
                                         height: 1.1,
                                       ),
                                     ),
@@ -360,211 +371,18 @@ class LocationDetailPage extends StatelessWidget {
                             M3MapWidget(
                               mode: MapMode.view,
                               userAgentPackageName: Env.packageName,
+                              selectLocationError: AppStrings
+                                  .m3MSelectLocationError
+                                  .tr(),
+                              cannotGetLocationError: AppStrings
+                                  .m3MCannotGetLocationError
+                                  .tr(),
+                              mapTemplateUrl: Env.mapTemplateUrl,
                               center: LatLng(
                                 location!.location.y,
                                 location!.location.x,
                               ),
                             ),
-
-                            const SizedBox(height: 24),
-
-                            // Nút Chỉnh sửa & Xóa địa điểm
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      context.pushNamed(
-                                        AppRouteNames.updateLocation,
-                                        pathParameters: {'id': location!.id},
-                                        extra: <String, Object>{
-                                          'LocationData': location!,
-                                          'GetMyLocationsCubitInLP':
-                                              getMyLocationsCubitInLP,
-                                          'GetMyLocationsParamsInLP':
-                                              getMyLocationsParamsInLP,
-                                          'GetMyLocationsCubitInLDP': context
-                                              .read<GetMyLocationsCubit>(),
-                                          'GetMyLocationsParamsInLDP':
-                                              GetMyLocationsParams(
-                                                pageNumber: 1,
-                                                pageSize: 1,
-                                                id: location!.id,
-                                              ),
-                                        },
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.edit_outlined,
-                                      size: 18,
-                                      color: AppColors.primary,
-                                    ),
-                                    label: Text(
-                                      AppStrings.lDPEditButtonTitle.tr(),
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                        color: AppColors.primary,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      // Lưu lại context của màn hình chính
-                                      final parentContext = context;
-
-                                      showDialog(
-                                        context: context,
-                                        builder: (dialogContext) => BlocProvider<DeleteLocationCubit>(
-                                          create: (_) =>
-                                              di<DeleteLocationCubit>(),
-                                          child:
-                                              BlocConsumer<
-                                                DeleteLocationCubit,
-                                                DeleteLocationState
-                                              >(
-                                                listener:
-                                                    (
-                                                      consumerContext,
-                                                      dialogState,
-                                                    ) {
-                                                      if (dialogState
-                                                          is DeleteLocationDone) {
-                                                        Navigator.of(
-                                                          consumerContext,
-                                                        ).pop();
-                                                        if (parentContext
-                                                            .mounted) {
-                                                          Navigator.of(
-                                                            parentContext,
-                                                          ).pop();
-                                                        }
-                                                        getMyLocationsCubitInLP
-                                                            .call(
-                                                              getMyLocationsParamsInLP,
-                                                            );
-                                                      }
-                                                    },
-                                                builder: (consumerContext, dialogState) {
-                                                  final isLoading =
-                                                      dialogState
-                                                          is DeleteLocationLoading;
-
-                                                  return AlertDialog(
-                                                    title: Text(
-                                                      AppStrings
-                                                          .lDPDeleteLocationDialogTitle
-                                                          .tr(),
-                                                    ),
-                                                    content: Text(
-                                                      AppStrings
-                                                          .lDPDeleteLocationDialogContent
-                                                          .tr(),
-                                                    ),
-                                                    actions: [
-                                                      // Nút Hủy
-                                                      TextButton(
-                                                        onPressed: !isLoading
-                                                            ? () => Navigator.of(
-                                                                consumerContext,
-                                                              ).pop()
-                                                            : null,
-                                                        style:
-                                                            TextButton.styleFrom(
-                                                              foregroundColor:
-                                                                  Colors.green,
-                                                            ),
-                                                        child: Text(
-                                                          AppStrings
-                                                              .lDPDeleteLocationDialogCancelBtnTitle
-                                                              .tr(),
-                                                        ),
-                                                      ),
-
-                                                      // Nút Đồng ý xóa
-                                                      TextButton(
-                                                        onPressed: !isLoading
-                                                            ? () {
-                                                                // Chỉ gọi hàm xóa, KHÔNG pop() ở đây.
-                                                                // Việc pop() sẽ do listener ở trên tự đảm nhận khi xóa thành công.
-                                                                consumerContext
-                                                                    .read<
-                                                                      DeleteLocationCubit
-                                                                    >()
-                                                                    .call(
-                                                                      location!
-                                                                          .id,
-                                                                    );
-                                                              }
-                                                            : null, // Disable nút khi đang xóa
-                                                        style:
-                                                            TextButton.styleFrom(
-                                                              foregroundColor:
-                                                                  Colors.red,
-                                                            ),
-                                                        child: isLoading
-                                                            ? const SizedBox(
-                                                                width: 16,
-                                                                height: 16,
-                                                                child: CircularProgressIndicator(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  strokeWidth:
-                                                                      2,
-                                                                ),
-                                                              )
-                                                            : Text(
-                                                                AppStrings
-                                                                    .lDPDeleteLocationDialogDeleteBtnTitle
-                                                                    .tr(),
-                                                              ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      size: 18,
-                                      color: Colors.red,
-                                    ),
-                                    label: Text(
-                                      AppStrings.lDPDeleteButtonTitle.tr(),
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(color: Colors.red),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -572,6 +390,163 @@ class LocationDetailPage extends StatelessWidget {
                   ),
                 );
               },
+            ),
+          ),
+        ),
+        bottomNavigationBar: BlocBuilder<GetMyLocationsCubit, GetMyLocationsState>(
+          builder: (context, state) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      context.pushNamed(
+                        AppRouteNames.updateLocation,
+                        pathParameters: {'id': location!.id},
+                        extra: <String, Object>{
+                          'LocationData': location!,
+                          'GetMyLocationsCubitInLDP': context
+                              .read<GetMyLocationsCubit>(),
+                          'GetMyLocationsParamsInLDP': GetMyLocationsParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: location!.id,
+                          ),
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
+                    label: Text(
+                      AppStrings.lDPEditButtonTitle.tr(),
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      // Lưu lại context của màn hình chính
+                      final parentContext = context;
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => BlocProvider<DeleteLocationCubit>(
+                          create: (_) => di<DeleteLocationCubit>(),
+                          child: BlocConsumer<DeleteLocationCubit, DeleteLocationState>(
+                            listener: (consumerContext, dialogState) {
+                              if (dialogState is DeleteLocationDone) {
+                                Navigator.of(consumerContext).pop();
+                                if (parentContext.mounted) {
+                                  Navigator.of(parentContext).pop();
+                                }
+                                getMyLocationsCubitInLP.call(
+                                  getMyLocationsParamsInLP,
+                                );
+                              }
+                            },
+                            builder: (consumerContext, dialogState) {
+                              final isLoading =
+                                  dialogState is DeleteLocationLoading;
+
+                              return AlertDialog(
+                                title: Text(
+                                  AppStrings.lDPDeleteLocationDialogTitle.tr(),
+                                ),
+                                content: Text(
+                                  AppStrings.lDPDeleteLocationDialogContent
+                                      .tr(),
+                                ),
+                                actions: [
+                                  // Nút Hủy
+                                  TextButton(
+                                    onPressed: !isLoading
+                                        ? () => Navigator.of(
+                                            consumerContext,
+                                          ).pop()
+                                        : null,
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.green,
+                                    ),
+                                    child: Text(
+                                      AppStrings
+                                          .lDPDeleteLocationDialogCancelBtnTitle
+                                          .tr(),
+                                    ),
+                                  ),
+
+                                  // Nút Đồng ý xóa
+                                  TextButton(
+                                    onPressed: !isLoading
+                                        ? () {
+                                            // Chỉ gọi hàm xóa, KHÔNG pop() ở đây.
+                                            // Việc pop() sẽ do listener ở trên tự đảm nhận khi xóa thành công.
+                                            consumerContext
+                                                .read<DeleteLocationCubit>()
+                                                .call(location!.id);
+                                          }
+                                        : null, // Disable nút khi đang xóa
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                    ),
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.red,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : Text(
+                                            AppStrings
+                                                .lDPDeleteLocationDialogDeleteBtnTitle
+                                                .tr(),
+                                          ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    label: Text(
+                      AppStrings.lDPDeleteButtonTitle.tr(),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

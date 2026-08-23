@@ -397,7 +397,7 @@ class _HeaderSection extends StatelessWidget {
       children: [
         Image.asset(AppAssets.logo, width: 128, height: 128, fit: BoxFit.cover),
         Text(
-          "Shipgo",
+          AppStrings.appName,
           style: TextStyle(
             fontSize: 48,
             fontWeight: FontWeight.w700,

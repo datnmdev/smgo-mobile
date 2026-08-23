@@ -13,7 +13,10 @@ import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_rout
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
 import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
 import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/widgets/m3_error_text.dart';
@@ -23,25 +26,24 @@ import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/extracted_order_info_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
 
 enum LockableField { orderCode, orderName, contactName, contactPhone, address }
 
-class AddDeliveryOrderPage extends StatefulWidget {
-  const AddDeliveryOrderPage({super.key});
+class UpdateDeliveryOrderPage extends StatefulWidget {
+  const UpdateDeliveryOrderPage({super.key});
 
   @override
-  State<AddDeliveryOrderPage> createState() => _AddDeliveryOrderPageState();
+  State<UpdateDeliveryOrderPage> createState() =>
+      _UpdateDeliveryOrderPageState();
 }
 
-class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
+class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
   late DeliveryRouteEntity deliveryRoute;
+  late DeliveryOrderEntity deliveryOrder;
   bool _isGenerating = false;
   final TextEditingController orderCodeInputController =
       TextEditingController();
@@ -72,268 +74,233 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
     deliveryRoute = extra['DeliveryRouteData'] as DeliveryRouteEntity;
-    final getDeliveryRoutesCubitInDOP =
-        extra['GetDeliveryRoutesCubitInDOP'] as GetDeliveryRoutesCubit;
-    final getDeliveryRoutesUsecaseParamsInDOP =
-        extra['GetDeliveryRoutesUsecaseParamsInDOP']
+    deliveryOrder = extra['DeliveryOrderData'] as DeliveryOrderEntity;
+    final getDeliveryRoutesCubitInDODP =
+        extra['GetDeliveryRoutesCubitInDODP'] as GetDeliveryRoutesCubit;
+    final getDeliveryRoutesUsecaseParamsInDODP =
+        extra['GetDeliveryRoutesUsecaseParamsInDODP']
             as GetDeliveryRoutesUsecaseParams;
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) =>
-              di<AddDeliveryOrderFormCubit>(param1: deliveryRoute.id),
+        BlocProvider<GetLocationSuggestionsCubit>(
+          create: (context) => di<GetLocationSuggestionsCubit>()
+            ..call(
+              contactPhone: deliveryOrder.contactPhone,
+              address: deliveryOrder.address,
+            ),
         ),
-        BlocProvider(create: (context) => di<GetLocationSuggestionsCubit>()),
-      ],
-      child: BlocConsumer<AddDeliveryOrderFormCubit, AddDeliveryOrderFormState>(
-        listener: (context, state) async {
-          final addDeliveryOrderFormCubit = context
-              .read<AddDeliveryOrderFormCubit>();
+        BlocProvider<UpdateDeliveryOrderFormCubit>(
+          create: (context) {
+            final cubit = di<UpdateDeliveryOrderFormCubit>(
+              param1: deliveryOrder.deliveryRouteId,
+              param2: deliveryOrder.id,
+            );
 
-          if (state is AddDeliveryOrderFormDone) {
-            // Hiển thị thông báo tạo đơn hàng thành công
-            AppDialogHelper.showSuccess(
-              context: context,
-              title: 'Tạo đơn hàng thành công!',
-              subtitle: 'Đơn hàng của bạn đã được lưu thành công.',
-              content: Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FA),
-                  borderRadius: BorderRadius.circular(8.0),
+            // Cập nhật state
+            cubit.initialize(
+              orderCode: deliveryOrder.orderCode,
+              orderName: deliveryOrder.orderName,
+              orderMediaId: deliveryOrder.orderMediaId,
+              contactName: deliveryOrder.contactName,
+              contactPhone: deliveryOrder.contactPhone,
+              address: deliveryOrder.address,
+              location: deliveryOrder.location,
+              appliedLocationId: deliveryOrder.appliedLocationId,
+            );
+
+            // Cập nhật form
+            orderCodeInputController.text = deliveryOrder.orderCode;
+            orderNameInputController.text = deliveryOrder.orderName ?? '';
+            contactNameInputController.text = deliveryOrder.contactName;
+            contactPhoneInputController.text = deliveryOrder.contactPhone;
+            addressInputController.text = deliveryOrder.address;
+
+            return cubit;
+          },
+        ),
+      ],
+      child:
+          BlocConsumer<
+            UpdateDeliveryOrderFormCubit,
+            UpdateDeliveryOrderFormState
+          >(
+            listener: (context, state) async {
+              if (state is UpdateDeliveryOrderFormDone) {
+                AppDialogHelper.showSuccess(
+                  context: context,
+                  title: 'Cập nhật thành công!',
+                  subtitle: 'Thông tin đơn hàng của bạn đã được lưu.',
+                );
+                getDeliveryRoutesCubitInDODP.call(
+                  params: getDeliveryRoutesUsecaseParamsInDODP,
+                );
+              } else if (state is UpdateDeliveryOrderFormFailed) {
+                AppDialogHelper.showError(
+                  context: context,
+                  title: 'Cập nhật thất bại!',
+                  subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',
+                );
+              }
+            },
+            builder: (context, state) => Scaffold(
+              backgroundColor: const Color(0xFFF5F6F8),
+              appBar: AppBar(
+                backgroundColor: primaryGreen,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.chevron_left, color: Colors.white),
+                  onPressed: () {
+                    context.pop();
+                  },
                 ),
-                child: Column(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildInfoRow(
-                      'Mã vận đơn:',
-                      addDeliveryOrderFormCubit.state.orderCodeInput.value,
+                    Text(
+                      'Cập nhật đơn hàng',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      'Tên sản phẩm:',
-                      addDeliveryOrderFormCubit.state.orderName ??
-                          'Không có tên đơn hàng',
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      'Tên người nhận:',
-                      addDeliveryOrderFormCubit.state.contactNameInput.value,
+                    SizedBox(height: 2),
+                    Text(
+                      deliveryRoute.name,
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                   ],
                 ),
-              ),
-            );
+                actions: [
+                  AiOcrScanButton<Map<String, dynamic>>(
+                    builder: (context, onPressed) {
+                      return _buildHeaderAction(
+                        icon: Icons.qr_code_scanner,
+                        label: 'Quét nhanh',
+                        onTap: onPressed,
+                      );
+                    },
+                    llmProcessor: (rawOcrText) async {
+                      return await _runInference(rawOcrText);
+                    },
+                    promptBuilder: (ocrText) => ocrText,
+                    parser: (llmOutput) {
+                      var cleanJson = llmOutput.trim();
+                      cleanJson = cleanJson
+                          .replaceFirst(
+                            RegExp(r'^```json\s*', caseSensitive: false),
+                            '',
+                          )
+                          .replaceFirst(RegExp(r'^```\s*'), '')
+                          .replaceFirst(RegExp(r'\s*```$'), '')
+                          .trim();
+                      final startIndex = cleanJson.indexOf('{');
+                      final endIndex = cleanJson.lastIndexOf('}');
+                      cleanJson = cleanJson.substring(startIndex, endIndex + 1);
+                      return jsonDecode(cleanJson);
+                    },
+                    onCompleted: (Map<String, dynamic> data) {
+                      final updateDeliveryOrderFormCubit = context
+                          .read<UpdateDeliveryOrderFormCubit>();
+                      final getLocationSuggestionsCubit = context
+                          .read<GetLocationSuggestionsCubit>();
+                      final extractedOrderInfo =
+                          ExtractedOrderInfoEntity.fromJson(data);
 
-            // Reset lại trạng thái cubit
-            addDeliveryOrderFormCubit.reset();
+                      if (!lockedFields.contains(LockableField.orderCode) &&
+                          extractedOrderInfo.orderCode.isNotEmpty) {
+                        updateDeliveryOrderFormCubit.orderCodeInputChanged(
+                          extractedOrderInfo.orderCode,
+                        );
+                        orderCodeInputController.text =
+                            extractedOrderInfo.orderCode;
+                      }
 
-            // Reset lại giá trị form
-            orderCodeInputController.text = '';
-            orderNameInputController.text = '';
-            contactNameInputController.text = '';
-            contactPhoneInputController.text = '';
-            addressInputController.text = '';
-            context.read<GetLocationSuggestionsCubit>().call(
-              contactPhone: '',
-              address: '',
-            );
-            getDeliveryRoutesCubitInDOP.call(
-              params: getDeliveryRoutesUsecaseParamsInDOP,
-            );
-          } else if (state is AddDeliveryOrderFormFailed) {
-            AppDialogHelper.showSuccess(
-              context: context,
-              title: 'Tạo đơn hàng thất bại!',
-              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',
-            );
-          }
-        },
-        builder: (context, state) => Scaffold(
-          backgroundColor: const Color(0xFFF5F6F8),
-          appBar: AppBar(
-            backgroundColor: primaryGreen,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white),
-              onPressed: () {
-                context.pop();
-              },
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Thêm đơn hàng',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                      if (!lockedFields.contains(LockableField.orderName) &&
+                          extractedOrderInfo.orderName.isNotEmpty) {
+                        updateDeliveryOrderFormCubit.orderNameInputChanged(
+                          extractedOrderInfo.orderName,
+                        );
+                        orderNameInputController.text =
+                            extractedOrderInfo.orderName;
+                      }
+
+                      if (!lockedFields.contains(LockableField.contactName) &&
+                          extractedOrderInfo.contactName.isNotEmpty) {
+                        updateDeliveryOrderFormCubit.contactNameInputChanged(
+                          extractedOrderInfo.contactName,
+                        );
+                        contactNameInputController.text =
+                            extractedOrderInfo.contactName;
+                      }
+
+                      if (!lockedFields.contains(LockableField.contactPhone) &&
+                          extractedOrderInfo.contactPhone.isNotEmpty) {
+                        updateDeliveryOrderFormCubit.contactPhoneInputChanged(
+                          extractedOrderInfo.contactPhone.replaceAll(
+                            RegExp(r'\D'),
+                            '',
+                          ),
+                        );
+                        getLocationSuggestionsCubit.call(
+                          contactPhone: extractedOrderInfo.contactPhone
+                              .replaceAll(RegExp(r'\D'), ''),
+                          address: updateDeliveryOrderFormCubit
+                              .state
+                              .addressInput
+                              .value,
+                        );
+                        contactPhoneInputController.text = extractedOrderInfo
+                            .contactPhone
+                            .replaceAll(RegExp(r'\D'), '');
+                      }
+
+                      if (!lockedFields.contains(LockableField.address) &&
+                          extractedOrderInfo.address.isNotEmpty) {
+                        getLocationSuggestionsCubit.call(
+                          contactPhone: updateDeliveryOrderFormCubit
+                              .state
+                              .contactPhoneInput
+                              .value,
+                          address: extractedOrderInfo.address,
+                        );
+                        updateDeliveryOrderFormCubit.addressInputChanged(
+                          extractedOrderInfo.address,
+                        );
+                        addressInputController.text =
+                            extractedOrderInfo.address;
+                      }
+                    },
                   ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  deliveryRoute.name,
-                  style: TextStyle(fontSize: 12, color: Colors.white70),
-                ),
-              ],
-            ),
-            actions: [
-              AiOcrScanButton<Map<String, dynamic>>(
-                builder: (context, onPressed) {
-                  return _buildHeaderAction(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Quét nhanh',
-                    onTap: onPressed,
-                  );
-                },
-                llmProcessor: (rawOcrText) async {
-                  return await _runInference(rawOcrText);
-                },
-                promptBuilder: (ocrText) => ocrText,
-                parser: (llmOutput) {
-                  var cleanJson = llmOutput.trim();
-                  cleanJson = cleanJson
-                      .replaceFirst(
-                        RegExp(r'^```json\s*', caseSensitive: false),
-                        '',
-                      )
-                      .replaceFirst(RegExp(r'^```\s*'), '')
-                      .replaceFirst(RegExp(r'\s*```$'), '')
-                      .trim();
-                  final startIndex = cleanJson.indexOf('{');
-                  final endIndex = cleanJson.lastIndexOf('}');
-                  cleanJson = cleanJson.substring(startIndex, endIndex + 1);
-                  return jsonDecode(cleanJson);
-                },
-                onCompleted: (Map<String, dynamic> data) {
-                  final addDeliveryOrderFormCubit = context
-                      .read<AddDeliveryOrderFormCubit>();
-                  final getLocationSuggestionsCubit = context
-                      .read<GetLocationSuggestionsCubit>();
-                  final extractedOrderInfo = ExtractedOrderInfoEntity.fromJson(
-                    data,
-                  );
 
-                  if (!lockedFields.contains(LockableField.orderCode) &&
-                      extractedOrderInfo.orderCode.isNotEmpty) {
-                    addDeliveryOrderFormCubit.orderCodeInputChanged(
-                      extractedOrderInfo.orderCode,
-                    );
-                    orderCodeInputController.text =
-                        extractedOrderInfo.orderCode;
-                  }
+                  _buildHeaderAction(
+                    icon: Icons.save_outlined,
+                    label: 'Lưu',
+                    isLoading: state is UpdateDeliveryOrderFormLoading,
+                    onTap: () {
+                      context.read<UpdateDeliveryOrderFormCubit>().submit(
+                        oldOrderCode: deliveryOrder.orderCode,
+                        existingDeliveryOrders: deliveryRoute.orders,
+                      );
+                    },
+                  ),
 
-                  if (!lockedFields.contains(LockableField.orderName) &&
-                      extractedOrderInfo.orderName.isNotEmpty) {
-                    addDeliveryOrderFormCubit.orderNameInputChanged(
-                      extractedOrderInfo.orderName,
-                    );
-                    orderNameInputController.text =
-                        extractedOrderInfo.orderName;
-                  }
-
-                  if (!lockedFields.contains(LockableField.contactName) &&
-                      extractedOrderInfo.contactName.isNotEmpty) {
-                    addDeliveryOrderFormCubit.contactNameInputChanged(
-                      extractedOrderInfo.contactName,
-                    );
-                    contactNameInputController.text =
-                        extractedOrderInfo.contactName;
-                  }
-
-                  if (!lockedFields.contains(LockableField.contactPhone) &&
-                      extractedOrderInfo.contactPhone.isNotEmpty) {
-                    addDeliveryOrderFormCubit.contactPhoneInputChanged(
-                      extractedOrderInfo.contactPhone.replaceAll(
-                        RegExp(r'\D'),
-                        '',
-                      ),
-                    );
-                    getLocationSuggestionsCubit.call(
-                      contactPhone: extractedOrderInfo.contactPhone.replaceAll(
-                        RegExp(r'\D'),
-                        '',
-                      ),
-                      address:
-                          addDeliveryOrderFormCubit.state.addressInput.value,
-                    );
-                    contactPhoneInputController.text = extractedOrderInfo
-                        .contactPhone
-                        .replaceAll(RegExp(r'\D'), '');
-                  }
-
-                  if (!lockedFields.contains(LockableField.address) &&
-                      extractedOrderInfo.address.isNotEmpty) {
-                    getLocationSuggestionsCubit.call(
-                      contactPhone: addDeliveryOrderFormCubit
-                          .state
-                          .contactPhoneInput
-                          .value,
-                      address: extractedOrderInfo.address,
-                    );
-                    addDeliveryOrderFormCubit.addressInputChanged(
-                      extractedOrderInfo.address,
-                    );
-                    addressInputController.text = extractedOrderInfo.address;
-                  }
-                },
+                  const SizedBox(width: 8),
+                ],
               ),
-
-              _buildHeaderAction(
-                icon: Icons.save_outlined,
-                label: 'Lưu',
-                isLoading: state is AddDeliveryOrderFormLoading,
-                onTap: () {
-                  context.read<AddDeliveryOrderFormCubit>().submit(
-                    existingDeliveryOrders: deliveryRoute.orders,
-                  );
-                },
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    _buildOrderInfoSection(context),
+                    const SizedBox(height: 12),
+                    _buildRecipientInfoSection(context),
+                  ],
+                ),
               ),
-
-              const SizedBox(width: 8),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                _buildOrderInfoSection(context),
-                const SizedBox(height: 12),
-                _buildRecipientInfoSection(context),
-              ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // Hàm phụ trợ xây dựng dòng thông tin
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 105,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 13, color: Colors.black87),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -407,7 +374,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Phần 1: Thông tin đơn hàng
   Widget _buildOrderInfoSection(BuildContext context) {
-    final addDeliveryOrderFormCubit = context.read<AddDeliveryOrderFormCubit>();
+    final updateDeliveryOrderFormCubit = context
+        .read<UpdateDeliveryOrderFormCubit>();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -425,7 +393,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               _buildInputField(
                 label: 'Mã vận đơn *',
                 placeholder: 'Nhập mã vận đơn',
-                onChanged: addDeliveryOrderFormCubit.orderCodeInputChanged,
+                onChanged: updateDeliveryOrderFormCubit.orderCodeInputChanged,
                 controller: orderCodeInputController,
                 isLocked: lockedFields.contains(LockableField.orderCode),
                 onLockToggle: () {
@@ -438,12 +406,16 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   });
                 },
               ),
-              if (addDeliveryOrderFormCubit.state.orderCodeInput.displayError !=
+              if (updateDeliveryOrderFormCubit
+                      .state
+                      .orderCodeInput
+                      .displayError !=
                   null) ...[
                 SizedBox(height: 4),
                 M3ErrorText(errorText: 'Mã vận đơn không được bỏ trống'),
               ],
-              if (addDeliveryOrderFormCubit.isOrderCodeDuplicated(
+              if (updateDeliveryOrderFormCubit.isOrderCodeDuplicated(
+                oldOrderCode: deliveryOrder.orderCode,
                 existingDeliveryOrders: deliveryRoute.orders,
               )) ...[
                 SizedBox(height: 4),
@@ -455,7 +427,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           _buildInputField(
             label: 'Tên sản phẩm',
             placeholder: 'Nhập tên sản phẩm',
-            onChanged: addDeliveryOrderFormCubit.orderNameInputChanged,
+            onChanged: updateDeliveryOrderFormCubit.orderNameInputChanged,
             controller: orderNameInputController,
             isLocked: lockedFields.contains(LockableField.orderName),
             onLockToggle: () {
@@ -475,10 +447,21 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           ),
           const SizedBox(height: 8),
           _buildImagePickerList(
-            isReset: addDeliveryOrderFormCubit.state.orderMediaId == null,
+            initialImages: [
+              if (deliveryOrder.orderMediaId != null &&
+                  deliveryOrder.orderMediaUrl != null)
+                GridImageItem(
+                  id: deliveryOrder.orderMediaId!,
+                  path: deliveryOrder.orderMediaUrl!,
+                ),
+            ],
+            maxImages: 1,
             onImagesChanged: (images) {
-              addDeliveryOrderFormCubit.orderMediaIdChanged(
+              updateDeliveryOrderFormCubit.orderMediaIdChanged(
                 images.isNotEmpty ? images[0].id : null,
+              );
+              updateDeliveryOrderFormCubit.orderMediaUrlChanged(
+                images.isNotEmpty ? images[0].path : null,
               );
             },
           ),
@@ -489,7 +472,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Phần 2: Thông tin người nhận
   Widget _buildRecipientInfoSection(BuildContext context) {
-    final addDeliveryOrderFormCubit = context.read<AddDeliveryOrderFormCubit>();
+    final updateDeliveryOrderFormCubit = context
+        .read<UpdateDeliveryOrderFormCubit>();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -507,7 +491,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               _buildInputField(
                 label: 'Tên người nhận *',
                 placeholder: 'Nhập tên người nhận',
-                onChanged: addDeliveryOrderFormCubit.contactNameInputChanged,
+                onChanged: updateDeliveryOrderFormCubit.contactNameInputChanged,
                 controller: contactNameInputController,
                 isLocked: lockedFields.contains(LockableField.contactName),
                 onLockToggle: () {
@@ -520,7 +504,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   });
                 },
               ),
-              if (addDeliveryOrderFormCubit
+              if (updateDeliveryOrderFormCubit
                       .state
                       .contactNameInput
                       .displayError !=
@@ -539,10 +523,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
-                  addDeliveryOrderFormCubit.contactPhoneInputChanged(value);
+                  updateDeliveryOrderFormCubit.contactPhoneInputChanged(value);
                   context.read<GetLocationSuggestionsCubit>().call(
                     contactPhone: value,
-                    address: addDeliveryOrderFormCubit.state.addressInput.value,
+                    address:
+                        updateDeliveryOrderFormCubit.state.addressInput.value,
                   );
                 },
                 controller: contactPhoneInputController,
@@ -557,19 +542,19 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   });
                 },
               ),
-              if (addDeliveryOrderFormCubit
+              if (updateDeliveryOrderFormCubit
                       .state
                       .contactPhoneInput
                       .displayError !=
                   null) ...[
                 SizedBox(height: 4),
-                if (addDeliveryOrderFormCubit
+                if (updateDeliveryOrderFormCubit
                         .state
                         .contactPhoneInput
                         .displayError ==
                     ContactPhoneInputValidationError.empty)
                   M3ErrorText(errorText: 'Số điện thoại không được bỏ trống'),
-                if (addDeliveryOrderFormCubit
+                if (updateDeliveryOrderFormCubit
                         .state
                         .contactPhoneInput
                         .displayError ==
@@ -585,10 +570,12 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 label: 'Địa chỉ người nhận *',
                 placeholder: 'Nhập địa chỉ',
                 onChanged: (value) {
-                  addDeliveryOrderFormCubit.addressInputChanged(value);
+                  updateDeliveryOrderFormCubit.addressInputChanged(value);
                   context.read<GetLocationSuggestionsCubit>().call(
-                    contactPhone:
-                        addDeliveryOrderFormCubit.state.contactPhoneInput.value,
+                    contactPhone: updateDeliveryOrderFormCubit
+                        .state
+                        .contactPhoneInput
+                        .value,
                     address: value,
                   );
                 },
@@ -604,7 +591,10 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   });
                 },
               ),
-              if (addDeliveryOrderFormCubit.state.addressInput.displayError !=
+              if (updateDeliveryOrderFormCubit
+                      .state
+                      .addressInput
+                      .displayError !=
                   null) ...[
                 SizedBox(height: 4),
                 M3ErrorText(
@@ -618,8 +608,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
           BlocBuilder<GetLocationSuggestionsCubit, GetLocationSuggestionsState>(
             builder: (context, state) {
-              final addDeliveryOrderFormCubit = context
-                  .read<AddDeliveryOrderFormCubit>();
+              final updateDeliveryOrderFormCubit = context
+                  .read<UpdateDeliveryOrderFormCubit>();
               final suggestions = state is GetLocationSuggestionsDone
                   ? state.locationSuggestions.data
                   : <LocationEntity>[];
@@ -627,24 +617,24 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 selectedIndex: suggestions.indexWhere(
                   (suggestion) =>
                       suggestion.id ==
-                      addDeliveryOrderFormCubit.state.appliedLocationId,
+                      updateDeliveryOrderFormCubit.state.appliedLocationId,
                 ),
                 isLoading: state is GetLocationSuggestionsLoading,
                 suggestions: suggestions,
                 onItemSelected: (value) {
-                  if (addDeliveryOrderFormCubit.state.appliedLocationId ==
+                  if (updateDeliveryOrderFormCubit.state.appliedLocationId ==
                       value) {
-                    addDeliveryOrderFormCubit.appliedLocationIdChanged(null);
-                    addDeliveryOrderFormCubit.locationInputChanged(null);
+                    updateDeliveryOrderFormCubit.appliedLocationIdChanged(null);
+                    updateDeliveryOrderFormCubit.locationInputChanged(null);
                     return;
                   }
-                  addDeliveryOrderFormCubit.appliedLocationIdChanged(value);
+                  updateDeliveryOrderFormCubit.appliedLocationIdChanged(value);
                   final location = suggestions
                       .where((sug) => sug.id == value)
                       .first
                       .location;
-                  addDeliveryOrderFormCubit.locationInputChanged(
-                    PointUsecaseParam(x: location.x, y: location.y),
+                  updateDeliveryOrderFormCubit.locationInputChanged(
+                    PointEntity(x: location.x, y: location.y),
                   );
                 },
               );
@@ -663,25 +653,28 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               children: [
                 _buildMapPreview(
                   mapMode:
-                      addDeliveryOrderFormCubit.state.appliedLocationId != null
+                      updateDeliveryOrderFormCubit.state.appliedLocationId !=
+                          null
                       ? MapMode.view
                       : MapMode.select,
-                  address: addDeliveryOrderFormCubit.state.addressInput.value,
-                  location: addDeliveryOrderFormCubit.state.locationInput.value,
+                  address:
+                      updateDeliveryOrderFormCubit.state.addressInput.value,
+                  location:
+                      updateDeliveryOrderFormCubit.state.locationInput.value,
                   onLocationSelected: (location) {
                     if (location != null) {
-                      addDeliveryOrderFormCubit.locationInputChanged(
-                        PointUsecaseParam(
+                      updateDeliveryOrderFormCubit.locationInputChanged(
+                        PointEntity(
                           x: location.longitude,
                           y: location.latitude,
                         ),
                       );
                     } else {
-                      addDeliveryOrderFormCubit.locationInputChanged(null);
+                      updateDeliveryOrderFormCubit.locationInputChanged(null);
                     }
                   },
                 ),
-                if (addDeliveryOrderFormCubit
+                if (updateDeliveryOrderFormCubit
                         .state
                         .locationInput
                         .displayError !=
@@ -780,13 +773,13 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   // Horizontal Image List Component
   Widget _buildImagePickerList({
-    bool isReset = false,
+    List<GridImageItem>? initialImages,
+    int maxImages = 1,
     required void Function(List<GridImageItem> images) onImagesChanged,
   }) {
     return M3ImagePickerGrid(
-      reset: isReset,
-      initialImages: [],
-      maxImages: 1,
+      initialImages: initialImages ?? [],
+      maxImages: maxImages, // Sử dụng biến maxImages
       takeNewPhotoTitle: AppStrings.m3IPGTakeNewPhotoTitle.tr(),
       selectFromLibrary: AppStrings.m3IPGSelectFromLibrary.tr(),
       cameraTitle: AppStrings.m3IPGCameraTitle.tr(),
@@ -814,7 +807,10 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               file: fileBytes,
             ),
           );
-          return (id: uploadUrlDataState.data!.mediaId, path: file.path);
+          return (
+              id: uploadUrlDataState.data!.mediaId,
+              path: file.path,
+            );
         }
         return null;
       },
@@ -906,8 +902,10 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     child: InkWell(
                       onTap: () => onItemSelected(suggestions[index].id),
                       borderRadius: BorderRadius.circular(8),
-                      splashColor: primaryGreen.withOpacity(0.12),
-                      highlightColor: primaryGreen.withOpacity(0.06),
+                      splashColor: primaryGreen.withAlpha((0.12 * 255).round()),
+                      highlightColor: primaryGreen.withAlpha(
+                        (0.06 * 255).round(),
+                      ),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(10),
@@ -923,7 +921,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                           boxShadow: [
                             if (isSelected)
                               BoxShadow(
-                                color: primaryGreen.withOpacity(0.15),
+                                color: primaryGreen.withAlpha(
+                                  (0.15 * 255).round(),
+                                ),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),

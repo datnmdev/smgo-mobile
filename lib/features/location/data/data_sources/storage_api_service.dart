@@ -12,9 +12,4 @@ abstract class StorageApiService {
 
   @GET(ApiEndpoints.getUploadUrl)
   Future<HttpResponse<ApiResponse<UploadUrlModel>>> getUploadUrl();
-
-  @GET(ApiEndpoints.getDownloadUrl)
-  Future<HttpResponse<ApiResponse<String>>> getDownloadUrl({
-    @Query('fileKey') required String fileKey,
-  });
 }

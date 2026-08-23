@@ -18,13 +18,13 @@ class GoogleMapsScreen extends StatefulWidget {
   final String pickLocationError;
   final String acceptButtonTitle;
 
-  final Function(LatLng? location, String? placeName) onLocationSelected;
+  final Function(LatLng? location, String? placeName)? onLocationSelected;
 
   const GoogleMapsScreen({
     super.key,
     this.searchQuery,
     this.pinnedLocation,
-    required this.onLocationSelected,
+    this.onLocationSelected,
     this.pickLocationError = 'Vui lòng chọn 1 vị trí trên bản đồ',
     this.googleMapMode = GoogleMapMode.select,
     required this.title,
@@ -262,7 +262,9 @@ class _GoogleMapsScreenState extends State<GoogleMapsScreen> {
     if (_locationSelected) return;
     _locationSelected = true;
 
-    widget.onLocationSelected(_currentPinnedLocation, _searchQuery);
+    if (widget.onLocationSelected != null) {
+      widget.onLocationSelected!(_currentPinnedLocation, _searchQuery);
+    }
 
     if (!mounted) return;
     Navigator.of(context).pop();

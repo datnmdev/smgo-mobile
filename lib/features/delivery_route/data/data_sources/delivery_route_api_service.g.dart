@@ -83,13 +83,14 @@ UpdateDeliveryOrderBodyRequest _$UpdateDeliveryOrderBodyRequestFromJson(
   orderCode: json['orderCode'] as String?,
   orderName: json['orderName'] as String?,
   orderMediaId: json['orderMediaId'] as String?,
+  status: json['status'] as String?,
   contactName: json['contactName'] as String?,
   contactPhone: json['contactPhone'] as String?,
   address: json['address'] as String?,
-  appliedLocationId: json['appliedLocationId'] as String?,
   location: json['location'] == null
       ? null
       : PointRequestData.fromJson(json['location'] as Map<String, dynamic>),
+  appliedLocationId: json['appliedLocationId'] as String?,
 );
 
 Map<String, dynamic> _$UpdateDeliveryOrderBodyRequestToJson(
@@ -97,12 +98,13 @@ Map<String, dynamic> _$UpdateDeliveryOrderBodyRequestToJson(
 ) => <String, dynamic>{
   'orderCode': ?instance.orderCode,
   'orderName': ?instance.orderName,
-  'orderMediaId': ?instance.orderMediaId,
+  'orderMediaId': instance.orderMediaId,
+  'status': ?instance.status,
   'contactName': ?instance.contactName,
   'contactPhone': ?instance.contactPhone,
   'address': ?instance.address,
-  'appliedLocationId': ?instance.appliedLocationId,
   'location': ?instance.location,
+  'appliedLocationId': instance.appliedLocationId,
 };
 
 // dart format off
@@ -280,6 +282,76 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
           .compose(
             _dio.options,
             '/delivery-route/${deliveryRouteId}/delivery-order',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> updateDeliveryOrder({
+    required String deliveryRouteId,
+    required String deliveryOrderId,
+    required UpdateDeliveryOrderBodyRequest body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/delivery-route/${deliveryRouteId}/delivery-order/${deliveryOrderId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryOrder({
+    required String deliveryRouteId,
+    required String deliveryOrderId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/delivery-route/${deliveryRouteId}/delivery-order/${deliveryOrderId}',
             queryParameters: queryParameters,
             data: _data,
           )

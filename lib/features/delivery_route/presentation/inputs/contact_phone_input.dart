@@ -3,7 +3,7 @@ import 'package:formz/formz.dart';
 enum ContactPhoneInputValidationError { empty, invalid }
 
 class ContactPhoneInput extends FormzInput<String, ContactPhoneInputValidationError> {
-  const ContactPhoneInput.pure() : super.pure('');
+  const ContactPhoneInput.pure([super.value = '']) : super.pure();
   const ContactPhoneInput.dirty([super.value = '']) : super.dirty();
 
   static final RegExp _phoneRegExp = RegExp(

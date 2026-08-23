@@ -85,7 +85,9 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
               );
             },
             child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: const RefreshOnlyScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               slivers: [
                 SliverToBoxAdapter(
                   child: IntrinsicHeight(
@@ -255,7 +257,7 @@ class RouteSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final familarCount = deliveryRoute.orders
-        .where((order) => order.appliedLocation != null)
+        .where((order) => order.appliedLocationId != null)
         .length;
 
     return Container(
@@ -858,8 +860,8 @@ class PendingView extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _OrderList(orders: pendingOrders),
-                _OrderList(orders: checkedOrders),
+                _OrderList(orders: pendingOrders, deliveryRoute: deliveryRoute),
+                _OrderList(orders: checkedOrders, deliveryRoute: deliveryRoute),
               ],
             ),
           ),
@@ -906,8 +908,9 @@ class _TabBadge extends StatelessWidget {
 // Widget hiển thị danh sách đơn hàng
 class _OrderList extends StatelessWidget {
   final List<DeliveryOrderEntity> orders;
+  final DeliveryRouteEntity deliveryRoute;
 
-  const _OrderList({required this.orders});
+  const _OrderList({required this.orders, required this.deliveryRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -919,7 +922,31 @@ class _OrderList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       itemCount: orders.length,
       itemBuilder: (context, index) {
-        return OrderCard(order: orders[index]);
+        final getDeliveryRoutesCubit = context.read<GetDeliveryRoutesCubit>();
+
+        return OrderCard(
+          order: orders[index],
+          onTap: () {
+            context.pushNamed(
+              AppRouteNames.deliveryOrderDetail,
+              pathParameters: {
+                'id': orders[index].deliveryRouteId,
+                'deliveryOrderId': orders[index].id,
+              },
+              extra: <String, Object>{
+                'DeliveryRouteData': deliveryRoute,
+                'DeliveryOrderData': orders[index],
+                'GetDeliveryRoutesCubitInDOP': getDeliveryRoutesCubit,
+                'GetDeliveryRoutesUsecaseParamsInDOP':
+                    GetDeliveryRoutesUsecaseParams(
+                      id: getDeliveryRoutesCubit.state.routes.first.id,
+                      pageNumber: 1,
+                      pageSize: 1,
+                    ),
+              },
+            );
+          },
+        );
       },
     );
   }
@@ -997,62 +1024,99 @@ class _SortingGuide extends StatelessWidget {
 
 class OrderCard extends StatelessWidget {
   final DeliveryOrderEntity order;
+  final VoidCallback? onTap; // 1. Khai báo hàm callback khi chạm
 
-  const OrderCard({super.key, required this.order});
+  const OrderCard({
+    super.key,
+    required this.order,
+    this.onTap, // 2. Thêm vào constructor
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: RouteColors.border),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // CỘT BÊN TRÁI: Tự co dãn theo khoảng trống còn lại
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      order.orderCode,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: RouteColors.text,
-                      ),
+      // Sử dụng ClipRRect để hiệu ứng gợn sóng không tràn ra ngoài đường viền bo góc
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap, // 3. Gắn callback vào sự kiện bấm
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // CỘT BÊN TRÁI: Tự co dãn theo khoảng trống còn lại
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              order.orderCode,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: RouteColors.text,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            _CustomerBadge(
+                              familiar: order.appliedLocationId != null,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _InfoRow(
+                          icon: Icons.person_outline,
+                          text: order.contactName,
+                        ),
+                        _InfoRow(
+                          icon: Icons.phone_outlined,
+                          text: order.contactPhone,
+                        ),
+                        _InfoRow(
+                          icon: Icons.shopping_bag_outlined,
+                          color:
+                              order.orderName != null &&
+                                  order.orderName!.isNotEmpty
+                              ? RouteColors.text
+                              : Colors.grey,
+                          text:
+                              order.orderName != null &&
+                                  order.orderName!.isNotEmpty
+                              ? order.orderName!
+                              : 'Không có tên đơn hàng',
+                        ),
+                        _InfoRow(
+                          icon: Icons.location_on_outlined,
+                          text: order.address,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    _CustomerBadge(familiar: order.appliedLocation != null),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _InfoRow(icon: Icons.person_outline, text: order.contactName),
-                _InfoRow(icon: Icons.phone_outlined, text: order.contactPhone),
-                _InfoRow(
-                  icon: Icons.shopping_bag_outlined,
-                  text: order.orderName,
-                ),
-                _InfoRow(icon: Icons.location_on_outlined, text: order.address),
-              ],
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Icon(Icons.chevron_right, color: RouteColors.text),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-
-          const SizedBox(width: 8),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Icon(Icons.chevron_right, color: RouteColors.text),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1061,8 +1125,13 @@ class OrderCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
+  final Color color;
 
-  const _InfoRow({required this.icon, required this.text});
+  const _InfoRow({
+    required this.icon,
+    required this.text,
+    this.color = RouteColors.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1077,7 +1146,7 @@ class _InfoRow extends StatelessWidget {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: RouteColors.text, fontSize: 13),
+              style: TextStyle(color: color, fontSize: 13),
             ),
           ),
         ],
@@ -1155,7 +1224,7 @@ class OrderCardContent extends StatelessWidget {
 
             const SizedBox(width: 8),
 
-            _CustomerBadge(familiar: order.appliedLocation != null),
+            _CustomerBadge(familiar: order.appliedLocationId != null),
           ],
         ),
 
@@ -1163,7 +1232,10 @@ class OrderCardContent extends StatelessWidget {
 
         _InfoRow(icon: Icons.person_outline, text: order.contactName),
 
-        _InfoRow(icon: Icons.shopping_bag_outlined, text: order.orderName),
+        _InfoRow(
+          icon: Icons.shopping_bag_outlined,
+          text: order.orderName ?? '',
+        ),
 
         _InfoRow(icon: Icons.location_on_outlined, text: order.address),
       ],
@@ -2000,5 +2072,27 @@ class _StatisticItem extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class RefreshOnlyScrollPhysics extends ScrollPhysics {
+  const RefreshOnlyScrollPhysics({super.parent});
+
+  @override
+  RefreshOnlyScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return RefreshOnlyScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) {
+    return true;
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    if (value != position.pixels) {
+      return value - position.pixels;
+    }
+    return 0;
   }
 }

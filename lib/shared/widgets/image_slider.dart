@@ -131,7 +131,6 @@ class _ImageSliderState extends State<ImageSlider> {
                                 );
                               },
                               errorBuilder: (context, error, stackTrace) {
-                                print(error);
                                 return Container(
                                   color: Colors.grey[300],
                                   child: const Column(

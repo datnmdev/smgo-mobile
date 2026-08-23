@@ -21,6 +21,7 @@ class M3MapWidget extends StatefulWidget {
   final String cannotGetLocationError;
   final String mapTemplateUrl;
   final String userAgentPackageName;
+  final bool showControls;
 
   const M3MapWidget({
     super.key,
@@ -33,6 +34,7 @@ class M3MapWidget extends StatefulWidget {
     this.mapTemplateUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     required this.userAgentPackageName,
     this.mode = MapMode.select,
+    this.showControls = true,
   });
 
   @override
@@ -80,7 +82,6 @@ class _M3MapWidgetState extends State<M3MapWidget>
     }
   }
 
-  // Hàm tạo hiệu ứng chuyển động mượt mà cho bản đồ
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     _animController?.stop();
     _animController?.dispose();
@@ -161,127 +162,177 @@ class _M3MapWidgetState extends State<M3MapWidget>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
         height: 260,
-        child: Stack(
-          children: [
-            _buildMap(_currentCenter, interactive: false),
-            if (_currentCenter != null)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 40),
-                  child: Icon(Icons.location_pin, color: Colors.red, size: 40),
-                ),
-              ),
-            if (_currentCenter == null)
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                    child: Container(
-                      color: AppColors.primary.withAlpha((0.3 * 255).round()),
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          widget.selectLocationError,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double mapHeight = constraints.maxHeight;
+            final double scaleFactor = (mapHeight / 260).clamp(0.7, 1.5);
+
+            final double buttonSize = 36.0 * scaleFactor;
+            final double iconSize = 20.0 * scaleFactor;
+
+            return Stack(
+              children: [
+                _buildMap(_currentCenter, interactive: false),
+                if (_currentCenter != null)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 40 * scaleFactor),
+                      child: Icon(
+                        Icons.location_pin,
+                        color: Colors.red,
+                        size: 40 * scaleFactor,
+                      ),
+                    ),
+                  ),
+                if (_currentCenter == null)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                        child: Container(
+                          color: AppColors.primary.withAlpha(
+                            (0.3 * 255).round(),
                           ),
-                          textAlign: TextAlign.center,
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              widget.selectLocationError,
+                              style: TextStyle(
+                                fontSize: 16 * scaleFactor,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Row(
-                children: [
-                  if (widget.mode == MapMode.select)
-                    FloatingActionButton.small(
-                      heroTag: 'refresh_map_btn',
-                      backgroundColor: colorScheme.surface,
-                      foregroundColor: colorScheme.onSurface,
-                      elevation: 3,
-                      onPressed: _resetCurrentCenter,
-                      child: const Icon(Icons.refresh),
+
+                if (widget.showControls) ...[
+                  Positioned(
+                    top: 12 * scaleFactor,
+                    right: 12 * scaleFactor,
+                    child: Row(
+                      children: [
+                        if (widget.mode == MapMode.select)
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: FloatingActionButton.small(
+                              heroTag: 'refresh_map_btn',
+                              backgroundColor: colorScheme.surface,
+                              foregroundColor: colorScheme.onSurface,
+                              elevation: 3,
+                              onPressed: _resetCurrentCenter,
+                              child: Icon(Icons.refresh, size: iconSize),
+                            ),
+                          ),
+                        if (widget.mode == MapMode.select)
+                          SizedBox(width: 8 * scaleFactor),
+                        SizedBox(
+                          width: buttonSize,
+                          height: buttonSize,
+                          child: FloatingActionButton.small(
+                            heroTag: 'fullscreen_map_btn',
+                            backgroundColor: colorScheme.surface,
+                            foregroundColor: colorScheme.onSurface,
+                            elevation: 3,
+                            onPressed: _openGoogleMapPickerScreen,
+                            child: Icon(
+                              Icons.fullscreen_rounded,
+                              size: iconSize,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  FloatingActionButton.small(
-                    heroTag: 'fullscreen_map_btn',
-                    backgroundColor: colorScheme.surface,
-                    foregroundColor: colorScheme.onSurface,
-                    elevation: 3,
-                    onPressed: _openGoogleMapPickerScreen,
-                    child: const Icon(Icons.fullscreen_rounded),
+                  ),
+                  Positioned(
+                    bottom: 12 * scaleFactor,
+                    right: 12 * scaleFactor,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_currentCenter != null)
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: FloatingActionButton.small(
+                              heroTag: 'zoom_in_normal_btn',
+                              backgroundColor: colorScheme.surface,
+                              foregroundColor: colorScheme.onSurface,
+                              elevation: 2,
+                              onPressed: _zoomIn,
+                              child: Icon(Icons.add_rounded, size: iconSize),
+                            ),
+                          ),
+                        if (_currentCenter != null)
+                          SizedBox(height: 4 * scaleFactor),
+                        if (_currentCenter != null)
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: FloatingActionButton.small(
+                              heroTag: 'zoom_out_normal_btn',
+                              backgroundColor: colorScheme.surface,
+                              foregroundColor: colorScheme.onSurface,
+                              elevation: 2,
+                              onPressed: _zoomOut,
+                              child: Icon(Icons.remove_rounded, size: iconSize),
+                            ),
+                          ),
+                        if (_currentCenter != null)
+                          SizedBox(height: 4 * scaleFactor),
+                        if (widget.mode == MapMode.select)
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: FloatingActionButton.small(
+                              heroTag: 'current_location_normal_btn',
+                              backgroundColor: colorScheme.surfaceContainerHigh,
+                              foregroundColor: colorScheme.onSurfaceVariant,
+                              elevation: 2,
+                              onPressed: () async {
+                                LatLng? currentPos =
+                                    await LocationUtils.getCurrentLatLng();
+                                if (currentPos != null) {
+                                  setState(() {
+                                    _currentCenter = currentPos;
+                                  });
+                                  _animatedMapMove(currentPos, 18.0);
+                                  widget.onLocationSelected?.call(currentPos);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        widget.cannotGetLocationError,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Icon(
+                                Icons.my_location_rounded,
+                                size: iconSize,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
-              ),
-            ),
-            Positioned(
-              bottom: 12,
-              right: 12,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_currentCenter != null)
-                    FloatingActionButton.small(
-                      heroTag: 'zoom_in_normal_btn',
-                      backgroundColor: colorScheme.surface,
-                      foregroundColor: colorScheme.onSurface,
-                      elevation: 2,
-                      onPressed: _zoomIn,
-                      child: const Icon(Icons.add_rounded),
-                    ),
-                  if (_currentCenter != null) const SizedBox(height: 1),
-                  if (_currentCenter != null)
-                    FloatingActionButton.small(
-                      heroTag: 'zoom_out_normal_btn',
-                      backgroundColor: colorScheme.surface,
-                      foregroundColor: colorScheme.onSurface,
-                      elevation: 2,
-                      onPressed: _zoomOut,
-                      child: const Icon(Icons.remove_rounded),
-                    ),
-                  if (_currentCenter != null) const SizedBox(height: 1),
-                  if (widget.mode == MapMode.select)
-                    FloatingActionButton.small(
-                      heroTag: 'current_location_normal_btn',
-                      backgroundColor: colorScheme.surfaceContainerHigh,
-                      foregroundColor: colorScheme.onSurfaceVariant,
-                      elevation: 2,
-                      onPressed: () async {
-                        LatLng? currentPos =
-                            await LocationUtils.getCurrentLatLng();
-                        if (currentPos != null) {
-                          setState(() {
-                            _currentCenter = currentPos;
-                          });
-                          _animatedMapMove(currentPos, 18.0);
-                          widget.onLocationSelected?.call(currentPos);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(widget.cannotGetLocationError),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Icon(Icons.my_location_rounded),
-                    ),
-                ],
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );

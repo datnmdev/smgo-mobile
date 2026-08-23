@@ -39,6 +39,19 @@ abstract class DeliveryRouteApiService {
     @Path('deliveryRouteId') required String deliveryRouteId,
     @Body() required AddDeliveryOrderBodyRequest body,
   });
+
+  @PUT(ApiEndpoints.updateDeliveryOrder)
+  Future<HttpResponse<ApiResponse<dynamic>>> updateDeliveryOrder({
+    @Path('deliveryRouteId') required String deliveryRouteId,
+    @Path('deliveryOrderId') required String deliveryOrderId,
+    @Body() required UpdateDeliveryOrderBodyRequest body,
+  });
+
+  @DELETE(ApiEndpoints.deleteDeliveryOrder)
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryOrder({
+    @Path('deliveryRouteId') required String deliveryRouteId,
+    @Path('deliveryOrderId') required String deliveryOrderId,
+  });
 }
 
 @JsonSerializable(includeIfNull: false)
@@ -120,22 +133,26 @@ class AddDeliveryOrderBodyRequest {
 class UpdateDeliveryOrderBodyRequest {
   final String? orderCode;
   final String? orderName;
+  @JsonKey(includeIfNull: true)
   final String? orderMediaId;
+  final String? status;
   final String? contactName;
   final String? contactPhone;
   final String? address;
-  final String? appliedLocationId;
   final PointRequestData? location;
+  @JsonKey(includeIfNull: true)
+  final String? appliedLocationId;
 
   UpdateDeliveryOrderBodyRequest({
     this.orderCode,
     this.orderName,
     this.orderMediaId,
+    this.status,
     this.contactName,
     this.contactPhone,
     this.address,
-    this.appliedLocationId,
     this.location,
+    this.appliedLocationId,
   });
 
   Map<String, dynamic> toJson() => _$UpdateDeliveryOrderBodyRequestToJson(this);

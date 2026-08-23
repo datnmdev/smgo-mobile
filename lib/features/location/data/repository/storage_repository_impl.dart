@@ -16,22 +16,9 @@ class StorageRepositoryImpl implements StorageRepository {
       return DataSuccess(
         UploadUrlEntity(
           uploadUrl: uploadUrlModel.uploadUrl,
-          fileKey: uploadUrlModel.fileKey,
           mediaId: uploadUrlModel.mediaId,
         ),
       );
-    } catch (e) {
-      return DataFailed(e);
-    }
-  }
-
-  @override
-  Future<DataState<String>> getDownloadUrl({required String fileKey}) async {
-    try {
-      final dataState = await storageApiService.getDownloadUrl(
-        fileKey: fileKey,
-      );
-      return DataSuccess(dataState.data.data!);
     } catch (e) {
       return DataFailed(e);
     }

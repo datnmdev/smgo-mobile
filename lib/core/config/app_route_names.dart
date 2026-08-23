@@ -16,4 +16,6 @@ abstract class AppRouteNames {
   static final updateDeliveryRoute = 'update-delivery-route';
   static final deliveryOrder = 'delivery-order';
   static final addDeliveryOrder = 'add-delivery-order';
+  static final deliveryOrderDetail = 'delivery-order-detail';
+  static final updateDeliveryOrder = 'update-delivery-order';
 }

@@ -4,7 +4,7 @@ import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_en
 enum LocationInputValidationError { empty }
 
 class LocationInput extends FormzInput<Point?, LocationInputValidationError> {
-  const LocationInput.pure() : super.pure(null);
+  const LocationInput.pure([super.value = null]) : super.pure();
   const LocationInput.dirty([super.value]) : super.dirty();
 
   @override

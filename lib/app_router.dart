@@ -1,10 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/add_delivery_order_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/delivery_order_detail_page.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/delivery_route_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/update_delivery_order_page.dart';
 import 'package:shipgo/features/explore/presentation/pages/explore_page.dart';
 import 'package:shipgo/features/location/presentation/pages/add_location_page.dart';
 import 'package:shipgo/features/location/presentation/pages/location_detail_page.dart';
@@ -97,11 +97,23 @@ final appRouter = GoRouter(
                   name: AppRouteNames.deliveryOrder,
                   path: '/:id/delivery-order',
                   builder: (context, state) => DeliveryOrderPage(),
-                ),
-                GoRoute(
-                  name: AppRouteNames.addDeliveryOrder,
-                  path: '/:id/delivery-order/add',
-                  builder: (context, state) => AddDeliveryOrderPage(),
+                  routes: [
+                    GoRoute(
+                      name: AppRouteNames.addDeliveryOrder,
+                      path: '/add',
+                      builder: (context, state) => AddDeliveryOrderPage(),
+                    ),
+                    GoRoute(
+                      name: AppRouteNames.deliveryOrderDetail,
+                      path: '/:deliveryOrderId/detail',
+                      builder: (context, state) => DeliveryOrderDetailPage(),
+                    ),
+                    GoRoute(
+                      name: AppRouteNames.updateDeliveryOrder,
+                      path: '/:deliveryOrderId/update',
+                      builder: (context, state) => UpdateDeliveryOrderPage(),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -9,12 +9,12 @@ import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
 import 'package:shipgo/shared/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
-import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
@@ -75,10 +75,6 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
-    final getMyLocationsCubitInLP =
-        extra['GetMyLocationsCubitInLP'] as GetMyLocationsCubit;
-    final getMyLocationsParamsInLP =
-        extra['GetMyLocationsParamsInLP'] as GetMyLocationsParams;
     final getMyLocationsCubitInLDP =
         extra['GetMyLocationsCubitInLDP'] as GetMyLocationsCubit;
     final getMyLocationsParamsInLDP =
@@ -103,8 +99,17 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
         listener: (context, state) {
           if (state is UpdateLocationFormDone) {
             getMyLocationsCubitInLDP.call(getMyLocationsParamsInLDP);
-            getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
-            context.pop();
+            AppDialogHelper.showSuccess(
+              context: context,
+              title: 'Cập nhật địa điểm thành công!',
+              subtitle: 'Thông tin địa điểm đã được lưu.',
+            );
+          } else if (state is UpdateLocationFormFailed) {
+            AppDialogHelper.showError(
+              context: context,
+              title: 'Cập nhật địa điểm thất bại!',
+              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+            );
           }
         },
         builder: (context, state) => Scaffold(
@@ -622,25 +627,12 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                               file: fileBytes,
                                             ),
                                           );
-                                          final pathDataState =
-                                              await di<GetDownloadUrlUsecase>()
-                                                  .call(
-                                                    params:
-                                                        GetDownloadUrlParams(
-                                                          fileKey:
-                                                              uploadUrlDataState
-                                                                  .data!
-                                                                  .fileKey,
-                                                        ),
-                                                  );
-                                          if (pathDataState is DataSuccess) {
-                                            return (
-                                              id: uploadUrlDataState
-                                                  .data!
-                                                  .mediaId,
-                                              path: pathDataState.data!,
-                                            );
-                                          }
+                                          return (
+                                            id: uploadUrlDataState
+                                                .data!
+                                                .mediaId,
+                                            path: file.path,
+                                          );
                                         }
                                         return null;
                                       },

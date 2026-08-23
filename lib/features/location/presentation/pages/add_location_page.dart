@@ -9,11 +9,11 @@ import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
 import 'package:shipgo/shared/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/location/domain/usecases/get_download_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
@@ -28,6 +28,12 @@ class AddLocationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final extra = GoRouterState.of(context).extra as Map<String, Object>;
+    final getMyLocationsCubitInLP =
+        extra['GetMyLocationsCubitInLP'] as GetMyLocationsCubit;
+    final getMyLocationsParamsInLP =
+        extra['GetMyLocationsParamsInLP'] as GetMyLocationsParams;
+
     return BlocProvider(
       create: (context) => di<AddLocationFormCubit>(),
       child: Scaffold(
@@ -72,20 +78,22 @@ class AddLocationPage extends StatelessWidget {
                       SizedBox(width: 16),
 
                       BlocConsumer<AddLocationFormCubit, AddLocationFormState>(
-                        listenWhen: (previous, current) => previous != current,
                         listener: (context, state) {
-                          final extra =
-                              (GoRouterState.of(context).extra)
-                                  as Map<String, Object>;
                           if (state is AddLocationFormDone) {
-                            (extra['GetMyLocationsCubitInLP']
-                                    as GetMyLocationsCubit)
-                                .call(
-                                  extra['GetMyLocationsParamsInLP']
-                                      as GetMyLocationsParams,
-                                );
-
-                            context.pop();
+                            getMyLocationsCubitInLP.call(
+                              getMyLocationsParamsInLP,
+                            );
+                            AppDialogHelper.showSuccess(
+                              context: context,
+                              title: 'Tạo địa điểm thành công!',
+                              subtitle: 'Thông tin địa điểm đã được lưu.',
+                            );
+                          } else if (state is AddLocationFormFailed) {
+                            AppDialogHelper.showError(
+                              context: context,
+                              title: 'Tạo địa điểm thất bại!',
+                              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại...',
+                            );
                           }
                         },
                         buildWhen: (previous, current) =>
@@ -601,25 +609,12 @@ class AddLocationPage extends StatelessWidget {
                                               file: fileBytes,
                                             ),
                                           );
-                                          final pathDataState =
-                                              await di<GetDownloadUrlUsecase>()
-                                                  .call(
-                                                    params:
-                                                        GetDownloadUrlParams(
-                                                          fileKey:
-                                                              uploadUrlDataState
-                                                                  .data!
-                                                                  .fileKey,
-                                                        ),
-                                                  );
-                                          if (pathDataState is DataSuccess) {
-                                            return (
-                                              id: uploadUrlDataState
-                                                  .data!
-                                                  .mediaId,
-                                              path: pathDataState.data!,
-                                            );
-                                          }
+                                          return (
+                                            id: uploadUrlDataState
+                                                .data!
+                                                .mediaId,
+                                            path: file.path,
+                                          );
                                         }
                                         return null;
                                       },

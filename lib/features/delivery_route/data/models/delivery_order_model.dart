@@ -5,18 +5,21 @@ part 'delivery_order_model.g.dart';
 @JsonSerializable()
 class DeliveryOrderModel {
   final String id;
+  final String? orderMediaId;
   final String? orderMediaUrl;
   final String orderCode;
-  final String orderName;
+  final String? orderName;
   final int? sequenceOrder;
   final String status;
   final String contactName;
   final String contactPhone;
   final String address;
   final Point location;
-  final String? appliedLocation;
+  final String? appliedLocationId;
+  final String deliveryRouteId;
   final DateTime createdAt;
   final DateTime? checkedAt;
+  final DateTime? sortedAt;
   final DateTime? deliveringAt;
   final DateTime? deliveredAt;
   final DateTime? cancelledAt;
@@ -25,18 +28,21 @@ class DeliveryOrderModel {
 
   const DeliveryOrderModel({
     required this.id,
+    this.orderMediaId,
     this.orderMediaUrl,
     required this.orderCode,
-    required this.orderName,
+    this.orderName,
     this.sequenceOrder,
     required this.status,
     required this.contactName,
     required this.contactPhone,
     required this.address,
     required this.location,
-    this.appliedLocation,
+    this.appliedLocationId,
     required this.createdAt,
+    required this.deliveryRouteId,
     this.checkedAt,
+    this.sortedAt,
     this.deliveringAt,
     this.deliveredAt,
     this.cancelledAt,

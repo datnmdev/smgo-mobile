@@ -19,4 +19,14 @@ abstract class ExternalUrlUtil {
     final String cleanNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
     return Uri.parse('https://zalo.me/$cleanNumber');
   }
+
+  static Uri getGoogleMapsDirectionsUri({
+    required double destinationLat,
+    required double destinationLng,
+    String travelMode = 'driving',
+  }) {
+    final String googleMapsUrl =
+        'https://www.google.com/maps/dir/?api=1&destination=$destinationLat,$destinationLng&travelmode=$travelMode';
+    return Uri.parse(googleMapsUrl);
+  }
 }
