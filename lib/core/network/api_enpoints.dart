@@ -18,6 +18,9 @@ abstract class ApiEndpoints {
   static const String signInWithFacebook = '$authBaseUrl/oauth/facebook';
   static const String refreshToken = '$authBaseUrl/refresh';
 
+  // User
+  static const String getProfile = '$userBaseUrl/profile';
+
   // App version
   static const String getLatestAppVersion = '$appVersionBaseUrl/latest';
 

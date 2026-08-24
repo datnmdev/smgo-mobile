@@ -13,6 +13,8 @@ import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_rout
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
@@ -30,6 +32,7 @@ import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_inf
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
 import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
 import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 enum LockableField { orderCode, orderName, contactName, contactPhone, address }
 
@@ -807,10 +810,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
               file: fileBytes,
             ),
           );
-          return (
-              id: uploadUrlDataState.data!.mediaId,
-              path: file.path,
-            );
+          return (id: uploadUrlDataState.data!.mediaId, path: file.path);
         }
         return null;
       },
@@ -825,211 +825,235 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
     required ValueChanged<String> onItemSelected,
     bool isLoading = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: lightGreenBg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Phần Tiêu đề
-          Row(
-            children: const [
-              Icon(Icons.lightbulb_outline, color: primaryGreen, size: 20),
-              SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Gợi ý vị trí chính xác',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: primaryGreen,
-                        fontSize: 13,
-                      ),
+    return BlocProvider<GetProfileCubit>(
+      create: (context) => di<GetProfileCubit>()..call(),
+      child: BlocBuilder<GetProfileCubit, GetProfileState>(
+        builder: (context, state) {
+          final isGetProfileDone = state is GetProfileDone;
+          final profileId = isGetProfileDone ? state.profile.id : null;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: lightGreenBg,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Phần Tiêu đề
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.lightbulb_outline,
+                      color: primaryGreen,
+                      size: 20,
                     ),
-                    Text(
-                      'Vị trí này được lưu lại bởi bạn hoặc được chia sẻ bởi cộng đồng',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Gợi ý vị trí chính xác',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: primaryGreen,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            'Vị trí này được lưu lại bởi bạn hoặc được chia sẻ bởi cộng đồng',
+                            style: TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-          // Xử lý hiển thị tùy theo trạng thái isLoading
-          if (isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24.0),
-                child: CircularProgressIndicator(
-                  color: primaryGreen,
-                  strokeWidth: 2.5,
-                ),
-              ),
-            )
-          else if (suggestions.isEmpty)
-            // (Tùy chọn) Hiển thị thông báo khi không có dữ liệu
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Center(
-                child: Text(
-                  'Không tìm thấy gợi ý nào',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ),
-            )
-          else
-            // Danh sách item tối đa 10 mục (Giữ nguyên logic cũ)
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                final item = suggestions[index];
-                final isSelected = (selectedIndex == index);
-                final isBestChoice = (index == 0);
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => onItemSelected(suggestions[index].id),
-                      borderRadius: BorderRadius.circular(8),
-                      splashColor: primaryGreen.withAlpha((0.12 * 255).round()),
-                      highlightColor: primaryGreen.withAlpha(
-                        (0.06 * 255).round(),
+                // Xử lý hiển thị tùy theo trạng thái isLoading
+                if (isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: CircularProgressIndicator(
+                        color: primaryGreen,
+                        strokeWidth: 2.5,
                       ),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? primaryGreen
-                                : Colors.transparent,
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            if (isSelected)
-                              BoxShadow(
-                                color: primaryGreen.withAlpha(
-                                  (0.15 * 255).round(),
-                                ),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: primaryGreen,
-                              size: 20,
+                    ),
+                  )
+                else if (suggestions.isEmpty)
+                  // (Tùy chọn) Hiển thị thông báo khi không có dữ liệu
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Center(
+                      child: Text(
+                        'Không tìm thấy gợi ý nào',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                  )
+                else
+                  // Danh sách item tối đa 10 mục (Giữ nguyên logic cũ)
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: suggestions.length,
+                    itemBuilder: (context, index) {
+                      final item = suggestions[index];
+                      final isSelected = (selectedIndex == index);
+                      final isBestChoice = (index == 0);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => onItemSelected(suggestions[index].id),
+                            borderRadius: BorderRadius.circular(8),
+                            splashColor: primaryGreen.withAlpha(
+                              (0.12 * 255).round(),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
+                            highlightColor: primaryGreen.withAlpha(
+                              (0.06 * 255).round(),
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? primaryGreen
+                                      : Colors.transparent,
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  if (isSelected)
+                                    BoxShadow(
+                                      color: primaryGreen.withAlpha(
+                                        (0.15 * 255).round(),
+                                      ),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                ],
+                              ),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          item.contactName,
+                                  const Icon(
+                                    Icons.location_on_outlined,
+                                    color: primaryGreen,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                item.contactName,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                            if (isBestChoice) ...[
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: primaryGreen.withAlpha(
+                                                    (0.1 * 255).round(),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: const Text(
+                                                  'Tốt nhất',
+                                                  style: TextStyle(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: primaryGreen,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                            ],
+                                            Skeletonizer(
+                                              enabled: !isGetProfileDone,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.orange
+                                                      .withAlpha(
+                                                        (0.1 * 255).round(),
+                                                      ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  suggestions[index].userId ==
+                                                          profileId
+                                                      ? 'Bởi tôi'
+                                                      : 'Cộng đồng',
+                                                  style: TextStyle(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.orange[800],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          item.contactPhone,
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
+                                            fontSize: 12,
+                                            color: Colors.black87,
                                           ),
                                         ),
-                                      ),
-                                      if (isBestChoice) ...[
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: primaryGreen.withAlpha(
-                                              (0.1 * 255).round(),
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Tốt nhất',
-                                            style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                              color: primaryGreen,
-                                            ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          item.address,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey,
                                           ),
                                         ),
-                                        const SizedBox(width: 4),
                                       ],
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange.withAlpha(
-                                            (0.1 * 255).round(),
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Cộng đồng',
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.orange[800],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    item.contactPhone,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    item.address,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
+              ],
             ),
-        ],
+          );
+        },
       ),
     );
   }

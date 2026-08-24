@@ -74,7 +74,6 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (error) {
       return DataFailed(error);
     } catch (e) {
-      print(e);
       return DataFailed(UnauthenticatedException());
     }
   }

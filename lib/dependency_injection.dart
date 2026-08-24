@@ -29,6 +29,7 @@ import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_o
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
 import 'package:shipgo/features/location/data/data_sources/storage_api_service.dart';
@@ -65,6 +66,11 @@ import 'package:shipgo/features/splash/data/repository/app_version_repository_im
 import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
 import 'package:shipgo/features/splash/domain/usecase/check_app_version_usecase.dart';
 import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
+import 'package:shipgo/shared/data/data_sources/local/user_local_service.dart';
+import 'package:shipgo/shared/data/data_sources/remote/user_api_service.dart';
+import 'package:shipgo/shared/data/repository/user_repository_impl.dart';
+import 'package:shipgo/shared/domain/repository/user_repository.dart';
+import 'package:shipgo/shared/domain/usecases/get_profile_usecase.dart';
 
 final di = GetIt.instance;
 
@@ -99,6 +105,10 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<LocationSearchApiService>(
     () => LocationSearchApiService(di<Dio>()),
   );
+  di.registerLazySingleton<UserApiService>(() => UserApiService(di<Dio>()));
+  di.registerLazySingleton<UserLocalService>(
+    () => UserLocalService(tokenRepository: di<TokenRepository>()),
+  );
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -132,6 +142,12 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<LocationSearchRepository>(
     () => LocationSearchRepositoryImpl(
       locationSearchApiService: di<LocationSearchApiService>(),
+    ),
+  );
+  di.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(
+      userApiService: di<UserApiService>(),
+      userLocalService: di<UserLocalService>(),
     ),
   );
 
@@ -215,6 +231,9 @@ Future<void> initializeDependencies() async {
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
+  di.registerLazySingleton<GetProfileUsecase>(
+    () => GetProfileUsecase(userRepository: di<UserRepository>()),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -297,5 +316,8 @@ Future<void> initializeDependencies() async {
     () => DeleteDeliveryOrdersCubit(
       deleteDeliveryOrderUsecase: di<DeleteDeliveryOrderUsecase>(),
     ),
+  );
+  di.registerFactory<GetProfileCubit>(
+    () => GetProfileCubit(getProfileUsecase: di<GetProfileUsecase>()),
   );
 }

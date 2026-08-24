@@ -750,6 +750,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                         children: [
                                           Expanded(
                                             child: SmgoButton(
+                                              isDisabled:
+                                                  state
+                                                      is DeleteDeliveryOrdersLoading,
                                               primaryColor: AppColors.primary,
                                               text: 'Huỷ',
                                               isOutlined: true,
@@ -761,6 +764,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: SmgoButton(
+                                              isDisabled:
+                                                  state
+                                                      is DeleteDeliveryOrdersLoading,
                                               primaryColor: AppColors.primary,
                                               onPressed: () {
                                                 context

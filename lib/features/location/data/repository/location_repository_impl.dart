@@ -44,6 +44,7 @@ class LocationRepositoryImpl implements LocationRepository {
                     x: locationModel.location.x,
                     y: locationModel.location.y,
                   ),
+                  userId: locationModel.userId,
                   createdAt: locationModel.createdAt,
                   updatedAt: locationModel.updatedAt,
                 ),

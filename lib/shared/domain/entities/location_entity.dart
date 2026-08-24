@@ -10,6 +10,7 @@ class LocationEntity {
   final String? note;
   final String address;
   final PointEntity location;
+  final String userId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -22,6 +23,7 @@ class LocationEntity {
     this.note,
     required this.address,
     required this.location,
+    required this.userId,
     required this.createdAt,
     required this.updatedAt,
   });

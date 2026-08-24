@@ -20,6 +20,7 @@ LocationModel _$LocationModelFromJson(Map<String, dynamic> json) =>
       note: json['note'] as String?,
       address: json['address'] as String,
       location: PointModel.fromJson(json['location'] as Map<String, dynamic>),
+      userId: json['userId'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -34,6 +35,7 @@ Map<String, dynamic> _$LocationModelToJson(LocationModel instance) =>
       'note': instance.note,
       'address': instance.address,
       'location': instance.location,
+      'userId': instance.userId,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };

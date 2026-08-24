@@ -43,6 +43,7 @@ class LocationSearchRepositoryImpl implements LocationSearchRepository {
                     y: locationModel.location.y,
                   ),
                   note: locationModel.note,
+                  userId: locationModel.userId,
                   createdAt: locationModel.createdAt,
                   updatedAt: locationModel.updatedAt,
                 ),

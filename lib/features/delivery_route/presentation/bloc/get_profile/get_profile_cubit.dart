@@ -1,0 +1,24 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
+import 'package:shipgo/shared/domain/usecases/get_profile_usecase.dart';
+
+class GetProfileCubit extends Cubit<GetProfileState> {
+  final GetProfileUsecase getProfileUsecase;
+
+  GetProfileCubit({required this.getProfileUsecase})
+    : super(const GetProfileInitial());
+
+  void call() async {
+    emit(const GetProfileLoading());
+    final dataState = await getProfileUsecase.call(
+      params: GetProfileUsecaseParams(),
+    );
+    if (dataState is DataSuccess) {
+      emit(GetProfileDone(profile: dataState.data!));
+    } else if (dataState is DataFailed) {
+      emit(GetProfileFailed(error: dataState.error!));
+    }
+  }
+}
