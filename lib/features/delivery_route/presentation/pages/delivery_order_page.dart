@@ -1,13 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
+import 'package:shipgo/core/resources/app_colors.dart';
+import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
+import 'package:shipgo/shared/widgets/smgo_button.dart';
+import 'package:shipgo/shared/widgets/smgo_checkbox.dart';
 
 class RouteColors {
   static const green = Color(0xFF008C45);
@@ -36,6 +44,46 @@ class DeliveryOrderPage extends StatefulWidget {
 
 class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
   DeliveryRouteEntity? deliveryRoute;
+  bool _isSelectionMode = false;
+  final Set<String> _selectedIds = {};
+
+  void _toggleSelection({required String id}) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+        if (_selectedIds.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedIds.add(id);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _toggleSelectAll(List<DeliveryOrderEntity> currentTabRoutes) {
+    setState(() {
+      final currentTabIds = currentTabRoutes.map((e) => e.id).toSet();
+      final isAllSelected = currentTabIds.every(_selectedIds.contains);
+
+      if (isAllSelected) {
+        _selectedIds.removeAll(currentTabIds);
+        if (_selectedIds.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedIds.addAll(currentTabIds);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _closeSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedIds.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +142,168 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(bottom: 100),
-                          child: RouteHeader(),
+                          child: RouteHeader(
+                            deliveryRoute: deliveryRoute!,
+                            isSelectionMode: _isSelectionMode,
+                            selectedIds: _selectedIds,
+                            onCloseSelectionMode: _closeSelectionMode,
+                            onDeleteAllSelected: () {
+                              final parentContext = context;
+                              AppDialogHelper.showCustomDialog(
+                                context: context,
+                                iconData: Icons.delete_forever,
+                                title: AppStrings
+                                    .dOPDeleteSelectedOrdersDialogTitle
+                                    .tr(),
+                                subtitle: AppStrings
+                                    .dOPDeleteSelectedOrdersDialogContent
+                                    .tr(
+                                      namedArgs: {
+                                        'quantity': _selectedIds.length
+                                            .toString(),
+                                      },
+                                    ),
+                                barrierDismissible: false,
+                                actions: [
+                                  BlocProvider<DeleteDeliveryOrdersCubit>(
+                                    create: (context) =>
+                                        di<DeleteDeliveryOrdersCubit>(),
+                                    child:
+                                        BlocConsumer<
+                                          DeleteDeliveryOrdersCubit,
+                                          DeleteDeliveryOrdersState
+                                        >(
+                                          listener: (context, state) {
+                                            if (state
+                                                is DeleteDeliveryOrdersDone) {
+                                              parentContext.pop();
+                                              parentContext
+                                                  .read<
+                                                    GetDeliveryRoutesCubit
+                                                  >()
+                                                  .call(
+                                                    params:
+                                                        GetDeliveryRoutesUsecaseParams(
+                                                          pageNumber: 1,
+                                                          pageSize: 1,
+                                                          id: deliveryRoute!.id,
+                                                          status: deliveryRoute!
+                                                              .status,
+                                                        ),
+                                                  );
+                                              AppDialogHelper.showSuccess(
+                                                context: parentContext,
+                                                title:
+                                                    'Xoá đơn hàng thành công!',
+                                                subtitle:
+                                                    '${_selectedIds.length} đơn hàng đã bị xoá',
+                                              );
+
+                                              _closeSelectionMode();
+                                            } else if (state
+                                                is DeleteDeliveryOrdersFailed) {
+                                              parentContext.pop();
+                                              AppDialogHelper.showError(
+                                                context: parentContext,
+                                                title: 'Xoá đơn hàng thất bại!',
+                                                subtitle:
+                                                    'Đã có lỗi xảy ra. Vui lòng thử lại',
+                                              );
+                                            }
+                                          },
+                                          builder: (context, state) => IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(
+                                                  child: SmgoButton(
+                                                    primaryColor:
+                                                        AppColors.primary,
+                                                    text: AppStrings
+                                                        .dOPDeleteSelectedOrdersDialogCancelBtnTitle
+                                                        .tr(),
+                                                    isOutlined: true,
+                                                    isDisabled:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading,
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: SmgoButton(
+                                                    primaryColor:
+                                                        AppColors.primary,
+                                                    isDisabled:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading,
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                            DeleteDeliveryOrdersCubit
+                                                          >()
+                                                          .call(
+                                                            _selectedIds
+                                                                .map(
+                                                                  (
+                                                                    selectedId,
+                                                                  ) => deliveryRoute!
+                                                                      .orders
+                                                                      .where(
+                                                                        (
+                                                                          order,
+                                                                        ) =>
+                                                                            order.id ==
+                                                                            selectedId,
+                                                                      )
+                                                                      .firstOrNull,
+                                                                )
+                                                                .whereType<
+                                                                  DeliveryOrderEntity
+                                                                >()
+                                                                .toList(),
+                                                          );
+                                                    },
+                                                    child:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading
+                                                        ? SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                          )
+                                                        : Text(
+                                                            AppStrings
+                                                                .dOPDeleteSelectedOrdersDialogDeleteBtnTitle
+                                                                .tr(),
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                         Positioned(
                           bottom: 0,
@@ -115,6 +322,15 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                       SliverToBoxAdapter(
                         child: RouteProgress(deliveryRoute: deliveryRoute!),
                       ),
+                      SliverToBoxAdapter(
+                        child:
+                            _isSelectionMode &&
+                                state is! GetDeliveryRoutesLoading &&
+                                state is! GetDeliveryRoutesFailed &&
+                                deliveryRoute!.orders.isNotEmpty
+                            ? _buildSelectionHeader()
+                            : SizedBox.shrink(),
+                      ),
                       SliverFillRemaining(
                         hasScrollBody:
                             true, // Cho phép TabBarView cuộn bên trong
@@ -132,29 +348,87 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
     );
   }
 
+  /// Thanh chọn tất cả & đếm số lượng
+  Widget _buildSelectionHeader() {
+    final isAllSelectedInThisTab =
+        deliveryRoute!.orders.isNotEmpty &&
+        deliveryRoute!.orders.every((e) => _selectedIds.contains(e.id));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => _toggleSelectAll(deliveryRoute!.orders),
+            child: Row(
+              children: [
+                SmgoCheckbox(
+                  primaryColor: AppColors.primary,
+                  value: isAllSelectedInThisTab,
+                  onChanged: (_) => _toggleSelectAll(deliveryRoute!.orders),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppStrings.dOPSelectAllBtnLabel.tr(),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            AppStrings.dOPSelectedOrdersCountContent.tr(
+              namedArgs: {'quantity': _selectedIds.length.toString()},
+            ),
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusContent() {
-    switch (deliveryRoute!.status) {
-      case DeliveryRouteStatus.pending:
-        return PendingView(deliveryRoute: deliveryRoute!);
-
-      case DeliveryRouteStatus.sorting:
-        return SortingView(deliveryRoute: deliveryRoute!);
-
-      case DeliveryRouteStatus.delivering:
-        return DeliveringView(deliveryRoute: deliveryRoute!);
-
-      case DeliveryRouteStatus.completed:
-        return CompletedView(deliveryRoute: deliveryRoute!);
-
-      default:
-        return PendingView(deliveryRoute: deliveryRoute!);
+    if (deliveryRoute!.status == DeliveryRouteStatus.pending.value) {
+      return PendingView(
+        deliveryRoute: deliveryRoute!,
+        isSelectionMode: _isSelectionMode,
+        selectedIds: _selectedIds,
+        toggleSelection: _toggleSelection,
+      );
+    } else if (deliveryRoute!.status == DeliveryRouteStatus.sorting.value) {
+      return SortingView(deliveryRoute: deliveryRoute!);
+    } else if (deliveryRoute!.status == DeliveryRouteStatus.delivering.value) {
+      return DeliveringView(deliveryRoute: deliveryRoute!);
+    } else if (deliveryRoute!.status == DeliveryRouteStatus.completed.value) {
+      return CompletedView(deliveryRoute: deliveryRoute!);
+    } else {
+      throw Exception(
+        'The provided route status does not match any valid values',
+      );
     }
   }
 }
 
 // Header
 class RouteHeader extends StatelessWidget {
-  const RouteHeader({super.key});
+  final DeliveryRouteEntity deliveryRoute;
+  final bool isSelectionMode;
+  final Set<String> selectedIds;
+  final void Function() onCloseSelectionMode;
+  final void Function() onDeleteAllSelected;
+
+  const RouteHeader({
+    super.key,
+    required this.deliveryRoute,
+    required this.isSelectionMode,
+    required this.selectedIds,
+    required this.onCloseSelectionMode,
+    required this.onDeleteAllSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -166,38 +440,75 @@ class RouteHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              _CircleButton(
-                icon: Icons.arrow_back_ios_new,
-                onPressed: () {
-                  context.pop();
-                },
-              ),
-
-              const Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      'Lộ trình Quận 1 – Sáng',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Tạo lúc 20/05/2024 • 08:30',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ],
+          if (isSelectionMode)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: onCloseSelectionMode,
                 ),
-              ),
+                Text(
+                  AppStrings.dOPHeaderSelectedOrdersCountContent.tr(
+                    namedArgs: {'selectedCount': selectedIds.length.toString()},
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: onDeleteAllSelected,
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  label: Text(
+                    AppStrings.dOPHeaderDeleteSelectedOrdersButtonLabel.tr(
+                      namedArgs: {
+                        'selectedCount': selectedIds.length.toString(),
+                      },
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                _CircleButton(
+                  icon: Icons.arrow_back_ios_new,
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
 
-              SizedBox(width: 22),
-            ],
-          ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        deliveryRoute.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Tạo lúc ${DateFormat('dd/MM/yyyy • HH:mm').format(deliveryRoute.createdAt)}',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(width: 22),
+              ],
+            ),
 
           const SizedBox(height: 20),
 
@@ -805,8 +1116,17 @@ class _StepConnector extends StatelessWidget {
 // Pending
 class PendingView extends StatelessWidget {
   final DeliveryRouteEntity deliveryRoute;
+  final bool isSelectionMode;
+  final Set<String> selectedIds;
+  final void Function({required String id}) toggleSelection;
 
-  const PendingView({super.key, required this.deliveryRoute});
+  const PendingView({
+    super.key,
+    required this.deliveryRoute,
+    required this.isSelectionMode,
+    required this.selectedIds,
+    required this.toggleSelection,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -860,8 +1180,20 @@ class PendingView extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _OrderList(orders: pendingOrders, deliveryRoute: deliveryRoute),
-                _OrderList(orders: checkedOrders, deliveryRoute: deliveryRoute),
+                _OrderList(
+                  toggleSelection: toggleSelection,
+                  orders: pendingOrders,
+                  deliveryRoute: deliveryRoute,
+                  isSelectionMode: isSelectionMode,
+                  selectedIds: selectedIds,
+                ),
+                _OrderList(
+                  toggleSelection: toggleSelection,
+                  orders: checkedOrders,
+                  deliveryRoute: deliveryRoute,
+                  isSelectionMode: isSelectionMode,
+                  selectedIds: selectedIds,
+                ),
               ],
             ),
           ),
@@ -909,8 +1241,17 @@ class _TabBadge extends StatelessWidget {
 class _OrderList extends StatelessWidget {
   final List<DeliveryOrderEntity> orders;
   final DeliveryRouteEntity deliveryRoute;
+  final bool isSelectionMode;
+  final Set<String> selectedIds;
+  final void Function({required String id}) toggleSelection;
 
-  const _OrderList({required this.orders, required this.deliveryRoute});
+  const _OrderList({
+    required this.orders,
+    required this.deliveryRoute,
+    required this.isSelectionMode,
+    required this.selectedIds,
+    required this.toggleSelection,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -919,32 +1260,46 @@ class _OrderList extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: orders.length,
       itemBuilder: (context, index) {
-        final getDeliveryRoutesCubit = context.read<GetDeliveryRoutesCubit>();
-
         return OrderCard(
           order: orders[index],
+          isSelectionMode: isSelectionMode,
+          isSelected: selectedIds.contains(orders[index].id),
+          onLongPress: () {
+            if (!isSelectionMode) {
+              toggleSelection(id: orders[index].id);
+            }
+          },
+          onCheckboxChanged: (value) {
+            toggleSelection(id: orders[index].id);
+          },
           onTap: () {
-            context.pushNamed(
-              AppRouteNames.deliveryOrderDetail,
-              pathParameters: {
-                'id': orders[index].deliveryRouteId,
-                'deliveryOrderId': orders[index].id,
-              },
-              extra: <String, Object>{
-                'DeliveryRouteData': deliveryRoute,
-                'DeliveryOrderData': orders[index],
-                'GetDeliveryRoutesCubitInDOP': getDeliveryRoutesCubit,
-                'GetDeliveryRoutesUsecaseParamsInDOP':
-                    GetDeliveryRoutesUsecaseParams(
-                      id: getDeliveryRoutesCubit.state.routes.first.id,
-                      pageNumber: 1,
-                      pageSize: 1,
-                    ),
-              },
-            );
+            if (!isSelectionMode) {
+              context.pushNamed(
+                AppRouteNames.deliveryOrderDetail,
+                pathParameters: {
+                  'id': orders[index].deliveryRouteId,
+                  'deliveryOrderId': orders[index].id,
+                },
+                extra: <String, Object>{
+                  'DeliveryRouteData': deliveryRoute,
+                  'DeliveryOrderData': orders[index],
+                  'GetDeliveryRoutesCubitInDOP': context
+                      .read<GetDeliveryRoutesCubit>(),
+                  'GetDeliveryRoutesUsecaseParamsInDOP':
+                      GetDeliveryRoutesUsecaseParams(
+                        id: deliveryRoute.id,
+                        pageNumber: 1,
+                        pageSize: 1,
+                        status: deliveryRoute.status,
+                      ),
+                },
+              );
+            } else {
+              toggleSelection(id: orders[index].id);
+            }
           },
         );
       },
@@ -1024,99 +1379,128 @@ class _SortingGuide extends StatelessWidget {
 
 class OrderCard extends StatelessWidget {
   final DeliveryOrderEntity order;
-  final VoidCallback? onTap; // 1. Khai báo hàm callback khi chạm
+  final VoidCallback onTap;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback onLongPress;
+  final ValueChanged<bool?> onCheckboxChanged;
 
   const OrderCard({
     super.key,
     required this.order,
-    this.onTap, // 2. Thêm vào constructor
+    required this.isSelectionMode,
+    required this.isSelected,
+    required this.onTap,
+    required this.onLongPress,
+    required this.onCheckboxChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: RouteColors.border),
-      ),
-      // Sử dụng ClipRRect để hiệu ứng gợn sóng không tràn ra ngoài đường viền bo góc
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap, // 3. Gắn callback vào sự kiện bấm
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // CỘT BÊN TRÁI: Tự co dãn theo khoảng trống còn lại
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              order.orderCode,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          if (isSelectionMode) ...[
+            SmgoCheckbox(
+              value: isSelected,
+              onChanged: onCheckboxChanged,
+              primaryColor: AppColors.primary,
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Container(
+              // margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: RouteColors.border),
+              ),
+              // Sử dụng ClipRRect để hiệu ứng gợn sóng không tràn ra ngoài đường viền bo góc
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onLongPress: onLongPress,
+                    onTap: onTap, // 3. Gắn callback vào sự kiện bấm
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // CỘT BÊN TRÁI: Tự co dãn theo khoảng trống còn lại
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      order.orderCode,
+                                      style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: RouteColors.text,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    _CustomerBadge(
+                                      familiar: order.appliedLocationId != null,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                _InfoRow(
+                                  icon: Icons.person_outline,
+                                  text: order.contactName,
+                                ),
+                                _InfoRow(
+                                  icon: Icons.phone_outlined,
+                                  text: order.contactPhone,
+                                ),
+                                _InfoRow(
+                                  icon: Icons.shopping_bag_outlined,
+                                  color:
+                                      order.orderName != null &&
+                                          order.orderName!.isNotEmpty
+                                      ? RouteColors.text
+                                      : Colors.grey,
+                                  text:
+                                      order.orderName != null &&
+                                          order.orderName!.isNotEmpty
+                                      ? order.orderName!
+                                      : 'Không có tên đơn hàng',
+                                ),
+                                _InfoRow(
+                                  icon: Icons.location_on_outlined,
+                                  text: order.address,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Icon(
+                                Icons.chevron_right,
                                 color: RouteColors.text,
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            _CustomerBadge(
-                              familiar: order.appliedLocationId != null,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        _InfoRow(
-                          icon: Icons.person_outline,
-                          text: order.contactName,
-                        ),
-                        _InfoRow(
-                          icon: Icons.phone_outlined,
-                          text: order.contactPhone,
-                        ),
-                        _InfoRow(
-                          icon: Icons.shopping_bag_outlined,
-                          color:
-                              order.orderName != null &&
-                                  order.orderName!.isNotEmpty
-                              ? RouteColors.text
-                              : Colors.grey,
-                          text:
-                              order.orderName != null &&
-                                  order.orderName!.isNotEmpty
-                              ? order.orderName!
-                              : 'Không có tên đơn hàng',
-                        ),
-                        _InfoRow(
-                          icon: Icons.location_on_outlined,
-                          text: order.address,
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const SizedBox(width: 8),
-
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(Icons.chevron_right, color: RouteColors.text),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

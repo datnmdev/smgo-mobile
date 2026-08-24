@@ -14,6 +14,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_ro
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_state.dart';
+import 'package:shipgo/shared/widgets/smgo_checkbox.dart';
 
 class DeliveryRoutePage extends StatefulWidget {
   const DeliveryRoutePage({Key? key}) : super(key: key);
@@ -360,7 +361,8 @@ class _RouteListTabViewState<T> extends State<RouteListTabView<T>>
             onTap: () => widget.onToggleSelectAll(widget.routes),
             child: Row(
               children: [
-                CustomCheckbox(
+                SmgoCheckbox(
+                  primaryColor: AppColors.primary,
                   value: isAllSelectedInThisTab,
                   onChanged: (_) => widget.onToggleSelectAll(widget.routes),
                 ),
@@ -774,7 +776,11 @@ class RouteCard1Item extends StatelessWidget {
       child: Row(
         children: [
           if (isSelectionMode) ...[
-            CustomCheckbox(value: isSelected, onChanged: onCheckboxChanged),
+            SmgoCheckbox(
+              value: isSelected,
+              onChanged: onCheckboxChanged,
+              primaryColor: AppColors.primary,
+            ),
             const SizedBox(width: 12),
           ],
           Expanded(
@@ -971,7 +977,11 @@ class RouteCard2Item extends StatelessWidget {
       child: Row(
         children: [
           if (isSelectionMode) ...[
-            CustomCheckbox(value: isSelected, onChanged: onCheckboxChanged),
+            SmgoCheckbox(
+              value: isSelected,
+              onChanged: onCheckboxChanged,
+              primaryColor: AppColors.primary,
+            ),
             const SizedBox(width: 12),
           ],
           Expanded(
@@ -1138,37 +1148,6 @@ class RouteCard2Item extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// Custom Checkbox
-class CustomCheckbox extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool?> onChanged;
-
-  const CustomCheckbox({Key? key, required this.value, required this.onChanged})
-    : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          color: value ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: value ? AppColors.primary : Colors.grey.shade400,
-            width: 1.5,
-          ),
-        ),
-        child: value
-            ? const Icon(Icons.check, size: 16, color: Colors.white)
-            : null,
-      ),
     );
   }
 }

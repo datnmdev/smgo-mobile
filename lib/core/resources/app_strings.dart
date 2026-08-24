@@ -292,4 +292,22 @@ abstract class AppStrings {
   static const String rPCheckedStatusOrderLabel =
       'route_page.checked_status_order_label';
   static const String rPTotalOrdersLabel = 'route_page.total_orders_label';
+
+  // Trang đơn hàng
+  static const String dOPSelectAllBtnLabel =
+      'delivery_order_page.select_all_label';
+  static const String dOPSelectedOrdersCountContent =
+      'delivery_order_page.selected_orders_count_content';
+  static const String dOPHeaderSelectedOrdersCountContent =
+      'delivery_order_page.header_selected_orders_count_content';
+  static const String dOPHeaderDeleteSelectedOrdersButtonLabel =
+      'delivery_order_page.header_delete_selected_orders_button_label';
+  static const String dOPDeleteSelectedOrdersDialogTitle =
+      'delivery_order_page.delete_selected_orders_dialog_tile';
+  static const String dOPDeleteSelectedOrdersDialogContent =
+      'delivery_order_page.delete_selected_orders_dialog_content';
+  static const String dOPDeleteSelectedOrdersDialogDeleteBtnTitle =
+      'delivery_order_page.delete_selected_orders_dialog_delete_btn_title';
+  static const String dOPDeleteSelectedOrdersDialogCancelBtnTitle =
+      'delivery_order_page.delete_selected_orders_dialog_cancel_btn_title';
 }
