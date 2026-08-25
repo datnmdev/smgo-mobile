@@ -181,9 +181,17 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   }
 
   @override
-  Future<DataState<dynamic>> recheckDeliveryOrders({required String deliveryRouteId, required List<String> deliveryOrderIds}) async {
+  Future<DataState<dynamic>> recheckDeliveryOrders({
+    required String deliveryRouteId,
+    required List<String> deliveryOrderIds,
+  }) async {
     try {
-      final dataState = await deliveryRouteApiService.recheckDeliveryOrders(deliveryRouteId: deliveryRouteId, body: RecheckDeliveryOrdersBodyRequest(deliveryOrderIds: deliveryOrderIds));
+      final dataState = await deliveryRouteApiService.recheckDeliveryOrders(
+        deliveryRouteId: deliveryRouteId,
+        body: RecheckDeliveryOrdersBodyRequest(
+          deliveryOrderIds: deliveryOrderIds,
+        ),
+      );
       return DataSuccess(dataState.data);
     } catch (e) {
       return DataFailed(e);
@@ -191,13 +199,33 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   }
 
   @override
-  Future<DataState<dynamic>> deleteDeliveryOrder({
-    required DeleteDeliveryOrderParams params,
+  Future<DataState<dynamic>> confirmDeliveryOrders({
+    required String deliveryRouteId,
+    required List<String> deliveryOrderIds,
   }) async {
     try {
-      final httpResponse = await deliveryRouteApiService.deleteDeliveryOrder(
+      final dataState = await deliveryRouteApiService.confirmDeliveryOrders(
+        deliveryRouteId: deliveryRouteId,
+        body: ConfirmDeliveryOrdersBodyRequest(
+          deliveryOrderIds: deliveryOrderIds,
+        ),
+      );
+      return DataSuccess(dataState.data);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> deleteDeliveryOrders({
+    required DeleteDeliveryOrdersParams params,
+  }) async {
+    try {
+      final httpResponse = await deliveryRouteApiService.deleteDeliveryOrders(
         deliveryRouteId: params.deliveryRouteId,
-        deliveryOrderId: params.deliveryOrderId,
+        body: DeleteDeliveryOrdersBodyRequest(
+          deliveryOrderIds: params.deliveryOrderIds,
+        ),
       );
       return DataSuccess(httpResponse.data.data);
     } catch (e) {

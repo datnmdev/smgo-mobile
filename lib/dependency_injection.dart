@@ -21,14 +21,15 @@ import 'package:shipgo/features/delivery_route/data/repository/ai_repository_imp
 import 'package:shipgo/features/delivery_route/data/repository/location_search_repository_impl.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/location_search_repository.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/Confirm_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_order_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/recheck_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_order/confirm_delivery_order_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
@@ -74,6 +75,7 @@ import 'package:shipgo/shared/data/data_sources/remote/user_api_service.dart';
 import 'package:shipgo/shared/data/repository/user_repository_impl.dart';
 import 'package:shipgo/shared/domain/repository/user_repository.dart';
 import 'package:shipgo/shared/domain/usecases/get_profile_usecase.dart';
+import 'package:shipgo/shared/presentation/bloc/selection/selection_cubit.dart';
 
 final di = GetIt.instance;
 
@@ -229,8 +231,8 @@ Future<void> initializeDependencies() async {
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
-  di.registerLazySingleton<DeleteDeliveryOrderUsecase>(
-    () => DeleteDeliveryOrderUsecase(
+  di.registerLazySingleton<DeleteDeliveryOrdersUsecase>(
+    () => DeleteDeliveryOrdersUsecase(
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
@@ -239,6 +241,11 @@ Future<void> initializeDependencies() async {
   );
   di.registerLazySingleton<RecheckDeliveryOrdersUsecase>(
     () => RecheckDeliveryOrdersUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
+  di.registerLazySingleton<ConfirmDeliveryOrdersUsecase>(
+    () => ConfirmDeliveryOrdersUsecase(
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
@@ -322,20 +329,21 @@ Future<void> initializeDependencies() async {
   );
   di.registerFactory<DeleteDeliveryOrdersCubit>(
     () => DeleteDeliveryOrdersCubit(
-      deleteDeliveryOrderUsecase: di<DeleteDeliveryOrderUsecase>(),
+      deleteDeliveryOrdersUsecase: di<DeleteDeliveryOrdersUsecase>(),
     ),
   );
   di.registerFactory<GetProfileCubit>(
     () => GetProfileCubit(getProfileUsecase: di<GetProfileUsecase>()),
   );
-  di.registerFactory<ConfirmDeliveryOrderCubit>(
-    () => ConfirmDeliveryOrderCubit(
-      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
-    ),
-  );
   di.registerFactory<RecheckDeliveryOrdersCubit>(
     () => RecheckDeliveryOrdersCubit(
       recheckDeliveryOrdersUsecase: di<RecheckDeliveryOrdersUsecase>(),
+    ),
+  );
+  di.registerFactory<SelectionCubit<String>>(() => SelectionCubit<String>());
+  di.registerFactory<ConfirmDeliveryOrdersCubit>(
+    () => ConfirmDeliveryOrdersCubit(
+      confirmDeliveryOrdersUsecase: di<ConfirmDeliveryOrdersUsecase>(),
     ),
   );
 }

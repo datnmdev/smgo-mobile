@@ -4,7 +4,7 @@ class SelectionState<T> {
 
   SelectionState({this.isEnabled = false, this.selectedItems = const {}});
 
-  SelectionState copyWith({bool? isEnabled, Set<T>? selectedItems}) {
+  SelectionState<T> copyWith({bool? isEnabled, Set<T>? selectedItems}) {
     return SelectionState(
       isEnabled: isEnabled ?? this.isEnabled,
       selectedItems: selectedItems ?? this.selectedItems,

@@ -53,10 +53,16 @@ abstract class DeliveryRouteApiService {
     @Body() required RecheckDeliveryOrdersBodyRequest body,
   });
 
-  @DELETE(ApiEndpoints.deleteDeliveryOrder)
-  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryOrder({
+  @PUT(ApiEndpoints.confirmDeliveryOrders)
+  Future<HttpResponse<ApiResponse<dynamic>>> confirmDeliveryOrders({
     @Path('deliveryRouteId') required String deliveryRouteId,
-    @Path('deliveryOrderId') required String deliveryOrderId,
+    @Body() required ConfirmDeliveryOrdersBodyRequest body,
+  });
+
+  @DELETE(ApiEndpoints.deleteDeliveryOrders)
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryOrders({
+    @Path('deliveryRouteId') required String deliveryRouteId,
+    @Body() required DeleteDeliveryOrdersBodyRequest body,
   });
 }
 
@@ -170,5 +176,26 @@ class RecheckDeliveryOrdersBodyRequest {
 
   RecheckDeliveryOrdersBodyRequest({required this.deliveryOrderIds});
 
-  Map<String, dynamic> toJson() => _$RecheckDeliveryOrdersBodyRequestToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$RecheckDeliveryOrdersBodyRequestToJson(this);
+}
+
+@JsonSerializable()
+class ConfirmDeliveryOrdersBodyRequest {
+  final List<String> deliveryOrderIds;
+
+  ConfirmDeliveryOrdersBodyRequest({required this.deliveryOrderIds});
+
+  Map<String, dynamic> toJson() =>
+      _$ConfirmDeliveryOrdersBodyRequestToJson(this);
+}
+
+@JsonSerializable()
+class DeleteDeliveryOrdersBodyRequest {
+  final List<String> deliveryOrderIds;
+
+  DeleteDeliveryOrdersBodyRequest({required this.deliveryOrderIds});
+
+  Map<String, dynamic> toJson() =>
+      _$DeleteDeliveryOrdersBodyRequestToJson(this);
 }

@@ -47,9 +47,9 @@ abstract class ApiEndpoints {
   static const String addDeliveryOrder = '$deliveryOrderBaseUrl';
   static const String updateDeliveryOrder =
       '$deliveryOrderBaseUrl/{deliveryOrderId}';
-  static const String deleteDeliveryOrder =
-      '$deliveryOrderBaseUrl/{deliveryOrderId}';
+  static const String deleteDeliveryOrders = '$deliveryOrderBaseUrl/m';
   static const String recheckDeliveryOrders = '$deliveryOrderBaseUrl/m/recheck';
+  static const String confirmDeliveryOrders = '$deliveryOrderBaseUrl/m/confirm';
 
   // Ai
   static const String extractOrderInfo = '$aiBaseUrl/extract/order-info';

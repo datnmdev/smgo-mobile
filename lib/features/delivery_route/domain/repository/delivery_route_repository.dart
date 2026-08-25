@@ -95,13 +95,13 @@ class UpdateDeliveryOrderParams {
   });
 }
 
-class DeleteDeliveryOrderParams {
+class DeleteDeliveryOrdersParams {
   final String deliveryRouteId;
-  final String deliveryOrderId;
+  final List<String> deliveryOrderIds;
 
-  DeleteDeliveryOrderParams({
-    required this.deliveryOrderId,
+  DeleteDeliveryOrdersParams({
     required this.deliveryRouteId,
+    required this.deliveryOrderIds,
   });
 }
 
@@ -131,7 +131,11 @@ abstract class DeliveryRouteRepository {
     required String deliveryRouteId,
     required List<String> deliveryOrderIds,
   });
-  Future<DataState<dynamic>> deleteDeliveryOrder({
-    required DeleteDeliveryOrderParams params,
+  Future<DataState<dynamic>> confirmDeliveryOrders({
+    required String deliveryRouteId,
+    required List<String> deliveryOrderIds,
+  });
+  Future<DataState<dynamic>> deleteDeliveryOrders({
+    required DeleteDeliveryOrdersParams params,
   });
 }

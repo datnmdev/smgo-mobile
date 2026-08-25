@@ -5,47 +5,57 @@ class SelectionCubit<T> extends Cubit<SelectionState<T>> {
   SelectionCubit() : super(SelectionState<T>());
 
   void toggleSelection({required T item}) {
-    if (state.selectedItems.contains(item)) {
-      var selectedItems = state.selectedItems..remove(item);
-      emit(state.copyWith(selectedItems: selectedItems) as SelectionState<T>);
-      if (selectedItems.isEmpty) {
-        emit(state.copyWith(isEnabled: false) as SelectionState<T>);
-      }
-    } else {
+    // 1. Tạo một Set mới bằng cú pháp spread (...) để không làm thay đổi state cũ
+    final updatedItems = Set<T>.from(state.selectedItems);
+
+    if (updatedItems.contains(item)) {
+      updatedItems.remove(item);
       emit(
         state.copyWith(
-              selectedItems: state.selectedItems..add(item),
-              isEnabled: true,
-            )
-            as SelectionState<T>,
+          selectedItems: updatedItems,
+          isEnabled: updatedItems.isNotEmpty, // Nếu hết item thì tự tắt isEnabled luôn cho gọn
+        ),
+      );
+    } else {
+      updatedItems.add(item);
+      emit(
+        state.copyWith(
+          selectedItems: updatedItems,
+          isEnabled: true,
+        ),
       );
     }
   }
 
   void toggleSelectAll({required List<T> currentItems}) {
-    final isAllSelected = currentItems.every(state.selectedItems.contains);
+    final updatedItems = Set<T>.from(state.selectedItems);
+    final isAllSelected = currentItems.every(updatedItems.contains);
+
     if (isAllSelected) {
+      updatedItems.removeAll(currentItems);
       emit(
         state.copyWith(
-              selectedItems: state.selectedItems..removeAll(currentItems),
-              isEnabled: false,
-            )
-            as SelectionState<T>,
+          selectedItems: updatedItems,
+          isEnabled: updatedItems.isNotEmpty,
+        ),
       );
     } else {
+      updatedItems.addAll(currentItems);
       emit(
         state.copyWith(
-              selectedItems: state.selectedItems..addAll(currentItems),
-              isEnabled: true,
-            )
-            as SelectionState<T>,
+          selectedItems: updatedItems,
+          isEnabled: true,
+        ),
       );
     }
   }
 
   void closeSelectionMode() {
     emit(
-      state.copyWith(isEnabled: false, selectedItems: {}) as SelectionState<T>,
+      state.copyWith(
+        isEnabled: false, 
+        selectedItems: <T>{}, // Truyền đúng kiểu Set<T> rỗng
+      ),
     );
   }
 }

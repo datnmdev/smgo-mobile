@@ -11,8 +11,8 @@ import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_order/confirm_delivery_order_cubit.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_order/confirm_delivery_order_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
@@ -20,6 +20,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_ro
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/widgets/option_button.dart';
+import 'package:shipgo/shared/presentation/bloc/selection/selection_cubit.dart';
+import 'package:shipgo/shared/presentation/bloc/selection/selection_state.dart';
 import 'package:shipgo/shared/utils/app_audio_utils.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:shipgo/shared/presentation/widgets/smgo_generic_scan_screen.dart';
@@ -54,46 +56,6 @@ class DeliveryOrderPage extends StatefulWidget {
 
 class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
   DeliveryRouteEntity? deliveryRoute;
-  bool _isSelectionMode = false;
-  final Set<String> _selectedIds = {};
-
-  void _toggleSelection({required String id}) {
-    setState(() {
-      if (_selectedIds.contains(id)) {
-        _selectedIds.remove(id);
-        if (_selectedIds.isEmpty) {
-          _isSelectionMode = false;
-        }
-      } else {
-        _selectedIds.add(id);
-        _isSelectionMode = true;
-      }
-    });
-  }
-
-  void _toggleSelectAll(List<DeliveryOrderEntity> currentTabRoutes) {
-    setState(() {
-      final currentTabIds = currentTabRoutes.map((e) => e.id).toSet();
-      final isAllSelected = currentTabIds.every(_selectedIds.contains);
-
-      if (isAllSelected) {
-        _selectedIds.removeAll(currentTabIds);
-        if (_selectedIds.isEmpty) {
-          _isSelectionMode = false;
-        }
-      } else {
-        _selectedIds.addAll(currentTabIds);
-        _isSelectionMode = true;
-      }
-    });
-  }
-
-  void _closeSelectionMode() {
-    setState(() {
-      _isSelectionMode = false;
-      _selectedIds.clear();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,341 +84,240 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<RecheckDeliveryOrdersCubit>(
           create: ((context) => di<RecheckDeliveryOrdersCubit>()),
         ),
+        BlocProvider<SelectionCubit<String>>(
+          create: (context) => di<SelectionCubit<String>>(),
+        ),
+        BlocProvider<ConfirmDeliveryOrdersCubit>(
+          create: ((context) => di<ConfirmDeliveryOrdersCubit>()),
+        ),
       ],
-      child: BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
-        listener: (context, state) {
-          if (state is GetDeliveryRoutesDone) {
-            deliveryRoute = state.routes.firstOrNull ?? deliveryRoute;
-            getDeliveryRoutesCubitInDRDP.call(
-              params: getDeliveryRoutesUsecaseParamsInDRDP,
-            );
-          }
-        },
-        builder: (context, state) => Stack(
-          children: [
-            Scaffold(
-              backgroundColor: Colors.white,
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  await context.read<GetDeliveryRoutesCubit>().call(
-                    params: GetDeliveryRoutesUsecaseParams(
-                      pageNumber: 1,
-                      pageSize: 1,
-                      id: deliveryRoute!.id,
-                      status: deliveryRoute!.status,
+      child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
+        builder: (_, _) => BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
+          listener: (_, state) {
+            if (state is GetDeliveryRoutesDone) {
+              deliveryRoute = state.routes.firstOrNull ?? deliveryRoute;
+              getDeliveryRoutesCubitInDRDP.call(
+                params: getDeliveryRoutesUsecaseParamsInDRDP,
+              );
+            }
+          },
+          builder: (context, state) => Stack(
+            children: [
+              Scaffold(
+                backgroundColor: Colors.white,
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    await context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute!.id,
+                        status: deliveryRoute!.status,
+                      ),
+                    );
+                  },
+                  child: CustomScrollView(
+                    physics: const RefreshOnlyScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
                     ),
-                  );
-                },
-                child: CustomScrollView(
-                  physics: const RefreshOnlyScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: IntrinsicHeight(
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 100),
-                              child: RouteHeader(
-                                deliveryRoute: deliveryRoute!,
-                                isSelectionMode: _isSelectionMode,
-                                selectedIds: _selectedIds,
-                                onCloseSelectionMode: _closeSelectionMode,
-                                onDeleteAllSelected: () {
-                                  final parentContext = context;
-                                  AppDialogUtils.showCustomDialog(
-                                    context: context,
-                                    iconData: Icons.delete_forever,
-                                    title: AppStrings
-                                        .dOPDeleteSelectedOrdersDialogTitle
-                                        .tr(),
-                                    subtitle: AppStrings
-                                        .dOPDeleteSelectedOrdersDialogContent
-                                        .tr(
-                                          namedArgs: {
-                                            'quantity': _selectedIds.length
-                                                .toString(),
-                                          },
-                                        ),
-                                    barrierDismissible: false,
-                                    actions: [
-                                      BlocProvider<DeleteDeliveryOrdersCubit>(
-                                        create: (context) =>
-                                            di<DeleteDeliveryOrdersCubit>(),
-                                        child:
-                                            BlocConsumer<
-                                              DeleteDeliveryOrdersCubit,
-                                              DeleteDeliveryOrdersState
-                                            >(
-                                              listener: (context, state) {
-                                                if (state
-                                                    is DeleteDeliveryOrdersDone) {
-                                                  parentContext.pop();
-                                                  parentContext
-                                                      .read<
-                                                        GetDeliveryRoutesCubit
-                                                      >()
-                                                      .call(
-                                                        params:
-                                                            GetDeliveryRoutesUsecaseParams(
-                                                              pageNumber: 1,
-                                                              pageSize: 1,
-                                                              id: deliveryRoute!
-                                                                  .id,
-                                                              status:
-                                                                  deliveryRoute!
-                                                                      .status,
-                                                            ),
-                                                      );
-                                                  AppDialogUtils.showSuccess(
-                                                    context: parentContext,
-                                                    title:
-                                                        'Xoá đơn hàng thành công!',
-                                                    subtitle:
-                                                        '${_selectedIds.length} đơn hàng đã bị xoá',
-                                                  );
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: IntrinsicHeight(
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 100),
+                                child: RouteHeader(
+                                  deliveryRoute: deliveryRoute!,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: RouteSummary(
+                                  deliveryRoute: deliveryRoute!,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
-                                                  _closeSelectionMode();
-                                                } else if (state
-                                                    is DeleteDeliveryOrdersFailed) {
-                                                  parentContext.pop();
-                                                  AppDialogUtils.showError(
-                                                    context: parentContext,
-                                                    title:
-                                                        'Xoá đơn hàng thất bại!',
-                                                    subtitle:
-                                                        'Đã có lỗi xảy ra. Vui lòng thử lại',
-                                                  );
-                                                }
-                                              },
-                                              builder: (context, state) => IntrinsicHeight(
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .stretch,
-                                                  children: [
-                                                    Expanded(
-                                                      child: SmgoButton(
-                                                        primaryColor:
-                                                            AppColors.primary,
-                                                        text: AppStrings
-                                                            .dOPDeleteSelectedOrdersDialogCancelBtnTitle
-                                                            .tr(),
-                                                        isOutlined: true,
-                                                        isDisabled:
-                                                            state
-                                                                is DeleteDeliveryOrdersLoading,
-                                                        onPressed: () {
-                                                          context.pop();
-                                                        },
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: SmgoButton(
-                                                        primaryColor:
-                                                            AppColors.primary,
-                                                        isDisabled:
-                                                            state
-                                                                is DeleteDeliveryOrdersLoading,
-                                                        onPressed: () {
-                                                          context
-                                                              .read<
-                                                                DeleteDeliveryOrdersCubit
-                                                              >()
-                                                              .call(
-                                                                _selectedIds
-                                                                    .map(
-                                                                      (
-                                                                        selectedId,
-                                                                      ) => deliveryRoute!
-                                                                          .orders
-                                                                          .where(
-                                                                            (
-                                                                              order,
-                                                                            ) =>
-                                                                                order.id ==
-                                                                                selectedId,
-                                                                          )
-                                                                          .firstOrNull,
-                                                                    )
-                                                                    .whereType<
-                                                                      DeliveryOrderEntity
-                                                                    >()
-                                                                    .toList(),
-                                                              );
-                                                        },
-                                                        child:
-                                                            state
-                                                                is DeleteDeliveryOrdersLoading
-                                                            ? SizedBox(
-                                                                width: 16,
-                                                                height: 16,
-                                                                child: CircularProgressIndicator(
-                                                                  strokeWidth:
-                                                                      2,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              )
-                                                            : Text(
-                                                                AppStrings
-                                                                    .dOPDeleteSelectedOrdersDialogDeleteBtnTitle
-                                                                    .tr(),
-                                                                style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                      SliverFillRemaining(
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: RouteProgress(
+                                deliveryRoute: deliveryRoute!,
                               ),
                             ),
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: RouteSummary(
-                                deliveryRoute: deliveryRoute!,
+                            SliverToBoxAdapter(
+                              child: _buildSelectionHeader(context: context),
+                            ),
+                            SliverFillRemaining(
+                              hasScrollBody:
+                                  true, // Cho phép TabBarView cuộn bên trong
+                              child: _buildStatusContent(
+                                ancestorContext: context,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+                bottomNavigationBar: _RouteActionBar(route: deliveryRoute!),
+              ),
 
-                    SliverFillRemaining(
-                      child: CustomScrollView(
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: RouteProgress(deliveryRoute: deliveryRoute!),
-                          ),
-                          SliverToBoxAdapter(
-                            child:
-                                _isSelectionMode &&
-                                    state is! GetDeliveryRoutesLoading &&
-                                    state is! GetDeliveryRoutesFailed &&
-                                    deliveryRoute!.orders.isNotEmpty
-                                ? _buildSelectionHeader()
-                                : SizedBox.shrink(),
-                          ),
-                          SliverFillRemaining(
-                            hasScrollBody:
-                                true, // Cho phép TabBarView cuộn bên trong
-                            child: _buildStatusContent(),
-                          ),
-                        ],
+              // Loading
+              BlocConsumer<
+                RecheckDeliveryOrdersCubit,
+                RecheckDeliveryOrdersState
+              >(
+                listener: (context, state) {
+                  if (state is RecheckDeliveryOrdersDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute!.id,
+                        status: deliveryRoute!.status,
                       ),
-                    ),
-                  ],
+                    );
+                    context.read<SelectionCubit<String>>().closeSelectionMode();
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Yêu cầu kiểm tra lại đơn hàng thành công!',
+                      subtitle:
+                          'Các đơn hàng mà bạn đã yêu cầu đã được đưa vào danh sách đơn hàng chờ kiểm tra.',
+                    );
+                  } else if (state is RecheckDeliveryOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Yêu cầu kiểm tra lại đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is RecheckDeliveryOrdersLoading,
                 ),
               ),
-              bottomNavigationBar: _RouteActionBar(
-                route: deliveryRoute!,
-                isSelectionMode: _isSelectionMode,
-                selectedDeliveryOrderIds: _selectedIds.toList(),
+
+              BlocConsumer<
+                ConfirmDeliveryOrdersCubit,
+                ConfirmDeliveryOrdersState
+              >(
+                listener: (context, state) {
+                  final selectionCubit = context.read<SelectionCubit<String>>();
+                  if (state is ConfirmDeliveryOrdersDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute!.id,
+                        status: deliveryRoute!.status,
+                      ),
+                    );
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thành công!',
+                      subtitle:
+                          '${selectionCubit.state.selectedItems.length} đơn hàng đã chọn đã được xác nhận thành công.',
+                    );
+                    selectionCubit.closeSelectionMode();
+                  } else if (state is ConfirmDeliveryOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmDeliveryOrdersLoading,
+                ),
               ),
-            ),
-            BlocConsumer<
-              RecheckDeliveryOrdersCubit,
-              RecheckDeliveryOrdersState
-            >(
-              listener: (context, state) {
-                if (state is RecheckDeliveryOrdersDone) {
-                  context.read<GetDeliveryRoutesCubit>().call(
-                    params: GetDeliveryRoutesUsecaseParams(
-                      pageNumber: 1,
-                      pageSize: 1,
-                      id: deliveryRoute!.id,
-                      status: deliveryRoute!.status,
-                    ),
-                  );
-                  _closeSelectionMode();
-                  AppDialogUtils.showSuccess(
-                    context: context,
-                    title: 'Yêu cầu kiểm tra lại đơn hàng thành công!',
-                    subtitle:
-                        'Các đơn hàng mà bạn đã yêu cầu đã được đưa vào danh sách đơn hàng chờ kiểm tra.',
-                  );
-                } else if (state is RecheckDeliveryOrdersFailed) {
-                  AppDialogUtils.showError(
-                    context: context,
-                    title: 'Yêu cầu kiểm tra lại đơn hàng thất bại!',
-                    subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                  );
-                }
-              },
-              builder: (context, state) => SmgoLoadingScreen(
-                isLoading: state is RecheckDeliveryOrdersLoading,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   /// Thanh chọn tất cả & đếm số lượng
-  Widget _buildSelectionHeader() {
+  Widget _buildSelectionHeader({required BuildContext context}) {
+    final selectionCubit = context.watch<SelectionCubit<String>>();
+    final getDeliveryRoutesCubit = context.watch<GetDeliveryRoutesCubit>();
+
     final isAllSelectedInThisTab =
         deliveryRoute!.orders.isNotEmpty &&
-        deliveryRoute!.orders.every((e) => _selectedIds.contains(e.id));
+        deliveryRoute!.orders.every(
+          (e) => selectionCubit.state.selectedItems.contains(e.id),
+        );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: () => _toggleSelectAll(deliveryRoute!.orders),
-            child: Row(
-              children: [
-                SmgoCheckbox(
-                  primaryColor: AppColors.primary,
-                  value: isAllSelectedInThisTab,
-                  onChanged: (_) => _toggleSelectAll(deliveryRoute!.orders),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  AppStrings.dOPSelectAllBtnLabel.tr(),
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                ),
-              ],
+    if (selectionCubit.state.isEnabled &&
+        getDeliveryRoutesCubit.state is! GetDeliveryRoutesLoading &&
+        getDeliveryRoutesCubit.state is! GetDeliveryRoutesFailed &&
+        deliveryRoute!.orders.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: () => selectionCubit.toggleSelectAll(
+                currentItems: deliveryRoute!.orders
+                    .map((order) => order.id)
+                    .toList(),
+              ),
+              child: Row(
+                children: [
+                  SmgoCheckbox(
+                    primaryColor: AppColors.primary,
+                    value: isAllSelectedInThisTab,
+                    onChanged: (_) => selectionCubit.toggleSelectAll(
+                      currentItems: deliveryRoute!.orders
+                          .map((order) => order.id)
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppStrings.dOPSelectAllBtnLabel.tr(),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            AppStrings.dOPSelectedOrdersCountContent.tr(
-              namedArgs: {'quantity': _selectedIds.length.toString()},
+            Text(
+              AppStrings.dOPSelectedOrdersCountContent.tr(
+                namedArgs: {
+                  'quantity': selectionCubit.state.selectedItems.length
+                      .toString(),
+                },
+              ),
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
+    return SizedBox.shrink();
   }
 
-  Widget _buildStatusContent() {
+  Widget _buildStatusContent({required BuildContext ancestorContext}) {
     if (deliveryRoute!.status == DeliveryRouteStatus.pending.value) {
       return PendingView(
         deliveryRoute: deliveryRoute!,
-        isSelectionMode: _isSelectionMode,
-        selectedIds: _selectedIds,
-        toggleSelection: _toggleSelection,
+        ancestorContext: ancestorContext,
       );
     } else if (deliveryRoute!.status == DeliveryRouteStatus.sorting.value) {
       return SortingView(deliveryRoute: deliveryRoute!);
@@ -475,107 +336,237 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
 // Header
 class RouteHeader extends StatelessWidget {
   final DeliveryRouteEntity deliveryRoute;
-  final bool isSelectionMode;
-  final Set<String> selectedIds;
-  final void Function() onCloseSelectionMode;
-  final void Function() onDeleteAllSelected;
 
-  const RouteHeader({
-    super.key,
-    required this.deliveryRoute,
-    required this.isSelectionMode,
-    required this.selectedIds,
-    required this.onCloseSelectionMode,
-    required this.onDeleteAllSelected,
-  });
+  const RouteHeader({super.key, required this.deliveryRoute});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 55, 12, 25),
-      decoration: const BoxDecoration(
-        color: RouteColors.green,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
-      child: Column(
-        children: [
-          if (isSelectionMode)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: onCloseSelectionMode,
-                ),
-                Text(
-                  AppStrings.dOPHeaderSelectedOrdersCountContent.tr(
-                    namedArgs: {'selectedCount': selectedIds.length.toString()},
-                  ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: onDeleteAllSelected,
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  label: Text(
-                    AppStrings.dOPHeaderDeleteSelectedOrdersButtonLabel.tr(
-                      namedArgs: {
-                        'selectedCount': selectedIds.length.toString(),
+    return BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
+      builder: (context, state) {
+        final selectionCubit = context.read<SelectionCubit<String>>();
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(12, 55, 12, 25),
+          decoration: const BoxDecoration(
+            color: RouteColors.green,
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+          ),
+          child: Column(
+            children: [
+              if (state.isEnabled)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: selectionCubit.closeSelectionMode,
+                    ),
+                    Text(
+                      AppStrings.dOPHeaderSelectedOrdersCountContent.tr(
+                        namedArgs: {
+                          'selectedCount': state.selectedItems.length
+                              .toString(),
+                        },
+                      ),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        final parentContext = context;
+                        AppDialogUtils.showCustomDialog(
+                          context: context,
+                          iconData: Icons.delete_forever,
+                          title: AppStrings.dOPDeleteSelectedOrdersDialogTitle
+                              .tr(),
+                          subtitle: AppStrings
+                              .dOPDeleteSelectedOrdersDialogContent
+                              .tr(
+                                namedArgs: {
+                                  'quantity': state.selectedItems.length
+                                      .toString(),
+                                },
+                              ),
+                          barrierDismissible: false,
+                          actions: [
+                            BlocProvider<DeleteDeliveryOrdersCubit>(
+                              create: (context) =>
+                                  di<DeleteDeliveryOrdersCubit>(),
+                              child:
+                                  BlocConsumer<
+                                    DeleteDeliveryOrdersCubit,
+                                    DeleteDeliveryOrdersState
+                                  >(
+                                    listener: (context, state) {
+                                      if (state is DeleteDeliveryOrdersDone) {
+                                        parentContext.pop();
+                                        parentContext
+                                            .read<GetDeliveryRoutesCubit>()
+                                            .call(
+                                              params:
+                                                  GetDeliveryRoutesUsecaseParams(
+                                                    pageNumber: 1,
+                                                    pageSize: 1,
+                                                    id: deliveryRoute.id,
+                                                    status:
+                                                        deliveryRoute.status,
+                                                  ),
+                                            );
+                                        AppDialogUtils.showSuccess(
+                                          context: parentContext,
+                                          title: 'Xoá đơn hàng thành công!',
+                                          subtitle:
+                                              '${selectionCubit.state.selectedItems.length} đơn hàng đã bị xoá',
+                                        );
+
+                                        selectionCubit.closeSelectionMode();
+                                      } else if (state
+                                          is DeleteDeliveryOrdersFailed) {
+                                        parentContext.pop();
+                                        AppDialogUtils.showError(
+                                          context: parentContext,
+                                          title: 'Xoá đơn hàng thất bại!',
+                                          subtitle:
+                                              'Đã có lỗi xảy ra. Vui lòng thử lại',
+                                        );
+                                      }
+                                    },
+                                    builder: (context, state) => IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: SmgoButton(
+                                              primaryColor: AppColors.primary,
+                                              text: AppStrings
+                                                  .dOPDeleteSelectedOrdersDialogCancelBtnTitle
+                                                  .tr(),
+                                              isOutlined: true,
+                                              isDisabled:
+                                                  state
+                                                      is DeleteDeliveryOrdersLoading,
+                                              onPressed: () {
+                                                context.pop();
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: SmgoButton(
+                                              primaryColor: AppColors.primary,
+                                              isDisabled:
+                                                  state
+                                                      is DeleteDeliveryOrdersLoading,
+                                              onPressed: () {
+                                                context
+                                                    .read<
+                                                      DeleteDeliveryOrdersCubit
+                                                    >()
+                                                    .call(
+                                                      deliveryRouteId:
+                                                          deliveryRoute.id,
+                                                      deliveryOrderIds:
+                                                          selectionCubit
+                                                              .state
+                                                              .selectedItems
+                                                              .toList(),
+                                                    );
+                                              },
+                                              child:
+                                                  state
+                                                      is DeleteDeliveryOrdersLoading
+                                                  ? SizedBox(
+                                                      width: 16,
+                                                      height: 16,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                            color: Colors.white,
+                                                          ),
+                                                    )
+                                                  : Text(
+                                                      AppStrings
+                                                          .dOPDeleteSelectedOrdersDialogDeleteBtnTitle
+                                                          .tr(),
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                          ],
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      label: Text(
+                        AppStrings.dOPHeaderDeleteSelectedOrdersButtonLabel.tr(
+                          namedArgs: {
+                            'selectedCount': state.selectedItems.length
+                                .toString(),
+                          },
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    _CircleButton(
+                      icon: Icons.arrow_back_ios_new,
+                      onPressed: () {
+                        context.pop();
                       },
                     ),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            )
-          else
-            Row(
-              children: [
-                _CircleButton(
-                  icon: Icons.arrow_back_ios_new,
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
 
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        deliveryRoute.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            deliveryRoute.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Tạo lúc ${DateFormat('dd/MM/yyyy • HH:mm').format(deliveryRoute.createdAt)}',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Tạo lúc ${DateFormat('dd/MM/yyyy • HH:mm').format(deliveryRoute.createdAt)}',
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
-                  ),
+                    ),
+
+                    SizedBox(width: 22),
+                  ],
                 ),
 
-                SizedBox(width: 22),
-              ],
-            ),
+              const SizedBox(height: 20),
 
-          const SizedBox(height: 20),
+              const _SearchBox(),
 
-          const _SearchBox(),
-
-          const SizedBox(height: 24),
-        ],
-      ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -1173,91 +1164,114 @@ class _StepConnector extends StatelessWidget {
 }
 
 // Pending
-class PendingView extends StatelessWidget {
+class PendingView extends StatefulWidget {
   final DeliveryRouteEntity deliveryRoute;
-  final bool isSelectionMode;
-  final Set<String> selectedIds;
-  final void Function({required String id}) toggleSelection;
+  final BuildContext ancestorContext;
 
   const PendingView({
     super.key,
     required this.deliveryRoute,
-    required this.isSelectionMode,
-    required this.selectedIds,
-    required this.toggleSelection,
+    required this.ancestorContext,
   });
+
+  @override
+  State<PendingView> createState() => _PendingViewState();
+}
+
+class _PendingViewState extends State<PendingView>
+    with SingleTickerProviderStateMixin {
+  late DeliveryRouteEntity _deliveryRoute;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _deliveryRoute = widget.deliveryRoute;
+    _tabController = TabController(length: 2, vsync: this);
+
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        widget.ancestorContext
+            .read<SelectionCubit<String>>()
+            .closeSelectionMode();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant PendingView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      if (oldWidget.deliveryRoute != widget.deliveryRoute) {
+        _deliveryRoute = widget.deliveryRoute;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // Lọc danh sách theo trạng thái
-    final pendingOrders = deliveryRoute.orders
+    final pendingOrders = _deliveryRoute.orders
         .where((o) => o.status == DeliveryOrderStatus.pending.value)
         .toList();
-    final checkedOrders = deliveryRoute.orders
+    final checkedOrders = _deliveryRoute.orders
         .where((o) => o.status == DeliveryOrderStatus.checked.value)
         .toList();
 
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          // 1. THANH TAB DỰA THEO THIẾT KẾ
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TabBar(
-              indicatorColor: Colors.green,
-              indicatorWeight: 3,
-              indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: Colors.green,
-              unselectedLabelColor: const Color(0xFF1E2440),
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.normal,
-                fontSize: 15,
-              ),
-              tabs: [
-                Tab(
-                  child: _TabBadge(
-                    title: 'Chờ kiểm tra',
-                    count: pendingOrders.length,
-                  ),
-                ),
-                Tab(
-                  child: _TabBadge(
-                    title: 'Đã kiểm tra',
-                    count: checkedOrders.length,
-                  ),
-                ),
-              ],
+    return Column(
+      children: [
+        // 1. THANH TAB DỰA THEO THIẾT KẾ
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.green,
+            indicatorWeight: 3,
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelColor: Colors.green,
+            unselectedLabelColor: const Color(0xFF1E2440),
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
             ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 15,
+            ),
+            tabs: [
+              Tab(
+                child: _TabBadge(
+                  title: 'Chờ kiểm tra',
+                  count: pendingOrders.length,
+                ),
+              ),
+              Tab(
+                child: _TabBadge(
+                  title: 'Đã kiểm tra',
+                  count: checkedOrders.length,
+                ),
+              ),
+            ],
           ),
+        ),
 
-          // 2. NỘI DUNG DANH SÁCH VUỐT ĐƯỢC
-          Expanded(
-            child: TabBarView(
-              children: [
-                _OrderList(
-                  toggleSelection: toggleSelection,
-                  orders: pendingOrders,
-                  deliveryRoute: deliveryRoute,
-                  isSelectionMode: isSelectionMode,
-                  selectedIds: selectedIds,
-                ),
-                _OrderList(
-                  toggleSelection: toggleSelection,
-                  orders: checkedOrders,
-                  deliveryRoute: deliveryRoute,
-                  isSelectionMode: isSelectionMode,
-                  selectedIds: selectedIds,
-                ),
-              ],
-            ),
+        // 2. NỘI DUNG DANH SÁCH VUỐT ĐƯỢC
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _OrderList(orders: pendingOrders, deliveryRoute: _deliveryRoute),
+              _OrderList(orders: checkedOrders, deliveryRoute: _deliveryRoute),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -1296,24 +1310,16 @@ class _TabBadge extends StatelessWidget {
   }
 }
 
-// Widget hiển thị danh sách đơn hàng
 class _OrderList extends StatelessWidget {
   final List<DeliveryOrderEntity> orders;
   final DeliveryRouteEntity deliveryRoute;
-  final bool isSelectionMode;
-  final Set<String> selectedIds;
-  final void Function({required String id}) toggleSelection;
 
-  const _OrderList({
-    required this.orders,
-    required this.deliveryRoute,
-    required this.isSelectionMode,
-    required this.selectedIds,
-    required this.toggleSelection,
-  });
+  const _OrderList({required this.orders, required this.deliveryRoute});
 
   @override
   Widget build(BuildContext context) {
+    final selectionCubit = context.read<SelectionCubit<String>>();
+
     if (orders.isEmpty) {
       return const Center(child: Text('Không có đơn hàng nào'));
     }
@@ -1324,18 +1330,20 @@ class _OrderList extends StatelessWidget {
       itemBuilder: (context, index) {
         return OrderCard(
           order: orders[index],
-          isSelectionMode: isSelectionMode,
-          isSelected: selectedIds.contains(orders[index].id),
+          isSelectionMode: selectionCubit.state.isEnabled,
+          isSelected: selectionCubit.state.selectedItems.contains(
+            orders[index].id,
+          ),
           onLongPress: () {
-            if (!isSelectionMode) {
-              toggleSelection(id: orders[index].id);
+            if (!selectionCubit.state.isEnabled) {
+              selectionCubit.toggleSelection(item: orders[index].id);
             }
           },
           onCheckboxChanged: (value) {
-            toggleSelection(id: orders[index].id);
+            selectionCubit.toggleSelection(item: orders[index].id);
           },
           onTap: () {
-            if (!isSelectionMode) {
+            if (!selectionCubit.state.isEnabled) {
               context.pushNamed(
                 AppRouteNames.deliveryOrderDetail,
                 pathParameters: {
@@ -1357,7 +1365,7 @@ class _OrderList extends StatelessWidget {
                 },
               );
             } else {
-              toggleSelection(id: orders[index].id);
+              selectionCubit.toggleSelection(item: orders[index].id);
             }
           },
         );
@@ -2070,15 +2078,8 @@ enum CheckOrderMethod { scanQrOrBarcode, manual }
 
 class _RouteActionBar extends StatefulWidget {
   final DeliveryRouteEntity route;
-  final bool isSelectionMode;
-  final List<String> selectedDeliveryOrderIds;
 
-  const _RouteActionBar({
-    super.key,
-    required this.route,
-    required this.isSelectionMode,
-    required this.selectedDeliveryOrderIds,
-  });
+  const _RouteActionBar({super.key, required this.route});
 
   @override
   State<_RouteActionBar> createState() => __RouteActionBarState();
@@ -2087,15 +2088,11 @@ class _RouteActionBar extends StatefulWidget {
 class __RouteActionBarState extends State<_RouteActionBar> {
   late DeliveryRouteEntity _deliveryRoute;
   late CheckOrderMethod _method = CheckOrderMethod.scanQrOrBarcode;
-  late bool _isSelectionMode;
-  late List<String> _selectedDeliveryOrderIds;
 
   @override
   void initState() {
     super.initState();
     _deliveryRoute = widget.route;
-    _isSelectionMode = widget.isSelectionMode;
-    _selectedDeliveryOrderIds = widget.selectedDeliveryOrderIds;
   }
 
   @override
@@ -2105,15 +2102,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     setState(() {
       if (oldWidget.route != widget.route) {
         _deliveryRoute = widget.route;
-      }
-
-      if (oldWidget.isSelectionMode != widget.isSelectionMode) {
-        _isSelectionMode = widget.isSelectionMode;
-      }
-
-      if (oldWidget.selectedDeliveryOrderIds !=
-          widget.selectedDeliveryOrderIds) {
-        _selectedDeliveryOrderIds = widget.selectedDeliveryOrderIds;
       }
     });
   }
@@ -2145,12 +2133,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           clipBehavior: Clip.none,
           physics: AlwaysScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
-          child: _buildAction(
-            context: context,
-            currentMethod: _method,
-            isSelectionMode: _isSelectionMode,
-            selectedDeliveryOrderIds: _selectedDeliveryOrderIds,
-          ),
+          child: _buildAction(context: context, currentMethod: _method),
         ),
       ),
     );
@@ -2159,9 +2142,9 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   Widget _buildAction({
     required BuildContext context,
     required CheckOrderMethod currentMethod,
-    required bool isSelectionMode,
-    required List<String> selectedDeliveryOrderIds,
   }) {
+    final selectionCubit = context.read<SelectionCubit<String>>();
+
     if (_deliveryRoute.status == DeliveryRouteStatus.pending.value) {
       return Row(
         children: [
@@ -2192,7 +2175,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
           const SizedBox(width: 12),
 
-          if (isSelectionMode) ...[
+          if (selectionCubit.state.isEnabled) ...[
             _OutlineButton(
               icon: Icons.checklist_rtl,
               label: 'Kiểm tra lại',
@@ -2203,7 +2186,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   context: context,
                   title: 'Bạn có chắc kiểm tra lại các đơn hàng đã chọn chứ?',
                   subtitle:
-                      '${selectedDeliveryOrderIds.length} đơn hàng đã chọn sẽ được đưa vào danh sách chờ kiểm tra.',
+                      '${selectionCubit.state.selectedItems.length} đơn hàng đã chọn sẽ được đưa vào danh sách chờ kiểm tra.',
                   actions: [
                     SmgoButton(
                       isOutlined: true,
@@ -2219,7 +2202,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       onPressed: () {
                         context.read<RecheckDeliveryOrdersCubit>().call(
                           deliveryRouteId: _deliveryRoute.id,
-                          deliveryOrderIds: selectedDeliveryOrderIds,
+                          deliveryOrderIds: selectionCubit.state.selectedItems
+                              .toList(),
                         );
                         context.pop();
                       },
@@ -2240,6 +2224,36 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             onPressed: () {
               if (currentMethod == CheckOrderMethod.scanQrOrBarcode) {
                 _openOrderScanScreen(context: context);
+              } else {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title:
+                      'Bạn có chắc đã kiểm tra thông tin của các đơn hàng đã chọn?',
+                  subtitle:
+                      'Lưu ý: Đảm bảo chính xác việc kiểm tra đơn hàng để hệ thống sắp xếp lộ trình chính xác và hiệu quả nhất cho bạn.',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<ConfirmDeliveryOrdersCubit>().call(
+                          deliveryRouteId: _deliveryRoute.id,
+                          deliveryOrderIds: selectionCubit.state.selectedItems
+                              .toList(),
+                        );
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
               }
             },
             onLongPress: () => _showCheckOrderOptionMethod(
@@ -2445,8 +2459,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                 ),
               );
             }
-            return BlocProvider<ConfirmDeliveryOrderCubit>(
-              create: (context) => di<ConfirmDeliveryOrderCubit>(),
+            return BlocProvider<ConfirmDeliveryOrdersCubit>(
+              create: (context) => di<ConfirmDeliveryOrdersCubit>(),
               child: Scaffold(
                 body: SingleChildScrollView(
                   child: Padding(
@@ -2522,11 +2536,11 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   ),
                   child:
                       BlocConsumer<
-                        ConfirmDeliveryOrderCubit,
-                        ConfirmDeliveryOrderState
+                        ConfirmDeliveryOrdersCubit,
+                        ConfirmDeliveryOrdersState
                       >(
                         listener: (context, state) {
-                          if (state is ConfirmDeliveryOrderDone) {
+                          if (state is ConfirmDeliveryOrdersDone) {
                             getDeliveryRoutesCubitInParent.call(
                               params: GetDeliveryRoutesUsecaseParams(
                                 pageNumber: 1,
@@ -2541,7 +2555,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               subtitle:
                                   'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
                             );
-                          } else if (state is ConfirmDeliveryOrderFailed) {
+                          } else if (state is ConfirmDeliveryOrdersFailed) {
                             AppDialogUtils.showError(
                               context: context,
                               title: 'Xác nhận đơn hàng thất bại',
@@ -2560,7 +2574,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                 child: SmgoButton(
                                   primaryColor: AppColors.primary,
                                   isDisabled:
-                                      state is ConfirmDeliveryOrderLoading,
+                                      state is ConfirmDeliveryOrdersLoading,
                                   onPressed: () {
                                     context.pop();
                                   },
@@ -2589,18 +2603,18 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                 child: SmgoButton(
                                   primaryColor: AppColors.primary,
                                   isDisabled:
-                                      state is ConfirmDeliveryOrderLoading ||
+                                      state is ConfirmDeliveryOrdersLoading ||
                                       order.status == 'checked',
                                   onPressed: () {
                                     context
-                                        .read<ConfirmDeliveryOrderCubit>()
+                                        .read<ConfirmDeliveryOrdersCubit>()
                                         .call(
                                           deliveryRouteId:
                                               order.deliveryRouteId,
-                                          deliveryOrderId: order.id,
+                                          deliveryOrderIds: [order.id],
                                         );
                                   },
-                                  child: state is ConfirmDeliveryOrderLoading
+                                  child: state is ConfirmDeliveryOrdersLoading
                                       ? SizedBox(
                                           width: 24,
                                           height: 24,

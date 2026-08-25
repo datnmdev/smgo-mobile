@@ -773,7 +773,13 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                                     .read<
                                                       DeleteDeliveryOrdersCubit
                                                     >()
-                                                    .call([deliveryOrder!]);
+                                                    .call(
+                                                      deliveryRouteId:
+                                                          deliveryRoute!.id,
+                                                      deliveryOrderIds: [
+                                                        deliveryOrder!.id,
+                                                      ],
+                                                    );
                                               },
                                               child:
                                                   state

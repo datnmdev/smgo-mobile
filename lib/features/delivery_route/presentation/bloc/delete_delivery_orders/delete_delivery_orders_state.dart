@@ -15,5 +15,6 @@ class DeleteDeliveryOrdersDone extends DeleteDeliveryOrdersState {
 }
 
 class DeleteDeliveryOrdersFailed extends DeleteDeliveryOrdersState {
-  const DeleteDeliveryOrdersFailed();
+  final Object error;
+  const DeleteDeliveryOrdersFailed({required this.error});
 }
