@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum AppDialogType { success, error, warning, info }
 
-class AppDialogHelper {
+class AppDialogUtils {
   static Future<T?> showCustomDialog<T>({
     required BuildContext context,
     required String title,

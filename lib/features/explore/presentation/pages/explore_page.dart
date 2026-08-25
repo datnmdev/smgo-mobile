@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shipgo/core/config/env.dart';
-import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_ai_ocr_scan_button.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});

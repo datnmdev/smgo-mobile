@@ -7,7 +7,7 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/utils/location_util.dart';
-import 'package:shipgo/shared/widgets/google_map_screen.dart';
+import 'package:shipgo/shared/presentation/widgets/google_map_screen.dart';
 
 enum MapMode { view, select }
 

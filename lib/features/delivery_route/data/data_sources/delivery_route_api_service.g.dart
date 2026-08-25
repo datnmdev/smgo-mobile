@@ -107,6 +107,18 @@ Map<String, dynamic> _$UpdateDeliveryOrderBodyRequestToJson(
   'appliedLocationId': instance.appliedLocationId,
 };
 
+RecheckDeliveryOrdersBodyRequest _$RecheckDeliveryOrdersBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => RecheckDeliveryOrdersBodyRequest(
+  deliveryOrderIds: (json['deliveryOrderIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+);
+
+Map<String, dynamic> _$RecheckDeliveryOrdersBodyRequestToJson(
+  RecheckDeliveryOrdersBodyRequest instance,
+) => <String, dynamic>{'deliveryOrderIds': instance.deliveryOrderIds};
+
 // dart format off
 
 // **************************************************************************
@@ -318,6 +330,41 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
           .compose(
             _dio.options,
             '/delivery-route/${deliveryRouteId}/delivery-order/${deliveryOrderId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> recheckDeliveryOrders({
+    required String deliveryRouteId,
+    required RecheckDeliveryOrdersBodyRequest body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/delivery-route/${deliveryRouteId}/delivery-order/m/recheck',
             queryParameters: queryParameters,
             data: _data,
           )

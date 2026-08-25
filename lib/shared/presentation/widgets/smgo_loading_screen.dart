@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_loading.dart';
 
-class BlurLoadingOverlay extends StatelessWidget {
+class SmgoLoadingScreen extends StatelessWidget {
   final bool isLoading;
   final double blurAmount;
   final Color barrierColor;
 
-  const BlurLoadingOverlay({
+  const SmgoLoadingScreen({
     super.key,
     required this.isLoading,
     this.blurAmount = 5.0,
@@ -21,12 +21,7 @@ class BlurLoadingOverlay extends StatelessWidget {
     return Positioned.fill(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
-        child: Container(
-          color: barrierColor,
-          child: Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
-        ),
+        child: Container(color: barrierColor, child: SmgoLoading()),
       ),
     );
   }

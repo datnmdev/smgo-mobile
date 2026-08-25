@@ -181,6 +181,16 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   }
 
   @override
+  Future<DataState<dynamic>> recheckDeliveryOrders({required String deliveryRouteId, required List<String> deliveryOrderIds}) async {
+    try {
+      final dataState = await deliveryRouteApiService.recheckDeliveryOrders(deliveryRouteId: deliveryRouteId, body: RecheckDeliveryOrdersBodyRequest(deliveryOrderIds: deliveryOrderIds));
+      return DataSuccess(dataState.data);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
   Future<DataState<dynamic>> deleteDeliveryOrder({
     required DeleteDeliveryOrderParams params,
   }) async {

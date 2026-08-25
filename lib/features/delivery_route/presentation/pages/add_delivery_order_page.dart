@@ -16,11 +16,11 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_su
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
-import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
-import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
-import 'package:shipgo/shared/widgets/m3_error_text.dart';
-import 'package:shipgo/shared/widgets/m3_image_picker.dart';
-import 'package:shipgo/shared/widgets/m3_map.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_ai_ocr_scan_button.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
@@ -98,7 +98,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
           if (state is AddDeliveryOrderFormDone) {
             // Hiển thị thông báo tạo đơn hàng thành công
-            AppDialogHelper.showSuccess(
+            AppDialogUtils.showSuccess(
               context: context,
               title: 'Tạo đơn hàng thành công!',
               subtitle: 'Đơn hàng của bạn đã được lưu thành công.',
@@ -147,7 +147,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               params: getDeliveryRoutesUsecaseParamsInDOP,
             );
           } else if (state is AddDeliveryOrderFormFailed) {
-            AppDialogHelper.showSuccess(
+            AppDialogUtils.showSuccess(
               context: context,
               title: 'Tạo đơn hàng thất bại!',
               subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',

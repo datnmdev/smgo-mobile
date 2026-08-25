@@ -127,6 +127,10 @@ abstract class DeliveryRouteRepository {
   Future<DataState<dynamic>> updateDeliveryOrder({
     required UpdateDeliveryOrderParams params,
   });
+  Future<DataState<dynamic>> recheckDeliveryOrders({
+    required String deliveryRouteId,
+    required List<String> deliveryOrderIds,
+  });
   Future<DataState<dynamic>> deleteDeliveryOrder({
     required DeleteDeliveryOrderParams params,
   });

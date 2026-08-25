@@ -14,7 +14,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_ro
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_state.dart';
-import 'package:shipgo/shared/widgets/smgo_checkbox.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_checkbox.dart';
 
 class DeliveryRoutePage extends StatefulWidget {
   const DeliveryRoutePage({Key? key}) : super(key: key);

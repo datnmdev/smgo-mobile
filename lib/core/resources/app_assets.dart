@@ -4,6 +4,7 @@ abstract class AppAssets {
   // --- Base Paths ---
   static const String _imagesPath = 'assets/images';
   static const String _iconsPath = 'assets/icons';
+  static const String _audiosPath = 'assets/audios';
 
   // --- Images ---
   static const String logo = '$_imagesPath/logo.png';
@@ -17,6 +18,9 @@ abstract class AppAssets {
   static const String icZalo = '$_iconsPath/zalo.png';
   static const String icGoogleMaps = '$_iconsPath/google-maps.png';
 
-  // --- Translations ----
+  // --- Translations ---
   static const String translations = 'assets/translations';
+
+  // --- Audios ---
+  static const String audioBeep = '$_audiosPath/beep.mp3';
 }

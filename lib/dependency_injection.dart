@@ -25,11 +25,14 @@ import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_orde
 import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/recheck_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_order/confirm_delivery_order_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/location/data/data_sources/location_api_service.dart';
 import 'package:shipgo/features/location/data/data_sources/storage_api_service.dart';
@@ -234,6 +237,11 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<GetProfileUsecase>(
     () => GetProfileUsecase(userRepository: di<UserRepository>()),
   );
+  di.registerLazySingleton<RecheckDeliveryOrdersUsecase>(
+    () => RecheckDeliveryOrdersUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -319,5 +327,15 @@ Future<void> initializeDependencies() async {
   );
   di.registerFactory<GetProfileCubit>(
     () => GetProfileCubit(getProfileUsecase: di<GetProfileUsecase>()),
+  );
+  di.registerFactory<ConfirmDeliveryOrderCubit>(
+    () => ConfirmDeliveryOrderCubit(
+      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
+    ),
+  );
+  di.registerFactory<RecheckDeliveryOrdersCubit>(
+    () => RecheckDeliveryOrdersCubit(
+      recheckDeliveryOrdersUsecase: di<RecheckDeliveryOrdersUsecase>(),
+    ),
   );
 }

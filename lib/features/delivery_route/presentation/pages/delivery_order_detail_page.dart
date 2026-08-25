@@ -19,10 +19,10 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/widgets/image_thumbnail.dart';
-import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
-import 'package:shipgo/shared/widgets/google_map_screen.dart';
-import 'package:shipgo/shared/widgets/m3_map.dart';
-import 'package:shipgo/shared/widgets/smgo_button.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
+import 'package:shipgo/shared/presentation/widgets/google_map_screen.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DeliveryOrderDetailPage extends StatefulWidget {
@@ -719,7 +719,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                       ),
                       onPressed: () {
                         final parentContext = context;
-                        AppDialogHelper.showCustomDialog(
+                        AppDialogUtils.showCustomDialog(
                           context: context,
                           title: 'Bạn chắc chắn xoá đơn hàng này chứ?',
                           subtitle: 'Thông tin bị xoá không thể phục hồi.',

@@ -19,11 +19,11 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/shared/domain/entities/point_entity.dart';
-import 'package:shipgo/shared/helpers/app_dialog_helper.dart';
-import 'package:shipgo/shared/widgets/m3_ai_ocr_scan_button.dart';
-import 'package:shipgo/shared/widgets/m3_error_text.dart';
-import 'package:shipgo/shared/widgets/m3_image_picker.dart';
-import 'package:shipgo/shared/widgets/m3_map.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_ai_ocr_scan_button.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
@@ -130,7 +130,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
           >(
             listener: (context, state) async {
               if (state is UpdateDeliveryOrderFormDone) {
-                AppDialogHelper.showSuccess(
+                AppDialogUtils.showSuccess(
                   context: context,
                   title: 'Cập nhật thành công!',
                   subtitle: 'Thông tin đơn hàng của bạn đã được lưu.',
@@ -139,7 +139,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   params: getDeliveryRoutesUsecaseParamsInDODP,
                 );
               } else if (state is UpdateDeliveryOrderFormFailed) {
-                AppDialogHelper.showError(
+                AppDialogUtils.showError(
                   context: context,
                   title: 'Cập nhật thất bại!',
                   subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/shared/widgets/m3_error_text.dart';
+import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_cubit.dart';
