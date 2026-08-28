@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/core/resources/app_assets.dart';
@@ -1469,6 +1470,10 @@ class _SortingViewState extends State<SortingView> {
 
   @override
   Widget build(BuildContext context) {
+    var sortedOrders = _deliveryRoute.orders;
+    if (_deliveryRoute.isAllSorted) {
+      sortedOrders.sort((a, b) => b.sequenceOrder! - a.sequenceOrder!);
+    }
     return Column(
       children: [
         const _SortingGuide(),
@@ -1481,7 +1486,7 @@ class _SortingViewState extends State<SortingView> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: _deliveryRoute.orders.length,
             itemBuilder: (context, index) =>
-                SortingOrderCard(order: _deliveryRoute.orders[index]),
+                SortingOrderCard(order: sortedOrders[index]),
           ),
         ),
       ],
@@ -2657,38 +2662,102 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             label: _deliveryRoute.totalSortedOrders == 0
                 ? 'Sắp xếp hàng hoá'
                 : 'Sắp xếp lại hàng hoá',
-            onPressed: () {
-              if (_deliveryRoute.totalSortedOrders == 0) {
-                context.read<SortDeliveryOrdersCubit>().call(
-                  deliveryRouteId: _deliveryRoute.id,
+            onPressed: () async {
+              bool serviceEnabled;
+              LocationPermission permission;
+
+              serviceEnabled = await Geolocator.isLocationServiceEnabled();
+              if (!serviceEnabled) {
+                if (context.mounted) {
+                  AppDialogUtils.showError(
+                    context: context,
+                    title: 'Lỗi định vị',
+                    subtitle: 'Vui lòng bật GPS trên thiết bị của bạn.',
+                  );
+                }
+                return;
+              }
+
+              permission = await Geolocator.checkPermission();
+              if (permission == LocationPermission.denied) {
+                permission = await Geolocator.requestPermission();
+                if (permission == LocationPermission.denied) {
+                  if (context.mounted) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Từ chối quyền',
+                      subtitle:
+                          'Ứng dụng cần quyền truy cập vị trí để tối ưu tuyến đường từ điểm bạn đang đứng.',
+                    );
+                  }
+                  return;
+                }
+              }
+
+              if (permission == LocationPermission.deniedForever) {
+                if (context.mounted) {
+                  AppDialogUtils.showError(
+                    context: context,
+                    title: 'Quyền bị từ chối vĩnh viễn',
+                    subtitle:
+                        'Vui lòng vào Cài đặt để cấp quyền vị trí cho ứng dụng.',
+                  );
+                }
+                return;
+              }
+
+              try {
+                Position position = await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.high,
                 );
-              } else {
-                AppDialogUtils.showSuccess(
-                  context: context,
-                  title: 'Bạn có chắc muốn sắp xếp lại hàng hoá?',
-                  subtitle:
-                      'Lưu ý: Thứ tự sắp xếp có thể đảo lộn nếu trước đó bạn đã thêm hoặc xoá bớt đơn hàng.',
-                  actions: [
-                    SmgoButton(
-                      isOutlined: true,
-                      text: 'Huỷ',
-                      primaryColor: AppColors.primary,
-                      onPressed: () {
-                        context.pop();
-                      },
-                    ),
-                    SmgoButton(
-                      primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
-                      onPressed: () {
-                        context.read<SortDeliveryOrdersCubit>().call(
-                          deliveryRouteId: _deliveryRoute.id,
-                        );
-                        context.pop();
-                      },
-                    ),
-                  ],
-                );
+                if (_deliveryRoute.totalSortedOrders == 0) {
+                  context.read<SortDeliveryOrdersCubit>().call(
+                    deliveryRouteId: _deliveryRoute.id,
+                    source: Point(x: position.longitude, y: position.latitude),
+                  );
+                } else {
+                  if (context.mounted) {
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Bạn có chắc muốn sắp xếp lại hàng hoá?',
+                      subtitle:
+                          'Lưu ý: Thứ tự sắp xếp có thể đảo lộn nếu trước đó bạn đã thêm hoặc xoá bớt đơn hàng.',
+                      actions: [
+                        SmgoButton(
+                          isOutlined: true,
+                          text: 'Huỷ',
+                          primaryColor: AppColors.primary,
+                          onPressed: () {
+                            context.pop();
+                          },
+                        ),
+                        SmgoButton(
+                          primaryColor: AppColors.primary,
+                          text: 'Xác nhận',
+                          onPressed: () {
+                            context.read<SortDeliveryOrdersCubit>().call(
+                              deliveryRouteId: _deliveryRoute.id,
+                              source: Point(
+                                x: position.longitude,
+                                y: position.latitude,
+                              ),
+                            );
+                            context.pop();
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  AppDialogUtils.showError(
+                    context: context,
+                    title: 'Không thể lấy vị trí',
+                    subtitle:
+                        'Đã xảy ra lỗi khi cố gắng lấy vị trí hiện tại của bạn.',
+                  );
+                }
               }
             },
           ),

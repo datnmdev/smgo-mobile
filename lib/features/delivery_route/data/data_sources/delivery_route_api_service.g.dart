@@ -146,6 +146,16 @@ Map<String, dynamic> _$DeleteDeliveryOrdersBodyRequestToJson(
   DeleteDeliveryOrdersBodyRequest instance,
 ) => <String, dynamic>{'deliveryOrderIds': instance.deliveryOrderIds};
 
+SortDeliveryOrdersBodyRequest _$SortDeliveryOrdersBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => SortDeliveryOrdersBodyRequest(
+  source: PointRequestData.fromJson(json['source'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$SortDeliveryOrdersBodyRequestToJson(
+  SortDeliveryOrdersBodyRequest instance,
+) => <String, dynamic>{'source': instance.source};
+
 // dart format off
 
 // **************************************************************************
@@ -450,11 +460,13 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
   @override
   Future<HttpResponse<ApiResponse<dynamic>>> sortDeliveryOrders({
     required String deliveryRouteId,
+    required SortDeliveryOrdersBodyRequest body,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
     final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(

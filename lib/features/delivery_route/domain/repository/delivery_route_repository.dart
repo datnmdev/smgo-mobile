@@ -1,5 +1,6 @@
 import 'package:shipgo/core/network/api_response.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 
 class AddDeliveryRouteParams {
@@ -138,6 +139,7 @@ abstract class DeliveryRouteRepository {
   });
   Future<DataState<dynamic>> sortDeliveryOrders({
     required String deliveryRouteId,
+    required Point source,
   });
   Future<DataState<dynamic>> deleteDeliveryOrders({
     required DeleteDeliveryOrdersParams params,

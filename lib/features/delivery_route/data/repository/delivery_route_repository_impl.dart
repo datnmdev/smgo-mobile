@@ -224,10 +224,14 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   @override
   Future<DataState<dynamic>> sortDeliveryOrders({
     required String deliveryRouteId,
+    required Point source,
   }) async {
     try {
       final dataState = await deliveryRouteApiService.sortDeliveryOrders(
         deliveryRouteId: deliveryRouteId,
+        body: SortDeliveryOrdersBodyRequest(
+          source: PointRequestData(x: source.x, y: source.y),
+        ),
       );
       return DataSuccess(dataState.data);
     } catch (e) {
