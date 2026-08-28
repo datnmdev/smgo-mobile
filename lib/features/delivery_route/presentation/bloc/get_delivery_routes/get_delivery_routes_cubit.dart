@@ -26,7 +26,6 @@ class GetDeliveryRoutesCubit extends Cubit<GetDeliveryRoutesState> {
         ),
       );
     } else if (dataState is DataFailed) {
-      print('Data từ Server: ${(dataState.error as DioException).response?.data}');
       emit(
         GetDeliveryRoutesFailed(
           routes: state.routes,

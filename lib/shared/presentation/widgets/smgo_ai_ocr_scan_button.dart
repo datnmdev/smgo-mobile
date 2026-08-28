@@ -8,7 +8,7 @@ import 'package:shipgo/core/resources/app_colors.dart';
 const Color kPrimaryGreen = AppColors.primary;
 const Color kLightGreen = Color(0xFFE8F5E9);
 
-class AiOcrScanButton<T> extends StatefulWidget {
+class SmgoAiOcrScanButton<T> extends StatefulWidget {
   final Future<String> Function(String prompt) llmProcessor;
   final ValueChanged<T> onCompleted;
   final String Function(String ocrText) promptBuilder;
@@ -24,7 +24,7 @@ class AiOcrScanButton<T> extends StatefulWidget {
   final String dialogTitle;
   final bool showPreviewDialog;
 
-  const AiOcrScanButton({
+  const SmgoAiOcrScanButton({
     super.key,
     required this.llmProcessor,
     required this.onCompleted,
@@ -39,10 +39,10 @@ class AiOcrScanButton<T> extends StatefulWidget {
   });
 
   @override
-  State<AiOcrScanButton<T>> createState() => _AiOcrScanButtonState<T>();
+  State<SmgoAiOcrScanButton<T>> createState() => _SmgoAiOcrScanButtonState<T>();
 }
 
-class _AiOcrScanButtonState<T> extends State<AiOcrScanButton<T>> {
+class _SmgoAiOcrScanButtonState<T> extends State<SmgoAiOcrScanButton<T>> {
   Future<void> _openCameraScreen() async {
     // Xin quyền truy cập máy ảnh
     final cameraStatus = await Permission.camera.request();

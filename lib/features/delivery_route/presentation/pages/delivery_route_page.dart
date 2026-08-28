@@ -33,7 +33,7 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -224,7 +224,7 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                   ),
                   RouteListTabView<RouteCard1Item>(
                     routes: state.routes
-                        .where((e) => e.status == 'in_progress')
+                        .where((e) => e.status == 'sorting')
                         .toList(),
                     hasError: state is GetDeliveryRoutesFailed,
                     isLoading:
@@ -234,7 +234,19 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                     onToggleSelection: _toggleSelection,
                     onToggleSelectAll: _toggleSelectAll,
                   ),
-                  RouteListTabView<RouteCard2Item>(
+                  RouteListTabView<RouteCard1Item>(
+                    routes: state.routes
+                        .where((e) => e.status == 'delivering')
+                        .toList(),
+                    hasError: state is GetDeliveryRoutesFailed,
+                    isLoading:
+                        state.isFirstLoad && state is GetDeliveryRoutesLoading,
+                    isSelectionMode: _isSelectionMode,
+                    selectedIds: _selectedIds,
+                    onToggleSelection: _toggleSelection,
+                    onToggleSelectAll: _toggleSelectAll,
+                  ),
+                  RouteListTabView<RouteCard1Item>(
                     routes: state.routes
                         .where((e) => e.status == 'completed')
                         .toList(),
@@ -729,7 +741,7 @@ class CustomHeaderWithTabBar extends StatelessWidget {
             labelColor: AppColors.primary,
             unselectedLabelColor: Colors.black54,
             indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
+            indicatorWeight: 4,
             labelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,
@@ -739,8 +751,9 @@ class CustomHeaderWithTabBar extends StatelessWidget {
               fontSize: 15,
             ),
             tabs: [
-              Tab(text: AppStrings.rPPrepareOrdersTabLabel.tr()),
-              Tab(text: AppStrings.rPInProgressTabLabel.tr()),
+              Tab(text: AppStrings.rPPendingOrdersTabLabel.tr()),
+              Tab(text: AppStrings.rPSortingOrdersTabLabel.tr()),
+              Tab(text: AppStrings.rPDeliveringTabLabel.tr()),
               Tab(text: AppStrings.rPCompletedTabLabel.tr()),
             ],
           ),

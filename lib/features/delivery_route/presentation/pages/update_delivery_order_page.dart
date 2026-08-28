@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:mime/mime.dart';
 import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/data/models/extracted_order_info_model.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
@@ -19,8 +21,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/shared/domain/entities/point_entity.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
-import 'package:shipgo/shared/presentation/widgets/m3_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
@@ -30,8 +32,8 @@ import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_en
 import 'package:shipgo/features/delivery_route/domain/entities/extracted_order_info_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
-import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/upload_media_usecase.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 enum LockableField { orderCode, orderName, contactName, contactPhone, address }
@@ -176,7 +178,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   ],
                 ),
                 actions: [
-                  AiOcrScanButton<Map<String, dynamic>>(
+                  SmgoAiOcrScanButton<Map<String, dynamic>>(
                     builder: (context, onPressed) {
                       return _buildHeaderAction(
                         icon: Icons.qr_code_scanner,
@@ -203,13 +205,20 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                       cleanJson = cleanJson.substring(startIndex, endIndex + 1);
                       return jsonDecode(cleanJson);
                     },
-                    onCompleted: (Map<String, dynamic> data) {
+                    onCompleted: (json) {
                       final updateDeliveryOrderFormCubit = context
                           .read<UpdateDeliveryOrderFormCubit>();
                       final getLocationSuggestionsCubit = context
                           .read<GetLocationSuggestionsCubit>();
-                      final extractedOrderInfo =
-                          ExtractedOrderInfoEntity.fromJson(data);
+                      final extractedOrderInfoModel =
+                          ExtractedOrderInfoModel.fromJson(json);
+                      final extractedOrderInfo = ExtractedOrderInfoEntity(
+                        orderCode: extractedOrderInfoModel.orderCode,
+                        orderName: extractedOrderInfoModel.orderName,
+                        contactName: extractedOrderInfoModel.contactName,
+                        contactPhone: extractedOrderInfoModel.contactPhone,
+                        address: extractedOrderInfoModel.address,
+                      );
 
                       if (!lockedFields.contains(LockableField.orderCode) &&
                           extractedOrderInfo.orderCode.isNotEmpty) {
@@ -804,10 +813,9 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
           final fileBytes = await file.readAsBytes();
           await di<UploadMediaUsecase>().call(
             params: UploadMediaParams(
-              url: uploadUrlDataState.data!.uploadUrl,
-              contentType:
-                  lookupMimeType(file.path) ?? 'application/octet-stream',
-              file: fileBytes,
+              presignedUploadUrl: uploadUrlDataState.data!.uploadUrl,
+              mimeType: lookupMimeType(file.path) ?? 'application/octet-stream',
+              fileBytes: fileBytes,
             ),
           );
           return (id: uploadUrlDataState.data!.mediaId, path: file.path);

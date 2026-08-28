@@ -274,9 +274,10 @@ abstract class AppStrings {
   static const String rPSearchHintText = 'route_page.search_hint_text';
   static const String rPAddRouteButtonLabel =
       'route_page.add_route_button_label';
-  static const String rPPrepareOrdersTabLabel =
-      'route_page.prepare_orders_tab_label';
-  static const String rPInProgressTabLabel = 'route_page.in_progress_tab_label';
+  static const String rPPendingOrdersTabLabel =
+      'route_page.pending_orders_tab_label';
+  static const String rPSortingOrdersTabLabel = 'route_page.sorting_orders_tab_label';
+  static const String rPDeliveringTabLabel = 'route_page.delivering_tab_label';
   static const String rPCompletedTabLabel = 'route_page.completed_tab_label';
   static const String rPCreatedRouteDateString =
       'route_page.created_route_date_string';

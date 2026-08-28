@@ -36,6 +36,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                   totalOrders: e.totalOrders,
                   totalPendingOrders: e.totalPendingOrders,
                   totalCheckedOrders: e.totalCheckedOrders,
+                  totalSortedOrders: e.totalSortedOrders,
                   totalDeliveredOrders: e.totalDeliveredOrders,
                   totalCancelledOrders: e.totalCancelledOrders,
                   totalRescheduledOrders: e.totalRescheduledOrders,
@@ -60,6 +61,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                           createdAt: order.createdAt,
                           updatedAt: order.updatedAt,
                           checkedAt: order.checkedAt,
+                          sortedAt: order.sortedAt,
                           deliveringAt: order.deliveredAt,
                           deliveredAt: order.deliveredAt,
                           cancelledAt: order.cancelledAt,
@@ -102,7 +104,10 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
     try {
       final httpResponse = await deliveryRouteApiService.updateDeliveryRoute(
         id: id,
-        body: UpdateDeliveryRouteBodyRequest(name: params.name),
+        body: UpdateDeliveryRouteBodyRequest(
+          name: params.name,
+          status: params.status,
+        ),
       );
       return DataSuccess(httpResponse.data.data);
     } catch (e) {
@@ -209,6 +214,20 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
         body: ConfirmDeliveryOrdersBodyRequest(
           deliveryOrderIds: deliveryOrderIds,
         ),
+      );
+      return DataSuccess(dataState.data);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> sortDeliveryOrders({
+    required String deliveryRouteId,
+  }) async {
+    try {
+      final dataState = await deliveryRouteApiService.sortDeliveryOrders(
+        deliveryRouteId: deliveryRouteId,
       );
       return DataSuccess(dataState.data);
     } catch (e) {

@@ -11,6 +11,7 @@ class DeliveryRouteModel {
   final int totalOrders;
   final int totalPendingOrders;
   final int totalCheckedOrders;
+  final int totalSortedOrders;
   final int totalDeliveredOrders;
   final int totalCancelledOrders;
   final int totalRescheduledOrders;
@@ -26,6 +27,7 @@ class DeliveryRouteModel {
     required this.totalCancelledOrders,
     required this.totalCheckedOrders,
     required this.totalPendingOrders,
+    required this.totalSortedOrders,
     required this.totalRescheduledOrders,
     required this.totalDeliveredOrders,
     required this.createdAt,

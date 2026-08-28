@@ -9,6 +9,7 @@ import 'package:mime/mime.dart';
 import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/data/models/extracted_order_info_model.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
@@ -16,8 +17,10 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_su
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
-import 'package:shipgo/shared/presentation/widgets/m3_ai_ocr_scan_button.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_ai_ocr_scan_button.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
@@ -30,8 +33,6 @@ import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_inf
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
-import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 enum LockableField { orderCode, orderName, contactName, contactPhone, address }
@@ -184,7 +185,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               ],
             ),
             actions: [
-              AiOcrScanButton<Map<String, dynamic>>(
+              SmgoAiOcrScanButton<Map<String, dynamic>>(
                 builder: (context, onPressed) {
                   return _buildHeaderAction(
                     icon: Icons.qr_code_scanner,
@@ -216,8 +217,14 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                       .read<AddDeliveryOrderFormCubit>();
                   final getLocationSuggestionsCubit = context
                       .read<GetLocationSuggestionsCubit>();
-                  final extractedOrderInfo = ExtractedOrderInfoEntity.fromJson(
-                    data,
+                  final extractedOrderInfoModel =
+                      ExtractedOrderInfoModel.fromJson(data);
+                  final extractedOrderInfo = ExtractedOrderInfoEntity(
+                    orderCode: extractedOrderInfoModel.orderCode,
+                    orderName: extractedOrderInfoModel.orderName,
+                    contactName: extractedOrderInfoModel.contactName,
+                    contactPhone: extractedOrderInfoModel.contactPhone,
+                    address: extractedOrderInfoModel.address,
                   );
 
                   if (!lockedFields.contains(LockableField.orderCode) &&
@@ -813,10 +820,10 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           final fileBytes = await file.readAsBytes();
           await di<UploadMediaUsecase>().call(
             params: UploadMediaParams(
-              url: uploadUrlDataState.data!.uploadUrl,
-              contentType:
+              presignedUploadUrl: uploadUrlDataState.data!.uploadUrl,
+              mimeType:
                   lookupMimeType(file.path) ?? 'application/octet-stream',
-              file: fileBytes,
+              fileBytes: fileBytes,
             ),
           );
           return (id: uploadUrlDataState.data!.mediaId, path: file.path);

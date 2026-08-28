@@ -13,15 +13,23 @@ class UpdateDeliveryRouteUsecase
     required UpdateDeliveryRouteUsecaseParams params,
   }) {
     return deliveryRouteRepository.updateDeliveryRoute(
-      id: params.id,
-      params: UpdateDeliveryRouteParams(name: params.name),
+      id: params.deliveryRouteId,
+      params: UpdateDeliveryRouteParams(
+        name: params.name,
+        status: params.status,
+      ),
     );
   }
 }
 
 class UpdateDeliveryRouteUsecaseParams {
-  final String id;
+  final String deliveryRouteId;
   final String? name;
+  final String? status;
 
-  const UpdateDeliveryRouteUsecaseParams({required this.id, this.name});
+  UpdateDeliveryRouteUsecaseParams({
+    required this.deliveryRouteId,
+    this.name,
+    this.status,
+  });
 }

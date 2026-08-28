@@ -12,14 +12,4 @@ class ExtractedOrderInfoEntity {
     required this.contactPhone,
     required this.address,
   });
-
-  factory ExtractedOrderInfoEntity.fromJson(Map<String, dynamic> json) {
-    return ExtractedOrderInfoEntity(
-      orderCode: json['orderCode']?.toString().trim() ?? '',
-      orderName: json['orderName']?.toString().trim() ?? '',
-      contactName: json['contactName']?.toString().trim() ?? '',
-      contactPhone: json['contactPhone']?.toString().trim() ?? '',
-      address: json['address']?.toString().trim() ?? '',
-    );
-  }
 }

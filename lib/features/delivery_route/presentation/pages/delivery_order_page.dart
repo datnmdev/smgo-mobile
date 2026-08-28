@@ -15,10 +15,18 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_deliver
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/widgets/option_button.dart';
 import 'package:shipgo/shared/presentation/bloc/selection/selection_cubit.dart';
 import 'package:shipgo/shared/presentation/bloc/selection/selection_state.dart';
@@ -55,13 +63,22 @@ class DeliveryOrderPage extends StatefulWidget {
 }
 
 class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
-  DeliveryRouteEntity? deliveryRoute;
+  late DeliveryRouteEntity deliveryRoute;
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final extra = GoRouterState.of(context).extra as Map<String, Object>;
+      deliveryRoute = extra['DeliveryRouteData'] as DeliveryRouteEntity;
+      _isInitialized = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
-    deliveryRoute =
-        deliveryRoute ?? extra['DeliveryRouteData'] as DeliveryRouteEntity;
     final getDeliveryRoutesCubitInDRDP =
         extra['GetDeliveryRoutesCubitInDRDP'] as GetDeliveryRoutesCubit;
     final getDeliveryRoutesUsecaseParamsInDRDP =
@@ -70,14 +87,16 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
 
     return MultiBlocProvider(
       providers: [
+        BlocProvider<DeliveryOrderPageCubit>(
+          create: (context) => di<DeliveryOrderPageCubit>(),
+        ),
         BlocProvider<GetDeliveryRoutesCubit>(
           create: (context) => di<GetDeliveryRoutesCubit>()
             ..call(
               params: GetDeliveryRoutesUsecaseParams(
                 pageNumber: 1,
                 pageSize: 1,
-                id: deliveryRoute!.id,
-                status: deliveryRoute!.status,
+                id: deliveryRoute.id,
               ),
             ),
         ),
@@ -90,12 +109,25 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<ConfirmDeliveryOrdersCubit>(
           create: ((context) => di<ConfirmDeliveryOrdersCubit>()),
         ),
+        BlocProvider<TransitionRouteToSortingCubit>(
+          create: ((context) => di<TransitionRouteToSortingCubit>()),
+        ),
+        BlocProvider<TransitionRouteToPendingCubit>(
+          create: ((context) => di<TransitionRouteToPendingCubit>()),
+        ),
+        BlocProvider<SortDeliveryOrdersCubit>(
+          create: ((context) => di<SortDeliveryOrdersCubit>()),
+        ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
         builder: (_, _) => BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
           listener: (_, state) {
             if (state is GetDeliveryRoutesDone) {
-              deliveryRoute = state.routes.firstOrNull ?? deliveryRoute;
+              if (state.routes.isNotEmpty) {
+                setState(() {
+                  deliveryRoute = state.routes.first;
+                });
+              }
               getDeliveryRoutesCubitInDRDP.call(
                 params: getDeliveryRoutesUsecaseParamsInDRDP,
               );
@@ -111,8 +143,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                       params: GetDeliveryRoutesUsecaseParams(
                         pageNumber: 1,
                         pageSize: 1,
-                        id: deliveryRoute!.id,
-                        status: deliveryRoute!.status,
+                        id: deliveryRoute.id,
                       ),
                     );
                   },
@@ -129,7 +160,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                               Padding(
                                 padding: EdgeInsets.only(bottom: 100),
                                 child: RouteHeader(
-                                  deliveryRoute: deliveryRoute!,
+                                  deliveryRoute: deliveryRoute,
                                 ),
                               ),
                               Positioned(
@@ -137,7 +168,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                                 left: 0,
                                 right: 0,
                                 child: RouteSummary(
-                                  deliveryRoute: deliveryRoute!,
+                                  deliveryRoute: deliveryRoute,
                                 ),
                               ),
                             ],
@@ -150,7 +181,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                           slivers: [
                             SliverToBoxAdapter(
                               child: RouteProgress(
-                                deliveryRoute: deliveryRoute!,
+                                deliveryRoute: deliveryRoute,
                               ),
                             ),
                             SliverToBoxAdapter(
@@ -159,9 +190,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                             SliverFillRemaining(
                               hasScrollBody:
                                   true, // Cho phép TabBarView cuộn bên trong
-                              child: _buildStatusContent(
-                                ancestorContext: context,
-                              ),
+                              child: _buildStatusContent(context: context),
                             ),
                           ],
                         ),
@@ -169,7 +198,10 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                     ],
                   ),
                 ),
-                bottomNavigationBar: _RouteActionBar(route: deliveryRoute!),
+                bottomNavigationBar: _RouteActionBar(
+                  route: deliveryRoute,
+                  context: context,
+                ),
               ),
 
               // Loading
@@ -183,8 +215,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                       params: GetDeliveryRoutesUsecaseParams(
                         pageNumber: 1,
                         pageSize: 1,
-                        id: deliveryRoute!.id,
-                        status: deliveryRoute!.status,
+                        id: deliveryRoute.id,
                       ),
                     );
                     context.read<SelectionCubit<String>>().closeSelectionMode();
@@ -218,8 +249,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                       params: GetDeliveryRoutesUsecaseParams(
                         pageNumber: 1,
                         pageSize: 1,
-                        id: deliveryRoute!.id,
-                        status: deliveryRoute!.status,
+                        id: deliveryRoute.id,
                       ),
                     );
                     AppDialogUtils.showSuccess(
@@ -241,6 +271,63 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                   isLoading: state is ConfirmDeliveryOrdersLoading,
                 ),
               ),
+
+              BlocConsumer<
+                TransitionRouteToSortingCubit,
+                TransitionRouteToSortingState
+              >(
+                listener: (context, state) {
+                  if (state is TransitionRouteToSortingDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is TransitionRouteToSortingLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                TransitionRouteToPendingCubit,
+                TransitionRouteToPendingState
+              >(
+                listener: (context, state) {
+                  if (state is TransitionRouteToPendingDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is TransitionRouteToPendingLoading,
+                ),
+              ),
+
+              BlocConsumer<SortDeliveryOrdersCubit, SortDeliveryOrdersState>(
+                listener: (context, state) {
+                  if (state is SortDeliveryOrdersDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is SortDeliveryOrdersLoading,
+                ),
+              ),
             ],
           ),
         ),
@@ -254,15 +341,15 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
     final getDeliveryRoutesCubit = context.watch<GetDeliveryRoutesCubit>();
 
     final isAllSelectedInThisTab =
-        deliveryRoute!.orders.isNotEmpty &&
-        deliveryRoute!.orders.every(
+        deliveryRoute.orders.isNotEmpty &&
+        deliveryRoute.orders.every(
           (e) => selectionCubit.state.selectedItems.contains(e.id),
         );
 
     if (selectionCubit.state.isEnabled &&
         getDeliveryRoutesCubit.state is! GetDeliveryRoutesLoading &&
         getDeliveryRoutesCubit.state is! GetDeliveryRoutesFailed &&
-        deliveryRoute!.orders.isNotEmpty) {
+        deliveryRoute.orders.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
@@ -270,7 +357,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
           children: [
             GestureDetector(
               onTap: () => selectionCubit.toggleSelectAll(
-                currentItems: deliveryRoute!.orders
+                currentItems: deliveryRoute.orders
                     .map((order) => order.id)
                     .toList(),
               ),
@@ -280,7 +367,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                     primaryColor: AppColors.primary,
                     value: isAllSelectedInThisTab,
                     onChanged: (_) => selectionCubit.toggleSelectAll(
-                      currentItems: deliveryRoute!.orders
+                      currentItems: deliveryRoute.orders
                           .map((order) => order.id)
                           .toList(),
                     ),
@@ -313,21 +400,18 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
     return SizedBox.shrink();
   }
 
-  Widget _buildStatusContent({required BuildContext ancestorContext}) {
-    if (deliveryRoute!.status == DeliveryRouteStatus.pending.value) {
-      return PendingView(
-        deliveryRoute: deliveryRoute!,
-        ancestorContext: ancestorContext,
-      );
-    } else if (deliveryRoute!.status == DeliveryRouteStatus.sorting.value) {
-      return SortingView(deliveryRoute: deliveryRoute!);
-    } else if (deliveryRoute!.status == DeliveryRouteStatus.delivering.value) {
-      return DeliveringView(deliveryRoute: deliveryRoute!);
-    } else if (deliveryRoute!.status == DeliveryRouteStatus.completed.value) {
-      return CompletedView(deliveryRoute: deliveryRoute!);
+  Widget _buildStatusContent({required BuildContext context}) {
+    if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
+      return PendingView(deliveryRoute: deliveryRoute, context: context);
+    } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
+      return SortingView(deliveryRoute: deliveryRoute);
+    } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
+      return DeliveringView(deliveryRoute: deliveryRoute);
+    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
+      return CompletedView(deliveryRoute: deliveryRoute);
     } else {
       throw Exception(
-        'The provided route status does not match any valid values',
+        'The delivery route status does not match any valid values',
       );
     }
   }
@@ -411,8 +495,6 @@ class RouteHeader extends StatelessWidget {
                                                     pageNumber: 1,
                                                     pageSize: 1,
                                                     id: deliveryRoute.id,
-                                                    status:
-                                                        deliveryRoute.status,
                                                   ),
                                             );
                                         AppDialogUtils.showSuccess(
@@ -671,93 +753,73 @@ class RouteSummary extends StatelessWidget {
   }
 
   Widget _buildProgressSummary() {
-    switch (deliveryRoute.status) {
-      case DeliveryRouteStatus.pending:
-        return _ProgressSummaryItem(
-          title: 'Tiến độ',
-          progress: deliveryRoute.checkProgress,
-          value: '${(deliveryRoute.checkProgress * 100).round()}%',
-          subtitle:
-              '${deliveryRoute.totalCheckedOrders}/${deliveryRoute.totalOrders}',
-        );
-
-      case DeliveryRouteStatus.sorting:
-        return _ProgressSummaryItem(
-          title: 'Tiến độ',
-          progress: deliveryRoute.sortingProgress,
-          value: '${(deliveryRoute.sortingProgress * 100).round()}%',
-          subtitle: deliveryRoute.isAllSorted ? 'Đã sắp xếp' : 'Chưa sắp xếp',
-        );
-
-      case DeliveryRouteStatus.delivering:
-        return _ProgressSummaryItem(
-          title: 'Tiến độ',
-          progress: deliveryRoute.deliveryProgress,
-          value: '${(deliveryRoute.deliveryProgress * 100).round()}%',
-          subtitle:
-              '${deliveryRoute.totalDeliveredOrders + deliveryRoute.totalCancelledOrders + deliveryRoute.totalRescheduledOrders}/${deliveryRoute.totalOrders} đơn',
-        );
-
-      case DeliveryRouteStatus.completed:
-        // return _SummaryItem(
-        //   title: 'Đã giao',
-        //   value: '${deliveryRoute.tota}',
-        //   subtitle: 'đơn',
-        // );
-        return _ProgressSummaryItem(
-          title: 'Tiến độ',
-          progress: 1,
-          value: '100%',
-          subtitle: '${deliveryRoute.totalOrders} đơn',
-        );
-
-      default:
-        return _ProgressSummaryItem(
-          title: 'Tiến độ',
-          progress: deliveryRoute.checkProgress,
-          value: '${(deliveryRoute.checkProgress * 100).round()}%',
-          subtitle:
-              '${deliveryRoute.totalCheckedOrders}/${deliveryRoute.totalOrders}',
-        );
+    if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
+      return _ProgressSummaryItem(
+        title: 'Tiến độ',
+        progress: deliveryRoute.checkProgress,
+        value: '${(deliveryRoute.checkProgress * 100).round()}%',
+        subtitle:
+            '${deliveryRoute.totalCheckedOrders}/${deliveryRoute.totalOrders}',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
+      return _ProgressSummaryItem(
+        title: 'Tiến độ',
+        progress: deliveryRoute.sortingProgress,
+        value: '${(deliveryRoute.sortingProgress * 100).round()}%',
+        subtitle: deliveryRoute.isAllSorted ? 'Đã sắp xếp' : 'Chưa sắp xếp',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
+      return _ProgressSummaryItem(
+        title: 'Tiến độ',
+        progress: deliveryRoute.deliveryProgress,
+        value: '${(deliveryRoute.deliveryProgress * 100).round()}%',
+        subtitle:
+            '${deliveryRoute.totalDeliveredOrders + deliveryRoute.totalCancelledOrders + deliveryRoute.totalRescheduledOrders}/${deliveryRoute.totalOrders} đơn',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
+      // return _SummaryItem(
+      //   title: 'Đã giao',
+      //   value: '${deliveryRoute.tota}',
+      //   subtitle: 'đơn',
+      // );
+      return _ProgressSummaryItem(
+        title: 'Tiến độ',
+        progress: 1,
+        value: '100%',
+        subtitle: '${deliveryRoute.totalOrders} đơn',
+      );
+    } else {
+      throw Exception('Delivery route status does not match any valid case');
     }
   }
 
   Widget _buildStatusSummary() {
-    switch (deliveryRoute.status) {
-      case DeliveryRouteStatus.pending:
-        return const _StatusSummaryItem(
-          icon: Icons.check_circle_outline,
-          color: RouteColors.green,
-          text: 'Kiểm tra hàng',
-        );
-
-      case DeliveryRouteStatus.sorting:
-        return const _StatusSummaryItem(
-          icon: Icons.access_time,
-          color: RouteColors.blue,
-          text: 'Sắp xếp',
-        );
-
-      case DeliveryRouteStatus.delivering:
-        return const _StatusSummaryItem(
-          icon: Icons.access_time,
-          color: RouteColors.blue,
-          text: 'Đang giao hàng',
-        );
-
-      case DeliveryRouteStatus.completed:
-        return const _StatusSummaryItem(
-          icon: Icons.check_circle_outline,
-          color: RouteColors.green,
-          text: 'Hoàn thành',
-        );
-
-      default:
-        return const _StatusSummaryItem(
-          icon: Icons.check_circle_outline,
-          color: RouteColors.green,
-          text: 'Kiểm tra hàng',
-        );
+    if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
+      return const _StatusSummaryItem(
+        icon: Icons.check_circle_outline,
+        color: RouteColors.green,
+        text: 'Kiểm tra hàng',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
+      return const _StatusSummaryItem(
+        icon: Icons.access_time,
+        color: RouteColors.blue,
+        text: 'Sắp xếp',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
+      return const _StatusSummaryItem(
+        icon: Icons.access_time,
+        color: RouteColors.blue,
+        text: 'Đang giao hàng',
+      );
+    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
+      return const _StatusSummaryItem(
+        icon: Icons.check_circle_outline,
+        color: RouteColors.green,
+        text: 'Hoàn thành',
+      );
+    } else {
+      throw Exception('Delivery route status does not match any valid case');
     }
   }
 
@@ -1004,21 +1066,16 @@ class RouteProgress extends StatelessWidget {
   }
 
   int get _currentStep {
-    switch (deliveryRoute.status) {
-      case DeliveryRouteStatus.pending:
-        return 1;
-
-      case DeliveryRouteStatus.sorting:
-        return 2;
-
-      case DeliveryRouteStatus.delivering:
-        return 3;
-
-      case DeliveryRouteStatus.completed:
-        return 4;
-
-      default:
-        return 1;
+    if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
+      return 1;
+    } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
+      return 2;
+    } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
+      return 3;
+    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
+      return 4;
+    } else {
+      throw Exception('Delivery route status does not match any valid case');
     }
   }
 
@@ -1035,15 +1092,12 @@ class RouteProgress extends StatelessWidget {
   }
 
   String? get _deliverySubtitle {
-    switch (deliveryRoute.status) {
-      case DeliveryRouteStatus.delivering:
-        return 'Đang giao';
-
-      case DeliveryRouteStatus.completed:
-        return '${deliveryRoute.totalOrders} đơn';
-
-      default:
-        return null;
+    if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
+      return 'Đang giao';
+    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
+      return '${deliveryRoute.totalOrders} đơn';
+    } else {
+      return null;
     }
   }
 }
@@ -1166,12 +1220,12 @@ class _StepConnector extends StatelessWidget {
 // Pending
 class PendingView extends StatefulWidget {
   final DeliveryRouteEntity deliveryRoute;
-  final BuildContext ancestorContext;
+  final BuildContext context;
 
   const PendingView({
     super.key,
     required this.deliveryRoute,
-    required this.ancestorContext,
+    required this.context,
   });
 
   @override
@@ -1180,20 +1234,27 @@ class PendingView extends StatefulWidget {
 
 class _PendingViewState extends State<PendingView>
     with SingleTickerProviderStateMixin {
+  late BuildContext _parentContext;
   late DeliveryRouteEntity _deliveryRoute;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _parentContext = widget.context;
     _deliveryRoute = widget.deliveryRoute;
     _tabController = TabController(length: 2, vsync: this);
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        widget.ancestorContext
-            .read<SelectionCubit<String>>()
-            .closeSelectionMode();
+        _parentContext.read<SelectionCubit<String>>().closeSelectionMode();
+
+        // Cập nhật trạng thái ở cấp page
+        _parentContext.read<DeliveryOrderPageCubit>().tabChanged(
+          tab: _tabController.index == 0
+              ? DeliveryOrderPageTab.pending
+              : DeliveryOrderPageTab.checked,
+        );
       }
     });
   }
@@ -1208,6 +1269,10 @@ class _PendingViewState extends State<PendingView>
   void didUpdateWidget(covariant PendingView oldWidget) {
     super.didUpdateWidget(oldWidget);
     setState(() {
+      if (oldWidget.context != widget.context) {
+        _parentContext = widget.context;
+      }
+
       if (oldWidget.deliveryRoute != widget.deliveryRoute) {
         _deliveryRoute = widget.deliveryRoute;
       }
@@ -1360,7 +1425,6 @@ class _OrderList extends StatelessWidget {
                         id: deliveryRoute.id,
                         pageNumber: 1,
                         pageSize: 1,
-                        status: deliveryRoute.status,
                       ),
                 },
               );
@@ -1375,61 +1439,274 @@ class _OrderList extends StatelessWidget {
 }
 
 // Sort order
-class SortingView extends StatelessWidget {
+class SortingView extends StatefulWidget {
   final DeliveryRouteEntity deliveryRoute;
 
   const SortingView({super.key, required this.deliveryRoute});
+
+  @override
+  State<SortingView> createState() => _SortingViewState();
+}
+
+class _SortingViewState extends State<SortingView> {
+  late DeliveryRouteEntity _deliveryRoute;
+
+  @override
+  void initState() {
+    super.initState();
+    _deliveryRoute = widget.deliveryRoute;
+  }
+
+  @override
+  void didUpdateWidget(covariant SortingView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      if (oldWidget.deliveryRoute != widget.deliveryRoute) {
+        _deliveryRoute = widget.deliveryRoute;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const _SortingGuide(),
-
-        ...deliveryRoute.orders.map((order) => SortingOrderCard(order: order)),
+        TotalDistanceCard(
+          distanceText:
+              '${_deliveryRoute.totalSortedOrders == _deliveryRoute.totalOrders ? '28.6' : '----'} km',
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: _deliveryRoute.orders.length,
+            itemBuilder: (context, index) =>
+                SortingOrderCard(order: _deliveryRoute.orders[index]),
+          ),
+        ),
       ],
     );
   }
 }
 
-class _SortingGuide extends StatelessWidget {
-  const _SortingGuide();
+class TotalDistanceCard extends StatelessWidget {
+  final String distanceText;
+  final VoidCallback? onInfoPressed;
+
+  const TotalDistanceCard({
+    super.key,
+    required this.distanceText,
+    this.onInfoPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ), // Giảm padding card
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: RouteColors.border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Icon đường cao tốc bên trái (thu nhỏ lại)
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: RouteColors.green,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.directions_car_filled,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+
+          // Tiêu đề và số km (thu nhỏ font size)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'Tổng quãng đường dự kiến',
+                      style: TextStyle(
+                        fontSize: 11, // Giảm từ 13 xuống 11
+                        fontWeight: FontWeight.w500,
+                        color: RouteColors.text,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: onInfoPressed ?? () {},
+                      child: const Icon(
+                        Icons.info_outline,
+                        size: 13, // Giảm kích thước icon info
+                        color: RouteColors.text,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  distanceText,
+                  style: const TextStyle(
+                    fontSize: 18, // Giảm từ 22 xuống 18
+                    fontWeight: FontWeight.w700,
+                    color: RouteColors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Minh họa icon bản đồ / đường đi đứt nét ở góc phải (thu nhỏ size canvas từ 80x40 xuống 60x30)
+          CustomPaint(size: const Size(60, 30), painter: _DottedRoutePainter()),
+        ],
+      ),
+    );
+  }
+}
+
+class _DottedRoutePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = RouteColors.green
+      ..strokeWidth =
+          1.5 // Giảm độ dày nét vẽ một chút cho mảnh và tinh tế hơn
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    // Tọa độ thu gọn lại phù hợp với kích thước Size(60, 30)
+    final path = Path();
+    path.moveTo(6, 22);
+    path.cubicTo(18, 22, 22, 6, 38, 9);
+    path.cubicTo(45, 10, 48, 9, 54, 6);
+
+    // Tạo hiệu ứng nét đứt (dash line)
+    final dashPath = Path();
+    const dashLength = 3.0;
+    const dashSpace = 2.5;
+    for (final metric in path.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        dashPath.addPath(
+          metric.extractPath(distance, distance + dashLength),
+          Offset.zero,
+        );
+        distance += dashLength + dashSpace;
+      }
+    }
+
+    canvas.drawPath(dashPath, paint);
+
+    // Vẽ điểm ghim vị trí (Marker) thứ nhất ở dưới trái
+    _drawMarker(canvas, const Offset(6, 22));
+
+    // Vẽ điểm ghim vị trí (Marker) thứ hai ở trên phải
+    _drawMarker(canvas, const Offset(54, 6));
+  }
+
+  void _drawMarker(Canvas canvas, Offset position) {
+    // Vòng mờ bên dưới marker (thu nhỏ lại)
+    final shadowPaint = Paint()
+      ..color = RouteColors.green.withValues(alpha: 0.2);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(position.dx, position.dy + 3),
+        width: 8,
+        height: 4,
+      ),
+      shadowPaint,
+    );
+
+    // Icon ghim vị trí xanh (thu nhỏ bán kính)
+    final markerPaint = Paint()..color = RouteColors.green;
+    canvas.drawCircle(position, 4, markerPaint);
+
+    final innerPaint = Paint()..color = Colors.white;
+    canvas.drawCircle(position, 1.5, innerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _SortingGuide extends StatefulWidget {
+  const _SortingGuide();
+
+  @override
+  State<_SortingGuide> createState() => _SortingGuideState();
+}
+
+class _SortingGuideState extends State<_SortingGuide> {
+  bool _isClosed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isClosed) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: RouteColors.orangeLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFFD166)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, color: RouteColors.orange, size: 28),
+          const Icon(
+            Icons.lightbulb_outline,
+            color: RouteColors.orange,
+            size: 22,
+          ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 8),
 
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Hướng dẫn sắp xếp hàng hoá',
                   style: TextStyle(
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: RouteColors.text,
                   ),
                 ),
-                SizedBox(height: 6),
+
+                SizedBox(height: 4),
+
                 Text(
                   'Số thứ tự càng lớn là đơn hàng giao sau cùng.\n'
-                  'Vui lòng xếp hàng hoá từ dưới lên trên trong thùng để đảm bảo giao đúng thứ tự.',
+                  'Vui lòng xếp hàng hoá từ dưới lên trên trong thùng '
+                  'để đảm bảo giao đúng thứ tự.',
                   style: TextStyle(
-                    height: 1.5,
-                    fontSize: 13,
+                    fontSize: 11.5,
+                    height: 1.35,
                     color: RouteColors.text,
                   ),
                 ),
@@ -1437,7 +1714,23 @@ class _SortingGuide extends StatelessWidget {
             ),
           ),
 
-          Icon(Icons.close, color: RouteColors.orange),
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                setState(() {
+                  _isClosed = true;
+                });
+              },
+              icon: const Icon(
+                Icons.close,
+                color: RouteColors.orange,
+                size: 18,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1478,7 +1771,7 @@ class OrderCard extends StatelessWidget {
           ],
           Expanded(
             child: Container(
-              // margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -2078,28 +2371,37 @@ enum CheckOrderMethod { scanQrOrBarcode, manual }
 
 class _RouteActionBar extends StatefulWidget {
   final DeliveryRouteEntity route;
+  final BuildContext context;
 
-  const _RouteActionBar({super.key, required this.route});
+  const _RouteActionBar({
+    super.key,
+    required this.route,
+    required this.context,
+  });
 
   @override
   State<_RouteActionBar> createState() => __RouteActionBarState();
 }
 
 class __RouteActionBarState extends State<_RouteActionBar> {
+  late BuildContext _parentContext;
   late DeliveryRouteEntity _deliveryRoute;
   late CheckOrderMethod _method = CheckOrderMethod.scanQrOrBarcode;
 
   @override
   void initState() {
     super.initState();
+    _parentContext = widget.context;
     _deliveryRoute = widget.route;
   }
 
   @override
   void didUpdateWidget(covariant _RouteActionBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     setState(() {
+      if (oldWidget.context != widget.context) {
+        _parentContext = widget.context;
+      }
       if (oldWidget.route != widget.route) {
         _deliveryRoute = widget.route;
       }
@@ -2143,6 +2445,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     required BuildContext context,
     required CheckOrderMethod currentMethod,
   }) {
+    final deliveryOrderPageCubit = context.read<DeliveryOrderPageCubit>();
     final selectionCubit = context.read<SelectionCubit<String>>();
 
     if (_deliveryRoute.status == DeliveryRouteStatus.pending.value) {
@@ -2166,7 +2469,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         id: _deliveryRoute.id,
                         pageNumber: 1,
                         pageSize: 1,
-                        status: _deliveryRoute.status,
                       ),
                 },
               );
@@ -2175,7 +2477,9 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
           const SizedBox(width: 12),
 
-          if (selectionCubit.state.isEnabled) ...[
+          if (selectionCubit.state.isEnabled &&
+              deliveryOrderPageCubit.state.selectedTab ==
+                  DeliveryOrderPageTab.checked) ...[
             _OutlineButton(
               icon: Icons.checklist_rtl,
               label: 'Kiểm tra lại',
@@ -2264,10 +2568,39 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           ),
           const SizedBox(width: 12),
 
-          _DisabledButton(
+          _OutlineButton(
+            disabled: !_deliveryRoute.isAllChecked,
             icon: Icons.local_shipping_outlined,
             label: 'Sắp xếp hàng hoá',
-            subtitle: 'Cần kiểm tra 100% đơn hàng',
+            subtitle: 'Cần xác nhận đủ 100% đơn hàng',
+            onPressed: () {
+              AppDialogUtils.showSuccess(
+                context: context,
+                title: 'Bạn đã sẵn sàng sắp xếp hàng hoá hay chưa?',
+                subtitle:
+                    'Lưu ý: Đảm bảo chính xác việc kiểm tra đơn hàng để hệ thống sắp xếp lộ trình chính xác và hiệu quả nhất cho bạn.',
+                actions: [
+                  SmgoButton(
+                    isOutlined: true,
+                    text: 'Huỷ',
+                    primaryColor: AppColors.primary,
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
+                  SmgoButton(
+                    primaryColor: AppColors.primary,
+                    text: 'Xác nhận',
+                    onPressed: () {
+                      context.read<TransitionRouteToSortingCubit>().call(
+                        deliveryRouteId: _deliveryRoute.id,
+                      );
+                      context.pop();
+                    },
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(width: 12),
@@ -2276,23 +2609,100 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     } else if (_deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
       return Row(
         children: [
-          _OutlineButton(icon: Icons.add, label: 'Thêm đơn', onPressed: () {}),
+          const SizedBox(width: 12),
+
+          _OutlineButton(
+            icon: Icons.fact_check_outlined,
+            label: 'Quay lại kiểm tra đơn hàng',
+            onPressed: () {
+              if (_deliveryRoute.totalSortedOrders > 0) {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn có chắc muốn quay lại giai đoạn kiểm tra hàng?',
+                  subtitle:
+                      'Lưu ý: Sau khi thực hiện thao tác này bạn phải thực hiện sắp xếp lại vì việc thêm hoặc bớt đơn ở giai đoạn kiểm tra hàng có thể sẽ xáo trộn thứ tự sắp xếp hàng hoá',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<TransitionRouteToPendingCubit>().call(
+                          deliveryRouteId: _deliveryRoute.id,
+                        );
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              } else {
+                context.read<TransitionRouteToPendingCubit>().call(
+                  deliveryRouteId: _deliveryRoute.id,
+                );
+              }
+            },
+          ),
 
           const SizedBox(width: 12),
 
           _PrimaryButton(
             icon: Icons.local_shipping_outlined,
-            label: 'Sắp xếp hàng hoá',
-            onPressed: () {},
+            label: _deliveryRoute.totalSortedOrders == 0
+                ? 'Sắp xếp hàng hoá'
+                : 'Sắp xếp lại hàng hoá',
+            onPressed: () {
+              if (_deliveryRoute.totalSortedOrders == 0) {
+                context.read<SortDeliveryOrdersCubit>().call(
+                  deliveryRouteId: _deliveryRoute.id,
+                );
+              } else {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn có chắc muốn sắp xếp lại hàng hoá?',
+                  subtitle:
+                      'Lưu ý: Thứ tự sắp xếp có thể đảo lộn nếu trước đó bạn đã thêm hoặc xoá bớt đơn hàng.',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<SortDeliveryOrdersCubit>().call(
+                          deliveryRouteId: _deliveryRoute.id,
+                        );
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
           ),
 
           const SizedBox(width: 12),
 
-          _DisabledButton(
+          _OutlineButton(
+            disabled: true,
             icon: Icons.play_arrow,
             label: 'Bắt đầu giao hàng',
             subtitle: 'Chỉ khả dụng khi sắp xếp 100%',
           ),
+
+          const SizedBox(width: 12),
         ],
       );
     } else if (_deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
@@ -2333,7 +2743,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
         ],
       );
     } else {
-      throw Exception('Delivery status does not match any valid case');
+      throw Exception('Delivery route status does not match any valid case');
     }
   }
 
@@ -2790,37 +3200,37 @@ class _PrimaryButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, color: Colors.white),
 
               const SizedBox(width: 8),
 
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  if (subtitle != null)
                     Text(
-                      label,
+                      subtitle!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
+                        fontSize: 11,
                       ),
                     ),
-
-                    if (subtitle != null)
-                      Text(
-                        subtitle!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
             ],
           ),
@@ -2833,20 +3243,45 @@ class _PrimaryButton extends StatelessWidget {
 class _OutlineButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String? subtitle; // Subtitle tùy chọn
-  final VoidCallback onPressed;
+  final String? subtitle;
+  final VoidCallback? onPressed;
   final VoidCallback? onLongPress;
+  final bool disabled; // Thuộc tính quyết định trạng thái disable
 
   const _OutlineButton({
     required this.icon,
     required this.label,
     this.subtitle,
-    required this.onPressed,
+    this.onPressed,
     this.onLongPress,
+    this.disabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (disabled) {
+      return Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF0F3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Color(0xFFA7ABB9)),
+            const SizedBox(width: 8),
+            _buildTextContent(
+              labelColor: const Color(0xFF9297A8),
+              subtitleColor: const Color(0xFFA7ABB9),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Ngược lại, trả về OutlinedButton
     return OutlinedButton(
       onPressed: onPressed,
       onLongPress: onLongPress,
@@ -2854,105 +3289,59 @@ class _OutlineButton extends StatelessWidget {
         foregroundColor: RouteColors.green,
         side: const BorderSide(color: RouteColors.green),
         minimumSize: const Size(0, 48),
-        // Đặt tapTargetSize để tránh padding thừa làm nút bị to bất thường
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize
-            .min, // Giúp nút co lại ôm sát nội dung bên trong, không bị giãn ngang
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon),
+          Icon(icon, color: RouteColors.green),
           const SizedBox(width: 8),
-          subtitle != null
-              ? Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Column cũng co lại theo chiều dọc
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      subtitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: RouteColors.green.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                )
-              : Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14),
-                ),
+          _buildTextContent(
+            labelColor: RouteColors.green, // Hoặc màu mặc định của text
+            subtitleColor: RouteColors.green.withOpacity(0.8),
+          ),
         ],
       ),
     );
   }
-}
 
-class _DisabledButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-
-  const _DisabledButton({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF0F3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
+  // Hàm phụ trợ để tránh lặp lại phần hiển thị Text và Column
+  Widget _buildTextContent({
+    required Color labelColor,
+    required Color subtitleColor,
+  }) {
+    if (subtitle != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFFA7ABB9)),
-
-          const SizedBox(width: 8),
-
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF9297A8),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Color(0xFFA7ABB9), fontSize: 9),
-              ),
-            ],
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: labelColor,
+            ),
+          ),
+          Text(
+            subtitle!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 9, color: subtitleColor),
           ),
         ],
-      ),
+      );
+    }
+
+    return Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 14, color: labelColor),
     );
   }
 }

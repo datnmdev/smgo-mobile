@@ -26,8 +26,9 @@ class GetDeliveryRoutesParams {
 
 class UpdateDeliveryRouteParams {
   final String? name;
+  final String? status;
 
-  UpdateDeliveryRouteParams({this.name});
+  UpdateDeliveryRouteParams({this.name, this.status});
 }
 
 class DeleteDeliveryRouteParams {
@@ -134,6 +135,9 @@ abstract class DeliveryRouteRepository {
   Future<DataState<dynamic>> confirmDeliveryOrders({
     required String deliveryRouteId,
     required List<String> deliveryOrderIds,
+  });
+  Future<DataState<dynamic>> sortDeliveryOrders({
+    required String deliveryRouteId,
   });
   Future<DataState<dynamic>> deleteDeliveryOrders({
     required DeleteDeliveryOrdersParams params,

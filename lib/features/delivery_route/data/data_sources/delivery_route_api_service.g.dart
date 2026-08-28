@@ -36,11 +36,14 @@ Map<String, dynamic> _$AddDeliveryRouteBodyRequestToJson(
 
 UpdateDeliveryRouteBodyRequest _$UpdateDeliveryRouteBodyRequestFromJson(
   Map<String, dynamic> json,
-) => UpdateDeliveryRouteBodyRequest(name: json['name'] as String?);
+) => UpdateDeliveryRouteBodyRequest(
+  name: json['name'] as String?,
+  status: json['status'] as String?,
+);
 
 Map<String, dynamic> _$UpdateDeliveryRouteBodyRequestToJson(
   UpdateDeliveryRouteBodyRequest instance,
-) => <String, dynamic>{'name': instance.name};
+) => <String, dynamic>{'name': ?instance.name, 'status': ?instance.status};
 
 PointRequestData _$PointRequestDataFromJson(Map<String, dynamic> json) =>
     PointRequestData(
@@ -424,6 +427,39 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
           .compose(
             _dio.options,
             '/delivery-route/${deliveryRouteId}/delivery-order/m/confirm',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<dynamic> _value;
+    try {
+      _value = ApiResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<dynamic>>> sortDeliveryOrders({
+    required String deliveryRouteId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/delivery-route/${deliveryRouteId}/delivery-order/m/sort',
             queryParameters: queryParameters,
             data: _data,
           )

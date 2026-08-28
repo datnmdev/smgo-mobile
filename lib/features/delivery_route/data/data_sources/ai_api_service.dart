@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:retrofit/dio.dart';
-import 'package:retrofit/http.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:shipgo/core/network/api_enpoints.dart';
 import 'package:shipgo/core/network/api_response.dart';

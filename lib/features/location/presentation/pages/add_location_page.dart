@@ -15,8 +15,8 @@ import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_state.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
@@ -600,13 +600,13 @@ class AddLocationPage extends StatelessWidget {
                                               .readAsBytes();
                                           await di<UploadMediaUsecase>().call(
                                             params: UploadMediaParams(
-                                              url: uploadUrlDataState
+                                              presignedUploadUrl: uploadUrlDataState
                                                   .data!
                                                   .uploadUrl,
-                                              contentType:
+                                              mimeType:
                                                   lookupMimeType(file.path) ??
                                                   'application/octet-stream',
-                                              file: fileBytes,
+                                              fileBytes: fileBytes,
                                             ),
                                           );
                                           return (

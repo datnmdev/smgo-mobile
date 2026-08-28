@@ -16,8 +16,8 @@ import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/get_upload_url_usecase.dart';
-import 'package:shipgo/features/location/domain/usecases/upload_media_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/get_upload_url_usecase.dart';
+import 'package:shipgo/shared/domain/usecases/upload_media_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_state.dart';
@@ -618,13 +618,14 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                               .readAsBytes();
                                           await di<UploadMediaUsecase>().call(
                                             params: UploadMediaParams(
-                                              url: uploadUrlDataState
-                                                  .data!
-                                                  .uploadUrl,
-                                              contentType:
+                                              presignedUploadUrl:
+                                                  uploadUrlDataState
+                                                      .data!
+                                                      .uploadUrl,
+                                              mimeType:
                                                   lookupMimeType(file.path) ??
                                                   'application/octet-stream',
-                                              file: fileBytes,
+                                              fileBytes: fileBytes,
                                             ),
                                           );
                                           return (

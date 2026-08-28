@@ -7,6 +7,7 @@ class DeliveryRouteEntity {
   final int totalOrders;
   final int totalPendingOrders;
   final int totalCheckedOrders;
+  final int totalSortedOrders;
   final int totalDeliveredOrders;
   final int totalCancelledOrders;
   final int totalRescheduledOrders;
@@ -22,16 +23,13 @@ class DeliveryRouteEntity {
     required this.totalCancelledOrders,
     required this.totalCheckedOrders,
     required this.totalPendingOrders,
+    required this.totalSortedOrders,
     required this.totalRescheduledOrders,
     required this.totalDeliveredOrders,
     this.orders = const [],
     required this.createdAt,
     required this.updatedAt,
   });
-
-  int get totalSortedOrders {
-    return orders.where((order) => order.sequenceOrder != null).length;
-  }
 
   double get checkProgress {
     if (totalOrders == 0) return 0;
