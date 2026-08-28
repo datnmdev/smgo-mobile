@@ -23,6 +23,7 @@ import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.d
 import 'package:shipgo/features/delivery_route/domain/repository/location_search_repository.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/Confirm_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/confirm_sorted_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
@@ -31,6 +32,7 @@ import 'package:shipgo/features/delivery_route/domain/usecases/sort_delivery_ord
 import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
@@ -261,6 +263,11 @@ Future<void> initializeDependencies() async {
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
+  di.registerLazySingleton<ConfirmSortedDeliveryOrdersUsecase>(
+    () => ConfirmSortedDeliveryOrdersUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -372,6 +379,12 @@ Future<void> initializeDependencies() async {
   di.registerFactory<SortDeliveryOrdersCubit>(
     () => SortDeliveryOrdersCubit(
       sortDeliveryOrdersUsecase: di<SortDeliveryOrdersUsecase>(),
+    ),
+  );
+  di.registerFactory<ConfirmSortedDeliveryOrdersCubit>(
+    () => ConfirmSortedDeliveryOrdersCubit(
+      confirmSortedDeliveryOrdersUsecase:
+          di<ConfirmSortedDeliveryOrdersUsecase>(),
     ),
   );
 }

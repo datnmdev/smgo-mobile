@@ -15,6 +15,7 @@ class DeliveryRouteModel {
   final int totalDeliveredOrders;
   final int totalCancelledOrders;
   final int totalRescheduledOrders;
+  final int? totalDistance;
   final List<DeliveryOrderModel> orders;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,6 +31,7 @@ class DeliveryRouteModel {
     required this.totalSortedOrders,
     required this.totalRescheduledOrders,
     required this.totalDeliveredOrders,
+    this.totalDistance,
     required this.createdAt,
     required this.updatedAt,
     this.orders = const [],

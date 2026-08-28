@@ -11,6 +11,7 @@ class DeliveryRouteEntity {
   final int totalDeliveredOrders;
   final int totalCancelledOrders;
   final int totalRescheduledOrders;
+  final int? totalDistance;
   final List<DeliveryOrderEntity> orders;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -25,7 +26,9 @@ class DeliveryRouteEntity {
     required this.totalPendingOrders,
     required this.totalSortedOrders,
     required this.totalRescheduledOrders,
+    this.totalDistance,
     required this.totalDeliveredOrders,
+
     this.orders = const [],
     required this.createdAt,
     required this.updatedAt,
@@ -47,6 +50,27 @@ class DeliveryRouteEntity {
             totalCancelledOrders +
             totalRescheduledOrders) /
         totalOrders;
+  }
+
+  bool get isAllOrdersRouted =>
+      orders.where((order) => order.sequenceOrder != null).length ==
+      totalOrders;
+
+  DeliveryOrderEntity? get currentNeedSortOrder {
+    if (status == 'sorting' && isAllOrdersRouted) {
+      var unsortedOrders = orders
+          .where((order) => order.status == 'checked')
+          .toList();
+      var maxSequenceOrderIndex = 0;
+      for (int i = 0; i < unsortedOrders.length; ++i) {
+        if (unsortedOrders[i].sequenceOrder! >
+            unsortedOrders[maxSequenceOrderIndex].sequenceOrder!) {
+          maxSequenceOrderIndex = i;
+        }
+      }
+      return unsortedOrders[maxSequenceOrderIndex];
+    }
+    return null;
   }
 
   bool get isAllChecked => totalCheckedOrders == totalOrders;

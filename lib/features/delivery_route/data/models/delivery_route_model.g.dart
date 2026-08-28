@@ -18,6 +18,7 @@ DeliveryRouteModel _$DeliveryRouteModelFromJson(Map<String, dynamic> json) =>
       totalSortedOrders: (json['totalSortedOrders'] as num).toInt(),
       totalRescheduledOrders: (json['totalRescheduledOrders'] as num).toInt(),
       totalDeliveredOrders: (json['totalDeliveredOrders'] as num).toInt(),
+      totalDistance: (json['totalDistance'] as num?)?.toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       orders:
@@ -41,6 +42,7 @@ Map<String, dynamic> _$DeliveryRouteModelToJson(DeliveryRouteModel instance) =>
       'totalDeliveredOrders': instance.totalDeliveredOrders,
       'totalCancelledOrders': instance.totalCancelledOrders,
       'totalRescheduledOrders': instance.totalRescheduledOrders,
+      'totalDistance': instance.totalDistance,
       'orders': instance.orders,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),

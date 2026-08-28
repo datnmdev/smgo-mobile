@@ -190,6 +190,35 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (deliveryRoute!.isAllOrdersRouted) ...[
+                          const Text(
+                            'Số thứ tự sắp xếp hàng hoá',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadiusDirectional.circular(8),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                deliveryOrder!.sequenceOrder.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Divider(height: 24),
+                        ],
+
                         const Text(
                           'Tên đơn hàng',
                           style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -198,7 +227,6 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Bọc Text trong Expanded để nó tự động chiếm hết khoảng trống còn lại và xuống dòng
                             Expanded(
                               child: Text(
                                 deliveryOrder!.orderName != null &&
@@ -655,185 +683,196 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
           ),
         ),
         bottomNavigationBar: BlocBuilder<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
-          builder: (context, state) => Container(
-            color: Colors.white,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: primaryColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () {
-                        context.pushNamed(
-                          AppRouteNames.updateDeliveryOrder,
-                          pathParameters: {
-                            'id': deliveryOrder!.deliveryRouteId,
-                            'deliveryOrderId': deliveryOrder!.id,
-                          },
-                          extra: <String, Object>{
-                            'DeliveryRouteData': deliveryRoute!,
-                            'DeliveryOrderData': deliveryOrder!,
-                            'GetDeliveryRoutesCubitInDODP': context
-                                .read<GetDeliveryRoutesCubit>(),
-                            'GetDeliveryRoutesUsecaseParamsInDODP':
-                                GetDeliveryRoutesUsecaseParams(
-                                  pageNumber: 1,
-                                  pageSize: 1,
-                                  id: deliveryOrder!.deliveryRouteId,
-                                ),
-                          },
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.edit, color: primaryColor, size: 16),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Chỉnh sửa',
-                            style: TextStyle(
-                              color: primaryColor,
-                              fontWeight: FontWeight.bold,
+          builder: (context, state) =>
+              deliveryRoute!.status == DeliveryRouteStatus.pending.value
+              ? Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: primaryColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () {
-                        final parentContext = context;
-                        AppDialogUtils.showCustomDialog(
-                          context: context,
-                          title: 'Bạn chắc chắn xoá đơn hàng này chứ?',
-                          subtitle: 'Thông tin bị xoá không thể phục hồi.',
-                          barrierDismissible: false,
-                          actions: [
-                            BlocProvider<DeleteDeliveryOrdersCubit>(
-                              create: (context) =>
-                                  di<DeleteDeliveryOrdersCubit>(),
-                              child:
-                                  BlocConsumer<
-                                    DeleteDeliveryOrdersCubit,
-                                    DeleteDeliveryOrdersState
-                                  >(
-                                    listener: (context, state) {
-                                      if (state is DeleteDeliveryOrdersDone) {
-                                        getDeliveryRoutesCubitInDOP.call(
-                                          params:
-                                              getDeliveryRoutesUsecaseParamsInDOP,
-                                        );
-                                        context.pop();
-                                        parentContext.pop();
-                                      }
-                                    },
-                                    builder: (context, state) => IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            child: SmgoButton(
-                                              isDisabled:
-                                                  state
-                                                      is DeleteDeliveryOrdersLoading,
-                                              primaryColor: AppColors.primary,
-                                              text: 'Huỷ',
-                                              isOutlined: true,
-                                              onPressed: () {
-                                                context.pop();
-                                              },
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: SmgoButton(
-                                              isDisabled:
-                                                  state
-                                                      is DeleteDeliveryOrdersLoading,
-                                              primaryColor: AppColors.primary,
-                                              onPressed: () {
-                                                context
-                                                    .read<
-                                                      DeleteDeliveryOrdersCubit
-                                                    >()
-                                                    .call(
-                                                      deliveryRouteId:
-                                                          deliveryRoute!.id,
-                                                      deliveryOrderIds: [
-                                                        deliveryOrder!.id,
-                                                      ],
-                                                    );
-                                              },
-                                              child:
-                                                  state
-                                                      is DeleteDeliveryOrdersLoading
-                                                  ? SizedBox(
-                                                      width: 16,
-                                                      height: 16,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                            color: Colors.white,
-                                                          ),
-                                                    )
-                                                  : Text(
-                                                      'Xoá',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                            ),
-                                          ),
-                                        ],
+                            onPressed: () {
+                              context.pushNamed(
+                                AppRouteNames.updateDeliveryOrder,
+                                pathParameters: {
+                                  'id': deliveryOrder!.deliveryRouteId,
+                                  'deliveryOrderId': deliveryOrder!.id,
+                                },
+                                extra: <String, Object>{
+                                  'DeliveryRouteData': deliveryRoute!,
+                                  'DeliveryOrderData': deliveryOrder!,
+                                  'GetDeliveryRoutesCubitInDODP': context
+                                      .read<GetDeliveryRoutesCubit>(),
+                                  'GetDeliveryRoutesUsecaseParamsInDODP':
+                                      GetDeliveryRoutesUsecaseParams(
+                                        pageNumber: 1,
+                                        pageSize: 1,
+                                        id: deliveryOrder!.deliveryRouteId,
                                       ),
-                                    ),
+                                },
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.edit, color: primaryColor, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Chỉnh sửa',
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                            ),
-                          ],
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                            size: 16,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'Xóa đơn hàng',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.red),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            onPressed: () {
+                              final parentContext = context;
+                              AppDialogUtils.showCustomDialog(
+                                context: context,
+                                title: 'Bạn chắc chắn xoá đơn hàng này chứ?',
+                                subtitle:
+                                    'Thông tin bị xoá không thể phục hồi.',
+                                barrierDismissible: false,
+                                actions: [
+                                  BlocProvider<DeleteDeliveryOrdersCubit>(
+                                    create: (context) =>
+                                        di<DeleteDeliveryOrdersCubit>(),
+                                    child:
+                                        BlocConsumer<
+                                          DeleteDeliveryOrdersCubit,
+                                          DeleteDeliveryOrdersState
+                                        >(
+                                          listener: (context, state) {
+                                            if (state
+                                                is DeleteDeliveryOrdersDone) {
+                                              getDeliveryRoutesCubitInDOP.call(
+                                                params:
+                                                    getDeliveryRoutesUsecaseParamsInDOP,
+                                              );
+                                              context.pop();
+                                              parentContext.pop();
+                                            }
+                                          },
+                                          builder: (context, state) => IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(
+                                                  child: SmgoButton(
+                                                    isDisabled:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading,
+                                                    primaryColor:
+                                                        AppColors.primary,
+                                                    text: 'Huỷ',
+                                                    isOutlined: true,
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: SmgoButton(
+                                                    isDisabled:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading,
+                                                    primaryColor:
+                                                        AppColors.primary,
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                            DeleteDeliveryOrdersCubit
+                                                          >()
+                                                          .call(
+                                                            deliveryRouteId:
+                                                                deliveryRoute!
+                                                                    .id,
+                                                            deliveryOrderIds: [
+                                                              deliveryOrder!.id,
+                                                            ],
+                                                          );
+                                                    },
+                                                    child:
+                                                        state
+                                                            is DeleteDeliveryOrdersLoading
+                                                        ? SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                          )
+                                                        : Text(
+                                                            'Xoá',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                  ),
+                                ],
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Xóa đơn hàng',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                )
+              : SizedBox.shrink(),
         ),
       ),
     );

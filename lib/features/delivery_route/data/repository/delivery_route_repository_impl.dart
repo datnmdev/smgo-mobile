@@ -40,6 +40,7 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                   totalDeliveredOrders: e.totalDeliveredOrders,
                   totalCancelledOrders: e.totalCancelledOrders,
                   totalRescheduledOrders: e.totalRescheduledOrders,
+                  totalDistance: e.totalDistance,
                   orders: e.orders
                       .map(
                         (order) => DeliveryOrderEntity(
@@ -251,6 +252,25 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
         ),
       );
       return DataSuccess(httpResponse.data.data);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> confirmSortedDeliveryOrders({
+    required String deliveryRouteId,
+    required List<String> deliveryOrderIds,
+  }) async {
+    try {
+      final dataState = await deliveryRouteApiService
+          .confirmSortedDeliveryOrders(
+            deliveryRouteId: deliveryRouteId,
+            body: ConfirmSortedDeliveryOrdersBodyRequest(
+              deliveryOrderIds: deliveryOrderIds,
+            ),
+          );
+      return DataSuccess(dataState.data);
     } catch (e) {
       return DataFailed(e);
     }

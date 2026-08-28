@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
 import 'package:shipgo/core/resources/app_assets.dart';
@@ -14,6 +13,8 @@ import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_en
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
@@ -37,6 +38,7 @@ import 'package:shipgo/shared/presentation/widgets/smgo_generic_scan_screen.dart
 import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
 import 'package:shipgo/shared/presentation/widgets/smgo_checkbox.dart';
 import 'package:shipgo/shared/presentation/widgets/smgo_loading_screen.dart';
+import 'package:shipgo/shared/utils/app_location_utils.dart';
 
 class RouteColors {
   static const green = Color(0xFF008C45);
@@ -118,6 +120,9 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         ),
         BlocProvider<SortDeliveryOrdersCubit>(
           create: ((context) => di<SortDeliveryOrdersCubit>()),
+        ),
+        BlocProvider<ConfirmSortedDeliveryOrdersCubit>(
+          create: ((context) => di<ConfirmSortedDeliveryOrdersCubit>()),
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
@@ -327,6 +332,26 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is SortDeliveryOrdersLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                ConfirmSortedDeliveryOrdersCubit,
+                ConfirmSortedDeliveryOrdersState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmSortedDeliveryOrdersDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmSortedDeliveryOrdersLoading,
                 ),
               ),
             ],
@@ -767,7 +792,8 @@ class RouteSummary extends StatelessWidget {
         title: 'Tiến độ',
         progress: deliveryRoute.sortingProgress,
         value: '${(deliveryRoute.sortingProgress * 100).round()}%',
-        subtitle: deliveryRoute.isAllSorted ? 'Đã sắp xếp' : 'Chưa sắp xếp',
+        subtitle:
+            '${deliveryRoute.totalSortedOrders}/${deliveryRoute.totalOrders}',
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
       return _ProgressSummaryItem(
@@ -1081,14 +1107,6 @@ class RouteProgress extends StatelessWidget {
   }
 
   String get _sortingSubtitle {
-    if (deliveryRoute.isAllSorted) {
-      return 'Đã sắp xếp';
-    }
-
-    if (deliveryRoute.totalSortedOrders == 0) {
-      return 'Chưa sắp xếp';
-    }
-
     return '${deliveryRoute.totalSortedOrders}/${deliveryRoute.totalOrders} đơn';
   }
 
@@ -1471,7 +1489,7 @@ class _SortingViewState extends State<SortingView> {
   @override
   Widget build(BuildContext context) {
     var sortedOrders = _deliveryRoute.orders;
-    if (_deliveryRoute.isAllSorted) {
+    if (_deliveryRoute.isAllOrdersRouted) {
       sortedOrders.sort((a, b) => b.sequenceOrder! - a.sequenceOrder!);
     }
     return Column(
@@ -1479,14 +1497,47 @@ class _SortingViewState extends State<SortingView> {
         const _SortingGuide(),
         TotalDistanceCard(
           distanceText:
-              '${_deliveryRoute.totalSortedOrders == _deliveryRoute.totalOrders ? '28.6' : '----'} km',
+              '${_deliveryRoute.isAllOrdersRouted ? '${((_deliveryRoute.totalDistance ?? 0) / 1000).toStringAsFixed(2)}' : '----'} km',
         ),
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: _deliveryRoute.orders.length,
-            itemBuilder: (context, index) =>
-                SortingOrderCard(order: sortedOrders[index]),
+            itemCount: sortedOrders.length,
+            itemBuilder: (context, index) => SortingOrderCard(
+              status:
+                  sortedOrders[index].status ==
+                      DeliveryOrderStatus.checked.value
+                  ? (_deliveryRoute.currentNeedSortOrder?.id ==
+                            sortedOrders[index].id
+                        ? SortingOrderStatus.current
+                        : SortingOrderStatus.unsorted)
+                  : sortedOrders[index].status ==
+                        DeliveryOrderStatus.sorted.value
+                  ? SortingOrderStatus.sorted
+                  : SortingOrderStatus.current,
+              order: sortedOrders[index],
+              onTap: () {
+                context.pushNamed(
+                  AppRouteNames.deliveryOrderDetail,
+                  pathParameters: {
+                    'id': sortedOrders[index].deliveryRouteId,
+                    'deliveryOrderId': sortedOrders[index].id,
+                  },
+                  extra: <String, Object>{
+                    'DeliveryRouteData': _deliveryRoute,
+                    'DeliveryOrderData': sortedOrders[index],
+                    'GetDeliveryRoutesCubitInDOP': context
+                        .read<GetDeliveryRoutesCubit>(),
+                    'GetDeliveryRoutesUsecaseParamsInDOP':
+                        GetDeliveryRoutesUsecaseParams(
+                          id: _deliveryRoute.id,
+                          pageNumber: 1,
+                          pageSize: 1,
+                        ),
+                  },
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -1763,16 +1814,16 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           if (isSelectionMode) ...[
+            const SizedBox(width: 16),
             SmgoCheckbox(
               value: isSelected,
               onChanged: onCheckboxChanged,
               primaryColor: AppColors.primary,
             ),
-            const SizedBox(width: 12),
           ],
           Expanded(
             child: Container(
@@ -1802,12 +1853,16 @@ class OrderCard extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      order.orderCode,
-                                      style: const TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
-                                        color: RouteColors.text,
+                                    Flexible(
+                                      child: Text(
+                                        order.orderCode,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                          color: RouteColors.text,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
@@ -1904,47 +1959,137 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
+enum SortingOrderStatus { sorted, unsorted, current }
+
+class SortingOrderCardColors {
+  // Trạng thái 1: Đã sắp xếp
+  static const Color sortedBg = Color(0xFFE6F6EE);
+  static const Color sortedContent = AppColors.primary;
+
+  // Trạng thái 2: Chưa sắp xếp
+  static const Color unsortedBg = Color(0xFFF3F4F6);
+  static const Color unsortedContent = Color(0xFF6B7280);
+
+  // Trạng thái 3: Hiện tại
+  static const Color currentBorder = AppColors.primary;
+  static const Color currentNumberBg = AppColors.primary;
+  static const Color currentNumberText = Colors.white;
+
+  // Badge "Đơn hiện tại" màu cam
+  static const Color badgeCurrentBg = Color(0xFFFFF1E6);
+  static const Color badgeCurrentText = Color(0xFFF97316);
+}
+
 class SortingOrderCard extends StatelessWidget {
   final DeliveryOrderEntity order;
+  final SortingOrderStatus status; // Thêm thuộc tính trạng thái
+  final VoidCallback? onTap;
 
-  const SortingOrderCard({super.key, required this.order});
+  const SortingOrderCard({
+    super.key,
+    required this.order,
+    required this.status,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Xác định màu viền và hiệu ứng bóng (glow) dựa theo trạng thái
+    BoxDecoration boxDecoration = _getBoxDecoration();
+
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
+      decoration: boxDecoration,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: RouteColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: RouteColors.greenLight,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${order.sequenceOrder ?? '-'}',
-              style: const TextStyle(
-                color: RouteColors.green,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  _buildNumberBox(),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OrderCardContent(order: order, status: status),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: status == SortingOrderStatus.unsorted
+                        ? SortingOrderCardColors.unsortedContent
+                        : RouteColors.text,
+                  ),
+                ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
 
-          const SizedBox(width: 12),
-
-          Expanded(child: OrderCardContent(order: order)),
-
-          const Icon(Icons.chevron_right, color: RouteColors.text),
+  BoxDecoration _getBoxDecoration() {
+    if (status == SortingOrderStatus.current) {
+      return BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: SortingOrderCardColors.currentBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: SortingOrderCardColors.currentBorder.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
+      );
+    }
+
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: RouteColors.border),
+    );
+  }
+
+  Widget _buildNumberBox() {
+    Color bgColor;
+    Color textColor;
+
+    switch (status) {
+      case SortingOrderStatus.sorted:
+        bgColor = SortingOrderCardColors.sortedBg;
+        textColor = SortingOrderCardColors.sortedContent;
+        break;
+      case SortingOrderStatus.unsorted:
+        bgColor = SortingOrderCardColors.unsortedBg;
+        textColor = SortingOrderCardColors.unsortedContent;
+        break;
+      case SortingOrderStatus.current:
+        bgColor = SortingOrderCardColors.currentNumberBg;
+        textColor = SortingOrderCardColors.currentNumberText;
+        break;
+    }
+
+    return Container(
+      width: 46,
+      height: 46,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '${order.sequenceOrder ?? '-'}',
+        style: TextStyle(
+          color: textColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -1952,8 +2097,13 @@ class SortingOrderCard extends StatelessWidget {
 
 class OrderCardContent extends StatelessWidget {
   final DeliveryOrderEntity order;
+  final SortingOrderStatus status;
 
-  const OrderCardContent({super.key, required this.order});
+  const OrderCardContent({
+    super.key,
+    required this.order,
+    required this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1962,32 +2112,139 @@ class OrderCardContent extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(
-              order.orderCode,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: RouteColors.text,
+            Flexible(
+              child: Text(
+                order.orderCode,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: status == SortingOrderStatus.unsorted
+                      ? SortingOrderCardColors.unsortedContent
+                      : RouteColors.text,
+                ),
               ),
             ),
-
             const SizedBox(width: 8),
-
-            _CustomerBadge(familiar: order.appliedLocationId != null),
+            _buildStatusBadge(),
           ],
         ),
-
         const SizedBox(height: 6),
-
-        _InfoRow(icon: Icons.person_outline, text: order.contactName),
-
+        _InfoRow(
+          icon: Icons.person_outline,
+          text: order.contactName,
+          status: status,
+        ),
         _InfoRow(
           icon: Icons.shopping_bag_outlined,
           text: order.orderName ?? '',
+          status: status,
         ),
-
-        _InfoRow(icon: Icons.location_on_outlined, text: order.address),
+        _InfoRow(
+          icon: Icons.location_on_outlined,
+          text: order.address,
+          status: status,
+        ),
       ],
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    switch (status) {
+      case SortingOrderStatus.sorted:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: SortingOrderCardColors.sortedBg,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Text(
+            'Đã sắp xếp',
+            style: TextStyle(
+              color: SortingOrderCardColors.sortedContent,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      case SortingOrderStatus.unsorted:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: SortingOrderCardColors.unsortedBg,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Text(
+            'Chưa sắp xếp',
+            style: TextStyle(
+              color: SortingOrderCardColors.unsortedContent,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      case SortingOrderStatus.current:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: SortingOrderCardColors.badgeCurrentBg,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(
+                Icons.star_outline,
+                size: 12,
+                color: SortingOrderCardColors.badgeCurrentText,
+              ),
+              SizedBox(width: 4),
+              Text(
+                'Cần sắp xếp',
+                style: TextStyle(
+                  color: SortingOrderCardColors.badgeCurrentText,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
+  Widget _InfoRow({
+    required IconData icon,
+    required String text,
+    required SortingOrderStatus status,
+  }) {
+    final color = status == SortingOrderStatus.unsorted
+        ? SortingOrderCardColors.unsortedContent
+        : SortingOrderCardColors
+              .sortedContent; // Hoặc dùng màu text thông thường tuỳ bạn chọn
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                color: status == SortingOrderStatus.unsorted
+                    ? SortingOrderCardColors.unsortedContent
+                    : RouteColors.text,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2013,7 +2270,8 @@ class DeliveringView extends StatelessWidget {
           return DeliveryTimelineOrderCard(
             index: index + 1,
             order: order,
-            isCurrent: order.status == DeliveryOrderStatus.delivering,
+            isCurrent: true,
+            // order.status == DeliveryOrderStatus.delivering,
           );
         }),
       ],
@@ -2136,7 +2394,8 @@ class DeliveryTimelineOrderCard extends StatelessWidget {
                       : RouteColors.border,
                 ),
               ),
-              child: OrderCardContent(order: order),
+              child: SizedBox.shrink(),
+              // OrderCardContent(order: order),
             ),
           ),
         ],
@@ -2573,7 +2832,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           ),
           const SizedBox(width: 12),
 
-          _OutlineButton(
+          _PrimaryButton(
             disabled: !_deliveryRoute.isAllChecked,
             icon: Icons.local_shipping_outlined,
             label: 'Sắp xếp hàng hoá',
@@ -2657,112 +2916,94 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
           const SizedBox(width: 12),
 
-          _PrimaryButton(
-            icon: Icons.local_shipping_outlined,
-            label: _deliveryRoute.totalSortedOrders == 0
-                ? 'Sắp xếp hàng hoá'
-                : 'Sắp xếp lại hàng hoá',
-            onPressed: () async {
-              bool serviceEnabled;
-              LocationPermission permission;
-
-              serviceEnabled = await Geolocator.isLocationServiceEnabled();
-              if (!serviceEnabled) {
-                if (context.mounted) {
-                  AppDialogUtils.showError(
-                    context: context,
-                    title: 'Lỗi định vị',
-                    subtitle: 'Vui lòng bật GPS trên thiết bị của bạn.',
-                  );
-                }
-                return;
-              }
-
-              permission = await Geolocator.checkPermission();
-              if (permission == LocationPermission.denied) {
-                permission = await Geolocator.requestPermission();
-                if (permission == LocationPermission.denied) {
-                  if (context.mounted) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Từ chối quyền',
-                      subtitle:
-                          'Ứng dụng cần quyền truy cập vị trí để tối ưu tuyến đường từ điểm bạn đang đứng.',
-                    );
-                  }
-                  return;
-                }
-              }
-
-              if (permission == LocationPermission.deniedForever) {
-                if (context.mounted) {
-                  AppDialogUtils.showError(
-                    context: context,
-                    title: 'Quyền bị từ chối vĩnh viễn',
-                    subtitle:
-                        'Vui lòng vào Cài đặt để cấp quyền vị trí cho ứng dụng.',
-                  );
-                }
-                return;
-              }
-
-              try {
-                Position position = await Geolocator.getCurrentPosition(
-                  desiredAccuracy: LocationAccuracy.high,
+          if (!_deliveryRoute.isAllOrdersRouted) ...[
+            _PrimaryButton(
+              icon: Icons.local_shipping_outlined,
+              label: 'Tìm lộ trình tối ưu',
+              onPressed: () async {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn chắc chắn thực hiện thao tác này không?',
+                  subtitle:
+                      'Lưu ý: Để tìm được lộ trình tối ưu nhất hãy đảm bảo các thông tin trong đơn hàng phải chính xác (nhất là địa chỉ nhận hàng)',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () async {
+                        final position =
+                            await AppLocationUtils.getCurrentPosition(context);
+                        if (position != null) {
+                          context.read<SortDeliveryOrdersCubit>().call(
+                            deliveryRouteId: _deliveryRoute.id,
+                            source: Point(
+                              x: position.longitude,
+                              y: position.latitude,
+                            ),
+                          );
+                          context.pop();
+                        }
+                      },
+                    ),
+                  ],
                 );
-                if (_deliveryRoute.totalSortedOrders == 0) {
-                  context.read<SortDeliveryOrdersCubit>().call(
-                    deliveryRouteId: _deliveryRoute.id,
-                    source: Point(x: position.longitude, y: position.latitude),
-                  );
-                } else {
-                  if (context.mounted) {
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Bạn có chắc muốn sắp xếp lại hàng hoá?',
-                      subtitle:
-                          'Lưu ý: Thứ tự sắp xếp có thể đảo lộn nếu trước đó bạn đã thêm hoặc xoá bớt đơn hàng.',
-                      actions: [
-                        SmgoButton(
-                          isOutlined: true,
-                          text: 'Huỷ',
-                          primaryColor: AppColors.primary,
-                          onPressed: () {
-                            context.pop();
-                          },
-                        ),
-                        SmgoButton(
-                          primaryColor: AppColors.primary,
-                          text: 'Xác nhận',
-                          onPressed: () {
-                            context.read<SortDeliveryOrdersCubit>().call(
-                              deliveryRouteId: _deliveryRoute.id,
-                              source: Point(
-                                x: position.longitude,
-                                y: position.latitude,
-                              ),
-                            );
-                            context.pop();
-                          },
-                        ),
-                      ],
-                    );
-                  }
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  AppDialogUtils.showError(
-                    context: context,
-                    title: 'Không thể lấy vị trí',
-                    subtitle:
-                        'Đã xảy ra lỗi khi cố gắng lấy vị trí hiện tại của bạn.',
-                  );
-                }
-              }
-            },
-          ),
+              },
+            ),
 
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
+
+          if (_deliveryRoute.isAllOrdersRouted &&
+              !_deliveryRoute.isAllSorted) ...[
+            _OutlineButton(
+              disabled: _deliveryRoute.currentNeedSortOrder == null,
+              icon: Icons.done,
+              label: 'Xác nhận đã sắp xếp',
+              subtitle: 'Xác nhận để chuyển sang đơn tiếp theo',
+              onPressed: () {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title:
+                      'Bạn chắc chắn đã sắp xếp hàng hoá này vào thùng rồi chứ?',
+                  subtitle:
+                      'Sắp xếp hàng hoá đúng cách sẽ giúp bạn tiết kiệm rất nhiều thời gian giao hàng',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () async {
+                        context.read<ConfirmSortedDeliveryOrdersCubit>().call(
+                          deliveryRouteId: _deliveryRoute.id,
+                          deliveryOrderIds: [
+                            _deliveryRoute.currentNeedSortOrder!.id,
+                          ],
+                        );
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(width: 12),
+          ],
 
           _OutlineButton(
             disabled: true,
@@ -3248,67 +3489,112 @@ class _PrimaryButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final String? subtitle;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
+  final bool disabled; // Thuộc tính quyết định trạng thái disable
 
   const _PrimaryButton({
     required this.icon,
     required this.label,
     this.subtitle,
-    required this.onPressed,
+    this.onPressed,
+    this.onLongPress,
+    this.disabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: RouteColors.green,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.white),
-
-              const SizedBox(width: 8),
-
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+    if (disabled) {
+      return Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF0F3),
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: const Color(0xFFA7ABB9)),
+            const SizedBox(width: 8),
+            _buildTextContent(
+              labelColor: const Color(0xFF9297A8),
+              subtitleColor: const Color(0xFFA7ABB9),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Dùng chung OutlinedButton (hoặc TextButton) với style filled để triệt tiêu hoàn toàn độ lệch 1px của Material/InkWell
+    return OutlinedButton(
+      onPressed: onPressed,
+      onLongPress: onLongPress,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: RouteColors.green,
+        foregroundColor: Colors.white,
+        side: BorderSide.none,
+        minimumSize: const Size(0, 48),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white),
+          const SizedBox(width: 8),
+          _buildTextContent(
+            labelColor: Colors.white,
+            subtitleColor: Colors.white70,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Hàm phụ trợ để tránh lặp lại phần hiển thị Text và Column
+  Widget _buildTextContent({
+    required Color labelColor,
+    required Color subtitleColor,
+  }) {
+    if (subtitle != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: labelColor,
+            ),
+          ),
+          Text(
+            subtitle!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 9, color: subtitleColor),
+          ),
+        ],
+      );
+    }
+
+    return Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: labelColor,
       ),
     );
   }
 }
-
 class _OutlineButton extends StatelessWidget {
   final IconData icon;
   final String label;

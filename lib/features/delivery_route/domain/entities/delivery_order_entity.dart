@@ -49,10 +49,10 @@ class DeliveryOrderEntity {
 enum DeliveryOrderStatus {
   pending(value: 'pending'),
   checked(value: 'checked'),
-  delivering(value: 'delivering'),
+  sorted(value: 'sorted'),
   delivered(value: 'delivered'),
-  rescheduled(value: 'rescheduled'),
-  cancelled(value: 'cancelled');
+  cancelled(value: 'cancelled'),
+  rescheduled(value: 'rescheduled');
 
   final String value;
 
