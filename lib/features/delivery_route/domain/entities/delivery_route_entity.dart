@@ -57,7 +57,7 @@ class DeliveryRouteEntity {
       totalOrders;
 
   DeliveryOrderEntity? get currentNeedSortOrder {
-    if (status == 'sorting' && isAllOrdersRouted) {
+    if (status == 'sorting' && isAllOrdersRouted && !isAllSorted) {
       var unsortedOrders = orders
           .where((order) => order.status == 'checked')
           .toList();
@@ -78,6 +78,9 @@ class DeliveryRouteEntity {
       var deliveringOrders = orders
           .where((order) => order.status == 'sorted')
           .toList();
+      if (deliveringOrders.isEmpty) {
+        return null;
+      }
       var minSequenceOrderIndex = 0;
       for (int i = 0; i < deliveringOrders.length; ++i) {
         if (deliveringOrders[i].sequenceOrder! <

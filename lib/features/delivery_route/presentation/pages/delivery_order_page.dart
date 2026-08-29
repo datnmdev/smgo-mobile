@@ -13,8 +13,14 @@ import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_cancelled_order/confirm_cancelled_order_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_cancelled_order/confirm_cancelled_order_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivered_order/confirm_delivered_order_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivered_order/confirm_delivered_order_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_rescheduled_order/confirm_rescheduled_order_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_rescheduled_order/confirm_rescheduled_order_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
@@ -131,6 +137,15 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         ),
         BlocProvider<TransitionRouteToDeliveringCubit>(
           create: ((context) => di<TransitionRouteToDeliveringCubit>()),
+        ),
+        BlocProvider<ConfirmDeliveredOrderCubit>(
+          create: ((context) => di<ConfirmDeliveredOrderCubit>()),
+        ),
+        BlocProvider<ConfirmCancelledOrderCubit>(
+          create: ((context) => di<ConfirmCancelledOrderCubit>()),
+        ),
+        BlocProvider<ConfirmRescheduledOrderCubit>(
+          create: ((context) => di<ConfirmRescheduledOrderCubit>()),
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
@@ -380,6 +395,66 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is TransitionRouteToDeliveringLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                ConfirmDeliveredOrderCubit,
+                ConfirmDeliveredOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmDeliveredOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmDeliveredOrderLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                ConfirmCancelledOrderCubit,
+                ConfirmCancelledOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmCancelledOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmCancelledOrderLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                ConfirmRescheduledOrderCubit,
+                ConfirmRescheduledOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmRescheduledOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmRescheduledOrderLoading,
                 ),
               ),
             ],
@@ -1079,8 +1154,7 @@ class RouteProgress extends StatelessWidget {
             _StepItem(
               step: 1,
               title: 'Kiểm tra đơn hàng',
-              subtitle:
-                  '${deliveryRoute.totalCheckedOrders}/${deliveryRoute.totalOrders} đơn',
+              subtitle: '',
               completed: currentStep > 1,
               active: currentStep == 1,
             ),
@@ -1090,7 +1164,7 @@ class RouteProgress extends StatelessWidget {
             _StepItem(
               step: 2,
               title: 'Sắp xếp hàng hoá',
-              subtitle: _sortingSubtitle,
+              subtitle: '',
               completed: currentStep > 2,
               active: currentStep == 2,
             ),
@@ -1100,7 +1174,7 @@ class RouteProgress extends StatelessWidget {
             _StepItem(
               step: 3,
               title: 'Giao hàng',
-              subtitle: _deliverySubtitle,
+              subtitle: '',
               completed: currentStep > 3,
               active: currentStep == 3,
             ),
@@ -1110,7 +1184,7 @@ class RouteProgress extends StatelessWidget {
             _StepItem(
               step: 4,
               title: 'Hoàn thành',
-              subtitle: deliveryRoute.isCompleted ? 'Hoàn tất' : null,
+              subtitle: '',
               completed: currentStep >= 4,
               active: currentStep == 4,
             ),
@@ -1131,20 +1205,6 @@ class RouteProgress extends StatelessWidget {
       return 4;
     } else {
       throw Exception('Delivery route status does not match any valid case');
-    }
-  }
-
-  String get _sortingSubtitle {
-    return '${deliveryRoute.totalSortedOrders}/${deliveryRoute.totalOrders} đơn';
-  }
-
-  String? get _deliverySubtitle {
-    if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
-      return 'Đang giao';
-    } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      return '${deliveryRoute.totalOrders} đơn';
-    } else {
-      return null;
     }
   }
 }
@@ -2432,11 +2492,7 @@ class _DeliveringViewState extends State<DeliveringView>
               Tab(
                 child: _TabBadge(
                   title: 'Lộ trình giao',
-                  count:
-                      _deliveryRoute.totalOrders -
-                      deliveredOrders.length -
-                      cancelledOrders.length -
-                      rescheduledOrders.length,
+                  count: _deliveryRoute.totalOrders,
                 ),
               ),
               Tab(
@@ -2561,11 +2617,11 @@ class DeliveringOrderList extends StatelessWidget {
             : DeliveryOrderStatus.sorted;
 
         final time = order.status == DeliveryOrderStatus.delivered.value
-            ? DateFormat('HH:mm').format(order.deliveredAt!)
+            ? DateFormat('HH:mm').format(order.deliveredAt!.toLocal())
             : order.status == DeliveryOrderStatus.cancelled.value
-            ? DateFormat('HH:mm').format(order.cancelledAt!)
+            ? DateFormat('HH:mm').format(order.cancelledAt!.toLocal())
             : order.status == DeliveryOrderStatus.rescheduled.value
-            ? DateFormat('HH:mm').format(order.rescheduledAt!)
+            ? DateFormat('HH:mm').format(order.rescheduledAt!.toLocal())
             : deliveryRoute.currentNeedDeliveringOrder?.id == order.id
             ? null
             : null;
@@ -2640,6 +2696,7 @@ class DeliveringOrderItem extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        // Timeline line
         if (index != totalOrders - 1)
           Positioned(
             left: 20,
@@ -2651,9 +2708,11 @@ class DeliveringOrderItem extends StatelessWidget {
         Column(
           children: [
             if (index != 0) const SizedBox(height: 8),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Timeline node
                 SizedBox(
                   width: 42,
                   child: Align(
@@ -2661,7 +2720,10 @@ class DeliveringOrderItem extends StatelessWidget {
                     child: _buildTimelineNode(theme),
                   ),
                 ),
+
                 const SizedBox(width: 4),
+
+                // Order card
                 Expanded(
                   child: Material(
                     color: Colors.transparent,
@@ -2686,6 +2748,9 @@ class DeliveringOrderItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // =========================
+                              // ORDER CODE + STATUS
+                              // =========================
                               Row(
                                 children: [
                                   Expanded(
@@ -2732,6 +2797,9 @@ class DeliveringOrderItem extends StatelessWidget {
 
                               const SizedBox(height: 7),
 
+                              // =========================
+                              // CONTACT NAME + PHONE
+                              // =========================
                               Row(
                                 children: [
                                   Icon(
@@ -2780,6 +2848,10 @@ class DeliveringOrderItem extends StatelessWidget {
                               ),
 
                               const SizedBox(height: 5),
+
+                              // =========================
+                              // ADDRESS
+                              // =========================
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -2804,6 +2876,31 @@ class DeliveringOrderItem extends StatelessWidget {
                                   ),
                                 ],
                               ),
+
+                              // =========================
+                              // SUCCESS
+                              // =========================
+                              if (status == DeliveryOrderStatus.delivered)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 5),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'Giao thành công',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: theme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              // =========================
+                              // DELIVERING
+                              // =========================
                               if (status == DeliveryOrderStatus.delivering)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 5),
@@ -2821,14 +2918,38 @@ class DeliveringOrderItem extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              if (status == DeliveryOrderStatus.rescheduled &&
-                                  time != null)
+
+                              // =========================
+                              // RESCHEDULED
+                              // =========================
+                              if (status == DeliveryOrderStatus.rescheduled)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 5),
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      'Giao sau $time',
+                                      'Giao sau',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: theme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              // =========================
+                              // CANCELLED
+                              // =========================
+                              if (status == DeliveryOrderStatus.cancelled)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 5),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'Giao thất bại',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -2854,45 +2975,74 @@ class DeliveringOrderItem extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // TIMELINE NODE
+  // ============================================================
+
   Widget _buildTimelineNode(_DeliveryTheme theme) {
-    if (status == DeliveryOrderStatus.delivered) {
-      return Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primary),
-        child: const Icon(Icons.check, size: 17, color: Colors.white),
-      );
-    }
+    switch (status) {
+      case DeliveryOrderStatus.delivered:
+        return _buildStatusNode(theme: theme, icon: Icons.check, iconSize: 17);
 
-    if (status == DeliveryOrderStatus.delivering) {
-      return Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primary),
-        child: const Icon(Icons.navigation, size: 15, color: Colors.white),
-      );
-    }
+      case DeliveryOrderStatus.delivering:
+        return _buildStatusNode(
+          theme: theme,
+          icon: Icons.navigation,
+          iconSize: 15,
+        );
 
+      case DeliveryOrderStatus.sorted:
+        return _buildStatusNode(
+          theme: theme,
+          icon: Icons.inventory_2_outlined,
+          iconSize: 15,
+        );
+
+      case DeliveryOrderStatus.rescheduled:
+        return _buildStatusNode(
+          theme: theme,
+          icon: Icons.schedule,
+          iconSize: 15,
+        );
+
+      case DeliveryOrderStatus.cancelled:
+        return _buildStatusNode(theme: theme, icon: Icons.close, iconSize: 17);
+
+      default:
+        return _buildStatusNode(
+          theme: theme,
+          icon: Icons.circle_outlined,
+          iconSize: 15,
+        );
+    }
+  }
+
+  Widget _buildStatusNode({
+    required _DeliveryTheme theme,
+    required IconData icon,
+    required double iconSize,
+  }) {
     return Container(
-      width: 26,
-      height: 26,
-      decoration: const BoxDecoration(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFFF1F5F9),
+        color: theme.primary,
+        boxShadow: [
+          BoxShadow(
+            color: theme.primary.withValues(alpha: 0.18),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
-      alignment: Alignment.center,
-      child: Text(
-        '$index',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF334155),
-        ),
-      ),
+      child: Icon(icon, size: iconSize, color: Colors.white),
     );
   }
+
+  // ============================================================
+  // STATUS BADGE
+  // ============================================================
 
   Widget _buildStatusBadge(_DeliveryTheme theme) {
     String text;
@@ -2910,13 +3060,18 @@ class DeliveringOrderItem extends StatelessWidget {
         text = 'Chưa giao';
         break;
 
+      case DeliveryOrderStatus.cancelled:
+        text = 'Thất bại';
+        break;
+
       case DeliveryOrderStatus.rescheduled:
         text = 'Giao sau';
         break;
 
       default:
         throw Exception(
-          'Delivery order status does not match any valid status value.',
+          'Delivery order status does not match '
+          'any valid status value.',
         );
     }
 
@@ -2939,8 +3094,15 @@ class DeliveringOrderItem extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // THEME
+  // ============================================================
+
   _DeliveryTheme _getTheme() {
     switch (status) {
+      // ----------------------------------------------------------
+      // DELIVERED
+      // ----------------------------------------------------------
       case DeliveryOrderStatus.delivered:
         return const _DeliveryTheme(
           primary: Color(0xFF16A34A),
@@ -2950,40 +3112,66 @@ class DeliveringOrderItem extends StatelessWidget {
           iconColor: Color(0xFF16A34A),
         );
 
+      // ----------------------------------------------------------
+      // DELIVERING
+      // ----------------------------------------------------------
       case DeliveryOrderStatus.delivering:
         return const _DeliveryTheme(
           primary: Color(0xFFF59E0B),
           background: Color(0xFFFFFBF2),
           border: Color(0xFFFCD77A),
           badgeBackground: Color(0xFFFFF1D6),
-          iconColor: Color(0xFF16A34A),
+          iconColor: Color(0xFFD97706),
         );
 
+      // ----------------------------------------------------------
+      // SORTED
+      // ----------------------------------------------------------
       case DeliveryOrderStatus.sorted:
         return const _DeliveryTheme(
           primary: Color(0xFF64748B),
           background: Colors.white,
           border: Color(0xFFE5E7EB),
           badgeBackground: Color(0xFFF1F5F9),
-          iconColor: Color(0xFF16A34A),
+          iconColor: Color(0xFF64748B),
         );
 
+      // ----------------------------------------------------------
+      // RESCHEDULED
+      // ----------------------------------------------------------
       case DeliveryOrderStatus.rescheduled:
         return const _DeliveryTheme(
           primary: Color(0xFF3B82F6),
           background: Colors.white,
           border: Color(0xFFE5E7EB),
           badgeBackground: Color(0xFFEFF6FF),
-          iconColor: Color(0xFF16A34A),
+          iconColor: Color(0xFF3B82F6),
+        );
+
+      // ----------------------------------------------------------
+      // CANCELLED
+      // ----------------------------------------------------------
+      case DeliveryOrderStatus.cancelled:
+        return const _DeliveryTheme(
+          primary: Color(0xFFEF4444),
+          background: Color(0xFFFFF5F5),
+          border: Color(0xFFFECACA),
+          badgeBackground: Color(0xFFFEE2E2),
+          iconColor: Color(0xFFEF4444),
         );
 
       default:
         throw Exception(
-          'Delivery order status does not match any valid status value.',
+          'Delivery order status does not match '
+          'any valid status value.',
         );
     }
   }
 }
+
+// ================================================================
+// DELIVERY THEME
+// ================================================================
 
 class _DeliveryTheme {
   final Color primary;
@@ -3589,42 +3777,61 @@ class __RouteActionBarState extends State<_RouteActionBar> {
       return Row(
         children: [
           const SizedBox(width: 12),
-          _PrimaryButton(
-            icon: Icons.navigation,
-            label: 'Điều hướng trên bản đồ',
-            subtitle: 'Sử dụng google map',
-            onPressed: () async {
-              final googleMapDirectionsUri =
-                  ExternalUrlUtil.getGoogleMapsDirectionsUri(
-                    destinationLat:
-                        _deliveryRoute.currentNeedDeliveringOrder!.location.y,
-                    destinationLng:
-                        _deliveryRoute.currentNeedDeliveringOrder!.location.x,
-                  );
-              if (await canLaunchUrl(googleMapDirectionsUri)) {
-                await launchUrl(googleMapDirectionsUri);
-              }
-            },
-            onLongPress: () => _showDirectionToMapMethod(context: context),
-          ),
 
-          const SizedBox(width: 12),
+          if (_deliveryRoute.currentNeedDeliveringOrder != null) ...[
+            _PrimaryButton(
+              icon: Icons.navigation,
+              label: 'Điều hướng trên bản đồ',
+              subtitle: 'Sử dụng google map',
+              onPressed: () async {
+                final googleMapDirectionsUri =
+                    ExternalUrlUtil.getGoogleMapsDirectionsUri(
+                      destinationLat:
+                          _deliveryRoute.currentNeedDeliveringOrder!.location.y,
+                      destinationLng:
+                          _deliveryRoute.currentNeedDeliveringOrder!.location.x,
+                    );
+                if (await canLaunchUrl(googleMapDirectionsUri)) {
+                  await launchUrl(googleMapDirectionsUri);
+                }
+              },
+              onLongPress: () => _showDirectionToMapMethod(context: context),
+            ),
 
-          _OutlineButton(
-            icon: Icons.task_alt_rounded,
-            label: 'Xác nhận giao hàng',
-            subtitle: 'Xác nhận để giao đơn tiếp theo',
-            onPressed: () {},
-          ),
+            const SizedBox(width: 12),
+          ],
 
-          const SizedBox(width: 12),
+          if (_deliveryRoute.currentNeedDeliveringOrder != null) ...[
+            _OutlineButton(
+              icon: Icons.task_alt_rounded,
+              label: 'Xác nhận giao hàng',
+              subtitle: 'Xác nhận để giao đơn tiếp theo',
+              onPressed: () =>
+                  _showConfirmDeliveryOrderMethod(context: context),
+            ),
 
-          _PrimaryButton(
-            icon: Icons.check_circle_outline_rounded,
-            label: 'Hoàn thành lộ trình',
-            subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
-            onPressed: () {},
-          ),
+            const SizedBox(width: 12),
+          ],
+
+          if (_deliveryRoute.currentNeedDeliveringOrder == null)
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width - 24,
+              child: _PrimaryButton(
+                disabled: false,
+                icon: Icons.check_circle_outline_rounded,
+                label: 'Hoàn thành lộ trình',
+                subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
+                onPressed: () {},
+              ),
+            )
+          else
+            _PrimaryButton(
+              disabled: true,
+              icon: Icons.check_circle_outline_rounded,
+              label: 'Hoàn thành lộ trình',
+              subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
+              onPressed: () {},
+            ),
 
           const SizedBox(width: 12),
         ],
@@ -3652,12 +3859,63 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     }
   }
 
+  void _showConfirmDeliveryOrderMethod({required BuildContext context}) {
+    AppDialogUtils.showCustomDialog(
+      context: context,
+      iconData: Icons.check_circle_outline_rounded,
+      title: 'Xác nhận giao hàng',
+      subtitle: 'Hãy chọn mục tương ứng trong danh sách dưới đây',
+      content: Column(
+        children: [
+          OptionButton(
+            icon: Icon(Icons.check_circle, color: const Color(0xFF16A34A)),
+            title: 'Giao hàng thành công',
+            subtitle: 'Hàng đã trao tận tay cho người nhận',
+            onTap: () {
+              context.read<ConfirmDeliveredOrderCubit>().call(
+                deliveryRouteId: _deliveryRoute.id,
+                deliveryOrderId: _deliveryRoute.currentNeedDeliveringOrder!.id,
+              );
+              context.pop();
+            },
+          ),
+          SizedBox(height: 8),
+          OptionButton(
+            icon: Icon(Icons.cancel, color: const Color(0xFFDC2626)),
+            title: 'Giao hàng thất bại',
+            subtitle: 'Người nhận không nhận hàng',
+            onTap: () {
+              context.read<ConfirmCancelledOrderCubit>().call(
+                deliveryRouteId: _deliveryRoute.id,
+                deliveryOrderId: _deliveryRoute.currentNeedDeliveringOrder!.id,
+              );
+              context.pop();
+            },
+          ),
+          SizedBox(height: 8),
+          OptionButton(
+            icon: Icon(Icons.schedule, color: const Color(0xFF3B82F6)),
+            title: 'Hẹn giao sau',
+            subtitle: 'Người nhận yêu cầu giao đơn hàng này sau',
+            onTap: () {
+              context.read<ConfirmRescheduledOrderCubit>().call(
+                deliveryRouteId: _deliveryRoute.id,
+                deliveryOrderId: _deliveryRoute.currentNeedDeliveringOrder!.id,
+              );
+              context.pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDirectionToMapMethod({required BuildContext context}) {
     AppDialogUtils.showCustomDialog(
       context: context,
-      iconData: Icons.fact_check_outlined,
-      title: 'Chọn cách thức điều hướng',
-      subtitle: 'Vui lòng chọn một cách thức',
+      iconData: Icons.navigation,
+      title: 'Tuỳ chọn điều hướng',
+      subtitle: 'Hãy chọn một mục mà bạn muốn',
       content: Column(
         children: [
           OptionButton(

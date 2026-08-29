@@ -31,7 +31,10 @@ import 'package:shipgo/features/delivery_route/domain/usecases/recheck_delivery_
 import 'package:shipgo/features/delivery_route/domain/usecases/sort_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/update_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_cancelled_order/confirm_cancelled_order_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivered_order/confirm_delivered_order_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_rescheduled_order/confirm_rescheduled_order_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
@@ -391,6 +394,21 @@ Future<void> initializeDependencies() async {
   di.registerFactory<TransitionRouteToDeliveringCubit>(
     () => TransitionRouteToDeliveringCubit(
       updateDeliveryRouteUsecase: di<UpdateDeliveryRouteUsecase>(),
+    ),
+  );
+  di.registerFactory<ConfirmDeliveredOrderCubit>(
+    () => ConfirmDeliveredOrderCubit(
+      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
+    ),
+  );
+  di.registerFactory<ConfirmCancelledOrderCubit>(
+    () => ConfirmCancelledOrderCubit(
+      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
+    ),
+  );
+  di.registerFactory<ConfirmRescheduledOrderCubit>(
+    () => ConfirmRescheduledOrderCubit(
+      updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
     ),
   );
 }

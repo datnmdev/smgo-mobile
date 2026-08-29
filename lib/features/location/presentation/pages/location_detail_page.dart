@@ -82,7 +82,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
           listener: (context, state) {
             if (state is GetMyLocationsDone) {
               getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
-
+              
               setState(() {
                 location = state.data!.data[0];
               });
