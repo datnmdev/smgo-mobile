@@ -39,6 +39,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_su
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
@@ -385,6 +386,11 @@ Future<void> initializeDependencies() async {
     () => ConfirmSortedDeliveryOrdersCubit(
       confirmSortedDeliveryOrdersUsecase:
           di<ConfirmSortedDeliveryOrdersUsecase>(),
+    ),
+  );
+  di.registerFactory<TransitionRouteToDeliveringCubit>(
+    () => TransitionRouteToDeliveringCubit(
+      updateDeliveryRouteUsecase: di<UpdateDeliveryRouteUsecase>(),
     ),
   );
 }

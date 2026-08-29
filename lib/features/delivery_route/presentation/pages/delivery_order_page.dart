@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +27,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_deliver
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_cubit.dart';
@@ -123,6 +127,9 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         ),
         BlocProvider<ConfirmSortedDeliveryOrdersCubit>(
           create: ((context) => di<ConfirmSortedDeliveryOrdersCubit>()),
+        ),
+        BlocProvider<TransitionRouteToDeliveringCubit>(
+          create: ((context) => di<TransitionRouteToDeliveringCubit>()),
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
@@ -352,6 +359,26 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is ConfirmSortedDeliveryOrdersLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                TransitionRouteToDeliveringCubit,
+                TransitionRouteToDeliveringState
+              >(
+                listener: (context, state) {
+                  if (state is TransitionRouteToDeliveringDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is TransitionRouteToDeliveringLoading,
                 ),
               ),
             ],
@@ -1492,6 +1519,8 @@ class _SortingViewState extends State<SortingView> {
     if (_deliveryRoute.isAllOrdersRouted) {
       sortedOrders.sort((a, b) => b.sequenceOrder! - a.sequenceOrder!);
     }
+    var uniqueOrderCodeSuffixs = _getUniqueOrderSuffixes(sortedOrders);
+
     return Column(
       children: [
         const _SortingGuide(),
@@ -1516,6 +1545,9 @@ class _SortingViewState extends State<SortingView> {
                   ? SortingOrderStatus.sorted
                   : SortingOrderStatus.current,
               order: sortedOrders[index],
+              uniqueOrderCodeSuffix:
+                  uniqueOrderCodeSuffixs[sortedOrders[index].id]!,
+              deliveryRoute: _deliveryRoute,
               onTap: () {
                 context.pushNamed(
                   AppRouteNames.deliveryOrderDetail,
@@ -1542,6 +1574,36 @@ class _SortingViewState extends State<SortingView> {
         ),
       ],
     );
+  }
+
+  Map<String, String> _getUniqueOrderSuffixes(
+    List<DeliveryOrderEntity> orders,
+  ) {
+    final result = <String, String>{};
+
+    for (final order in orders) {
+      final code = order.orderCode;
+
+      for (int length = 1; length <= code.length; length++) {
+        final suffix = code.substring(code.length - length);
+
+        final isUnique = orders.every((other) {
+          if (other.id == order.id) return true;
+
+          final otherCode = other.orderCode;
+
+          if (otherCode.length < length) return true;
+
+          return otherCode.substring(otherCode.length - length) != suffix;
+        });
+
+        if (isUnique) {
+          result[order.id] = suffix;
+          break;
+        }
+      }
+    }
+    return result;
   }
 }
 
@@ -1759,7 +1821,8 @@ class _SortingGuideState extends State<_SortingGuide> {
                 Text(
                   'Số thứ tự càng lớn là đơn hàng giao sau cùng.\n'
                   'Vui lòng xếp hàng hoá từ dưới lên trên trong thùng '
-                  'để đảm bảo giao đúng thứ tự.',
+                  'để đảm bảo giao đúng thứ tự.\n'
+                  'Dễ dàng phân biệt đơn hàng bằng các ký tự cuối mã đơn được tô màu xanh lá.',
                   style: TextStyle(
                     fontSize: 11.5,
                     height: 1.35,
@@ -1984,12 +2047,16 @@ class SortingOrderCard extends StatelessWidget {
   final DeliveryOrderEntity order;
   final SortingOrderStatus status; // Thêm thuộc tính trạng thái
   final VoidCallback? onTap;
+  final String uniqueOrderCodeSuffix;
+  final DeliveryRouteEntity deliveryRoute;
 
   const SortingOrderCard({
     super.key,
     required this.order,
     required this.status,
     this.onTap,
+    required this.uniqueOrderCodeSuffix,
+    required this.deliveryRoute,
   });
 
   @override
@@ -2013,7 +2080,12 @@ class SortingOrderCard extends StatelessWidget {
                   _buildNumberBox(),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: OrderCardContent(order: order, status: status),
+                    child: OrderCardContent(
+                      order: order,
+                      status: status,
+                      uniqueOrderCodeSuffix: uniqueOrderCodeSuffix,
+                      deliveryRoute: deliveryRoute,
+                    ),
                   ),
                   Icon(
                     Icons.chevron_right,
@@ -2098,11 +2170,15 @@ class SortingOrderCard extends StatelessWidget {
 class OrderCardContent extends StatelessWidget {
   final DeliveryOrderEntity order;
   final SortingOrderStatus status;
+  final String uniqueOrderCodeSuffix;
+  final DeliveryRouteEntity deliveryRoute;
 
   const OrderCardContent({
     super.key,
     required this.order,
     required this.status,
+    required this.uniqueOrderCodeSuffix,
+    required this.deliveryRoute,
   });
 
   @override
@@ -2113,20 +2189,47 @@ class OrderCardContent extends StatelessWidget {
         Row(
           children: [
             Flexible(
-              child: Text(
-                order.orderCode,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: status == SortingOrderStatus.unsorted
-                      ? SortingOrderCardColors.unsortedContent
-                      : RouteColors.text,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      order.orderCode.substring(
+                        0,
+                        order.orderCode.length - uniqueOrderCodeSuffix.length,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: status == SortingOrderStatus.unsorted
+                            ? SortingOrderCardColors.unsortedContent
+                            : RouteColors.text,
+                      ),
+                    ),
+                  ),
+
+                  Text(
+                    uniqueOrderCodeSuffix,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color:
+                          status == SortingOrderStatus.current &&
+                              deliveryRoute.currentNeedSortOrder?.id == order.id
+                          ? AppColors.primary
+                          : (status == SortingOrderStatus.unsorted
+                                ? SortingOrderCardColors.unsortedContent
+                                : RouteColors.text),
+                    ),
+                  ),
+                ],
               ),
             ),
+
             const SizedBox(width: 8),
+
             _buildStatusBadge(),
           ],
         ),
@@ -2939,18 +3042,17 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       primaryColor: AppColors.primary,
                       text: 'Xác nhận',
                       onPressed: () async {
+                        context.pop();
                         final position =
                             await AppLocationUtils.getCurrentPosition(context);
-                        if (position != null) {
-                          context.read<SortDeliveryOrdersCubit>().call(
-                            deliveryRouteId: _deliveryRoute.id,
-                            source: Point(
-                              x: position.longitude,
-                              y: position.latitude,
-                            ),
-                          );
-                          context.pop();
-                        }
+                        if (!context.mounted || position == null) return;
+                        context.read<SortDeliveryOrdersCubit>().call(
+                          deliveryRouteId: _deliveryRoute.id,
+                          source: Point(
+                            x: position.longitude,
+                            y: position.latitude,
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -3006,10 +3108,38 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           ],
 
           _OutlineButton(
-            disabled: true,
+            disabled: !_deliveryRoute.isAllSorted,
             icon: Icons.play_arrow,
             label: 'Bắt đầu giao hàng',
             subtitle: 'Chỉ khả dụng khi sắp xếp 100%',
+            onPressed: () {
+              AppDialogUtils.showSuccess(
+                context: context,
+                title: 'Bạn chắc chắn đã sẵn sàng giao hàng chưa?',
+                subtitle:
+                    'Mẹo: Nhớ hãy lưu lại vị trí của người nhận mỗi khi giao hàng thành công nhé. Nó sẽ giúp bạn giao hàng nhanh hơn vào lần sau đấy.',
+                actions: [
+                  SmgoButton(
+                    isOutlined: true,
+                    text: 'Huỷ',
+                    primaryColor: AppColors.primary,
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
+                  SmgoButton(
+                    primaryColor: AppColors.primary,
+                    text: 'Xác nhận',
+                    onPressed: () async {
+                      context.read<TransitionRouteToDeliveringCubit>().call(
+                        deliveryRouteId: _deliveryRoute.id,
+                      );
+                      context.pop();
+                    },
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(width: 12),
@@ -3595,6 +3725,7 @@ class _PrimaryButton extends StatelessWidget {
     );
   }
 }
+
 class _OutlineButton extends StatelessWidget {
   final IconData icon;
   final String label;
