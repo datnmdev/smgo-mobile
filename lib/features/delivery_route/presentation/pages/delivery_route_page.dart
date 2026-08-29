@@ -1334,7 +1334,7 @@ class SortingRouteCardItem extends StatelessWidget {
                           child: _buildStatusMetric(
                             icon: Icons.access_time_rounded,
                             iconColor: const Color(0xFFF59E0B),
-                            count: item.totalCheckedOrders,
+                            count: item.totalOrders - item.totalSortedOrders,
                             label: AppStrings.rPUnsortedStatusOrderLabel.tr(),
                           ),
                         ),

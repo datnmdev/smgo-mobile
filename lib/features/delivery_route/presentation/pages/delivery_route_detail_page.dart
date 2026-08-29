@@ -554,7 +554,7 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
             title: AppStrings.rDPTotalUnsortedOrdersLabel.tr(),
             value: AppStrings.rDPCountContent.tr(
               namedArgs: {
-                'quantity': deliveryRouteData.totalCheckedOrders.toString(),
+                'quantity': (deliveryRouteData.totalOrders - deliveryRouteData.totalSortedOrders).toString(),
               },
             ),
             valueColor: checkedColor,
