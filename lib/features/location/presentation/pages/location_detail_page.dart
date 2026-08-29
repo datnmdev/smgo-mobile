@@ -9,7 +9,6 @@ import 'package:shipgo/core/resources/app_assets.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/utils/external_url_util.dart';
-import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:shipgo/shared/presentation/widgets/image_slider.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
@@ -83,6 +82,10 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
           listener: (context, state) {
             if (state is GetMyLocationsDone) {
               getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
+
+              setState(() {
+                location = state.data!.data[0];
+              });
             }
           },
           builder: (context, state) => RefreshIndicator(
@@ -97,13 +100,6 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
             },
             child: BlocBuilder<GetMyLocationsCubit, GetMyLocationsState>(
               builder: (context, state) {
-                if (state is GetMyLocationsLoading) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (state is GetMyLocationsDone) {
-                  location = state.data!.data[0];
-                } else if (state is GetMyLocationsFailed) {
-                  return Center();
-                }
                 return SingleChildScrollView(
                   child: Column(
                     children: [
@@ -367,6 +363,62 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                             ),
                             const SizedBox(height: 12),
 
+                            // Điều hướng
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildNavigationItem(
+                                  title: 'Google Maps',
+                                  subtitle: 'Mở bằng Google Maps',
+                                  icon: Image.asset(
+                                    AppAssets.icGoogleMaps,
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  onTap: () async {
+                                    final googleMapDirectionsUri =
+                                        ExternalUrlUtil.getGoogleMapsDirectionsUri(
+                                          destinationLat: location!.location.y,
+                                          destinationLng: location!.location.x,
+                                        );
+
+                                    if (await canLaunchUrl(
+                                      googleMapDirectionsUri,
+                                    )) {
+                                      await launchUrl(
+                                        googleMapDirectionsUri,
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    }
+                                  },
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                _buildNavigationItem(
+                                  title: 'Bản đồ của app',
+                                  subtitle: 'Mở bản đồ nội bộ',
+                                  icon: Image.asset(
+                                    AppAssets.logo,
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Tính năng này đang trong giai đoạn phát triển. '
+                                          'Vui lòng chờ đến bản cập nhật tiếp theo.',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 8),
+
                             // Khung Map
                             M3MapWidget(
                               mode: MapMode.view,
@@ -545,6 +597,77 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                       ),
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationItem({
+    required String title,
+    required String subtitle,
+    required Widget icon,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          mouseCursor: SystemMouseCursors.click,
+
+          splashColor: Colors.blue.withValues(alpha: 0.12),
+          highlightColor: Colors.blue.withValues(alpha: 0.06),
+          hoverColor: Colors.grey.withValues(alpha: 0.08),
+
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(width: 32, height: 32, child: Center(child: icon)),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 2),
+
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: Colors.grey.shade600,
                 ),
               ],
             ),

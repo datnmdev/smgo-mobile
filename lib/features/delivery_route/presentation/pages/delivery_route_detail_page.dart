@@ -522,6 +522,19 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
             valueColor: Colors.black87,
           ),
           _buildDetailRow(
+            icon: Icons.pending_actions_outlined,
+            iconBgColor: Colors.transparent,
+            iconColor: uncheckedColor,
+            title: AppStrings.rDPTotalUncheckedOrdersLabel.tr(),
+            value: AppStrings.rDPCountContent.tr(
+              namedArgs: {
+                'quantity': deliveryRouteData.totalPendingOrders.toString(),
+              },
+            ),
+            valueColor: uncheckedColor,
+            valueFontWeight: FontWeight.bold,
+          ),
+          _buildDetailRow(
             icon: Icons.fact_check_outlined,
             iconBgColor: Colors.transparent,
             iconColor: checkedColor,
@@ -535,19 +548,29 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
             valueFontWeight: FontWeight.bold,
           ),
           _buildDetailRow(
-            icon: Icons.pending_actions_outlined,
+            icon: Icons.inventory_2_outlined,
             iconBgColor: Colors.transparent,
-            iconColor: uncheckedColor,
-            title: AppStrings.rDPTotalUncheckedOrdersLabel.tr(),
+            iconColor: checkedColor,
+            title: AppStrings.rDPTotalUnsortedOrdersLabel.tr(),
             value: AppStrings.rDPCountContent.tr(
               namedArgs: {
-                'quantity':
-                    (deliveryRouteData.totalOrders -
-                            deliveryRouteData.totalCheckedOrders)
-                        .toString(),
+                'quantity': deliveryRouteData.totalCheckedOrders.toString(),
               },
             ),
-            valueColor: uncheckedColor,
+            valueColor: checkedColor,
+            valueFontWeight: FontWeight.bold,
+          ),
+          _buildDetailRow(
+            icon: Icons.inventory_2,
+            iconBgColor: Colors.transparent,
+            iconColor: checkedColor,
+            title: AppStrings.rDPTotalSortedOrdersLabel.tr(),
+            value: AppStrings.rDPCountContent.tr(
+              namedArgs: {
+                'quantity': deliveryRouteData.totalSortedOrders.toString(),
+              },
+            ),
+            valueColor: checkedColor,
             valueFontWeight: FontWeight.bold,
           ),
           _buildDetailRow(

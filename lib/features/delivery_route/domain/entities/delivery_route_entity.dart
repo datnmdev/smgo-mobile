@@ -73,6 +73,23 @@ class DeliveryRouteEntity {
     return null;
   }
 
+  DeliveryOrderEntity? get currentNeedDeliveringOrder {
+    if (status == 'delivering' && isAllSorted) {
+      var deliveringOrders = orders
+          .where((order) => order.status == 'sorted')
+          .toList();
+      var minSequenceOrderIndex = 0;
+      for (int i = 0; i < deliveringOrders.length; ++i) {
+        if (deliveringOrders[i].sequenceOrder! <
+            deliveringOrders[minSequenceOrderIndex].sequenceOrder!) {
+          minSequenceOrderIndex = i;
+        }
+      }
+      return deliveringOrders[minSequenceOrderIndex];
+    }
+    return null;
+  }
+
   bool get isAllChecked => totalCheckedOrders == totalOrders;
 
   bool get isAllSorted => totalSortedOrders == totalOrders;

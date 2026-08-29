@@ -50,6 +50,7 @@ enum DeliveryOrderStatus {
   pending(value: 'pending'),
   checked(value: 'checked'),
   sorted(value: 'sorted'),
+  delivering(value: 'delivering'), // Chỉ phục vụ mục đích hiển thị
   delivered(value: 'delivered'),
   cancelled(value: 'cancelled'),
   rescheduled(value: 'rescheduled');

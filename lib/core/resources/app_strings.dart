@@ -212,6 +212,7 @@ abstract class AppStrings {
   static const String uRPRouteNameFieldEmptyError =
       'update_route_page.route_name_field_empty_error';
 
+  // Route detail page
   static const String rDPDeleteRouteDialogTitle =
       'route_detail_page.delete_route_dialog_tile';
   static const String rDPDeleteRouteDialogContent =
@@ -243,6 +244,10 @@ abstract class AppStrings {
   static const String rDPCountContent = 'route_detail_page.count_content';
   static const String rDPTotalUncheckedOrdersLabel =
       'route_detail_page.total_unchecked_orders_label';
+      static const String rDPTotalUnsortedOrdersLabel =
+      'route_detail_page.total_unsorted_orders_label';
+      static const String rDPTotalSortedOrdersLabel =
+      'route_detail_page.total_sorted_orders_label';
   static const String rDPTotalSuccessOrdersLabel =
       'route_detail_page.total_success_orders_label';
   static const String rDPTotalFailedOrdersLabel =
@@ -252,6 +257,7 @@ abstract class AppStrings {
   static const String rDPTotalOrdersLabel =
       'route_detail_page.total_total_orders_label';
 
+  // Route page
   static const String rPDeleteSelectedRoutesDialogTitle =
       'route_page.delete_selected_routes_dialog_tile';
   static const String rPDeleteSelectedRoutesDialogContent =
@@ -276,7 +282,8 @@ abstract class AppStrings {
       'route_page.add_route_button_label';
   static const String rPPendingOrdersTabLabel =
       'route_page.pending_orders_tab_label';
-  static const String rPSortingOrdersTabLabel = 'route_page.sorting_orders_tab_label';
+  static const String rPSortingOrdersTabLabel =
+      'route_page.sorting_orders_tab_label';
   static const String rPDeliveringTabLabel = 'route_page.delivering_tab_label';
   static const String rPCompletedTabLabel = 'route_page.completed_tab_label';
   static const String rPCreatedRouteDateString =
@@ -292,6 +299,10 @@ abstract class AppStrings {
       'route_page.pending_status_order_label';
   static const String rPCheckedStatusOrderLabel =
       'route_page.checked_status_order_label';
+  static const String rPUnsortedStatusOrderLabel =
+      'route_page.unsorted_status_order_label';
+  static const String rPSortedStatusOrderLabel =
+      'route_page.sorted_status_order_label';
   static const String rPTotalOrdersLabel = 'route_page.total_orders_label';
 
   // Trang đơn hàng

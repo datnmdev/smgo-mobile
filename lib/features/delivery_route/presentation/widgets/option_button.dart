@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class OptionButton extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;
@@ -11,6 +11,7 @@ class OptionButton extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   const OptionButton({
+    super.key,
     required this.icon,
     required this.title,
     this.subtitle,
@@ -49,7 +50,6 @@ class OptionButton extends StatelessWidget {
           onTap: onTap,
           onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(16),
-          // Thêm màu hiệu ứng khi bấm (splash/highlight) hòa cùng tông màu active
           splashColor: activeColor.withOpacity(0.1),
           highlightColor: activeColor.withOpacity(0.05),
           child: Padding(
@@ -57,8 +57,9 @@ class OptionButton extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Icon bên trái
-                Icon(icon, color: activeColor, size: 28),
+                // Icon / Widget bên trái
+                icon,
+
                 const SizedBox(width: 16),
 
                 // Tiêu đề và Phụ đề ở giữa
@@ -81,22 +82,22 @@ class OptionButton extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           subtitle!,
-                          maxLines:
-                              2, // Cho phép xuống hàng tối đa 2 dòng, không bị che chữ
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF8C9199),
-                            height: 1.3, // Khoảng cách dòng cho dễ đọc
+                            height: 1.3,
                           ),
                         ),
                       ],
                     ],
                   ),
                 ),
+
                 const SizedBox(width: 12),
 
-                // Phần tử bên phải (trailing)
+                // Phần tử bên phải
                 if (trailing != null)
                   trailing!
                 else if (isChosen)

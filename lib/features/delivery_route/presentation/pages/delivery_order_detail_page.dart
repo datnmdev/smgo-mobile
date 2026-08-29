@@ -605,9 +605,18 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 _buildNavigationItem(
-                                  title: 'Bản đồ của app',
-                                  subtitle: 'Mở bản đồ nội bộ',
+                                  title: 'SmGo Map',
+                                  subtitle: 'Mở bằng SmGo Map',
                                   icon: Image.asset(AppAssets.logo),
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Tính năng này đang trong giai đoạn phát triển. Vui lòng chờ đến bản cập nhật tiếp theo.',
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
