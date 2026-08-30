@@ -42,6 +42,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_su
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_completed/transition_route_to_completed_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_cubit.dart';
@@ -409,6 +410,11 @@ Future<void> initializeDependencies() async {
   di.registerFactory<ConfirmRescheduledOrderCubit>(
     () => ConfirmRescheduledOrderCubit(
       updateDeliveryOrderUsecase: di<UpdateDeliveryOrderUsecase>(),
+    ),
+  );
+  di.registerFactory<TransitionRouteToCompletedCubit>(
+    () => TransitionRouteToCompletedCubit(
+      updateDeliveryRouteUsecase: di<UpdateDeliveryRouteUsecase>(),
     ),
   );
 }

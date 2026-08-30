@@ -33,6 +33,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_deliver
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_completed/transition_route_to_completed_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_completed/transition_route_to_completed_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_delivering/transition_route_to_delivering_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/transition_route_to_pending/transition_route_to_pending_cubit.dart';
@@ -138,14 +140,8 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<TransitionRouteToDeliveringCubit>(
           create: ((context) => di<TransitionRouteToDeliveringCubit>()),
         ),
-        BlocProvider<ConfirmDeliveredOrderCubit>(
-          create: ((context) => di<ConfirmDeliveredOrderCubit>()),
-        ),
-        BlocProvider<ConfirmCancelledOrderCubit>(
-          create: ((context) => di<ConfirmCancelledOrderCubit>()),
-        ),
-        BlocProvider<ConfirmRescheduledOrderCubit>(
-          create: ((context) => di<ConfirmRescheduledOrderCubit>()),
+        BlocProvider<TransitionRouteToCompletedCubit>(
+          create: ((context) => di<TransitionRouteToCompletedCubit>()),
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
@@ -395,6 +391,26 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is TransitionRouteToDeliveringLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                TransitionRouteToCompletedCubit,
+                TransitionRouteToCompletedState
+              >(
+                listener: (context, state) {
+                  if (state is TransitionRouteToCompletedDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is TransitionRouteToCompletedLoading,
                 ),
               ),
             ],
@@ -3752,7 +3768,11 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                 icon: Icons.check_circle_outline_rounded,
                 label: 'Hoàn thành lộ trình',
                 subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<TransitionRouteToCompletedCubit>().call(
+                    deliveryRouteId: _deliveryRoute.id,
+                  );
+                },
               ),
             )
           else
