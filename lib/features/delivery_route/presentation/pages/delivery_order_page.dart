@@ -1463,8 +1463,10 @@ class _OrderList extends StatelessWidget {
             orders[index].id,
           ),
           onLongPress: () {
-            if (!selectionCubit.state.isEnabled) {
-              selectionCubit.toggleSelection(item: orders[index].id);
+            if (deliveryRoute.status == 'pending') {
+              if (!selectionCubit.state.isEnabled) {
+                selectionCubit.toggleSelection(item: orders[index].id);
+              }
             }
           },
           onCheckboxChanged: (value) {
@@ -3148,29 +3150,154 @@ class _DeliveryTheme {
 }
 
 // Completed
-class CompletedView extends StatelessWidget {
+class CompletedView extends StatefulWidget {
   final DeliveryRouteEntity deliveryRoute;
 
   const CompletedView({super.key, required this.deliveryRoute});
 
   @override
+  State<CompletedView> createState() => _CompletedViewState();
+}
+
+class _CompletedViewState extends State<CompletedView>
+    with SingleTickerProviderStateMixin {
+  late DeliveryRouteEntity _deliveryRoute;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _deliveryRoute = widget.deliveryRoute;
+  }
+
+  @override
+  void didUpdateWidget(covariant CompletedView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      if (oldWidget.deliveryRoute != widget.deliveryRoute) {
+        _deliveryRoute = widget.deliveryRoute;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final deliveredOrders = _deliveryRoute.orders
+        .where((order) => order.status == DeliveryOrderStatus.delivered.value)
+        .toList();
+    final cancelledOrders = _deliveryRoute.orders
+        .where((order) => order.status == DeliveryOrderStatus.cancelled.value)
+        .toList();
+    final rescheduledOrders = _deliveryRoute.orders
+        .where((order) => order.status == DeliveryOrderStatus.rescheduled.value)
+        .toList();
+
     return Column(
       children: [
-        const _CompletedTabs(),
-
-        const _CompletedBanner(),
-
-        RouteStatistics(route: deliveryRoute),
-
-        // _OrderListPreview(orders: route.orders),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: true, // Thêm dòng này để cho phép trượt ngang các tab
+            tabAlignment: TabAlignment
+                .start, // Canh trái các tab khi trượt (Flutter 3.16+)
+            indicatorColor: Colors.green,
+            indicatorWeight: 4,
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelColor: Colors.green,
+            unselectedLabelColor: const Color(0xFF1E2440),
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 15,
+            ),
+            tabs: [
+              Tab(
+                child: _TabBadge(
+                  title: 'Tổng quan',
+                  count: _deliveryRoute.totalOrders,
+                ),
+              ),
+              Tab(
+                child: _TabBadge(
+                  title: 'Giao thành công',
+                  count: deliveredOrders.length,
+                ),
+              ),
+              Tab(
+                child: _TabBadge(
+                  title: 'Giao thất bại',
+                  count: cancelledOrders.length,
+                ),
+              ),
+              Tab(
+                child: _TabBadge(
+                  title: 'Giao sau',
+                  count: rescheduledOrders.length,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // 2. NỘI DUNG DANH SÁCH VUỐT ĐƯỢC
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              CompletedSummary(deliveryRoute: _deliveryRoute),
+              _OrderList(
+                orders: deliveredOrders,
+                deliveryRoute: _deliveryRoute,
+              ),
+              _OrderList(
+                orders: cancelledOrders,
+                deliveryRoute: _deliveryRoute,
+              ),
+              _OrderList(
+                orders: rescheduledOrders,
+                deliveryRoute: _deliveryRoute,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
+class CompletedSummary extends StatelessWidget {
+  final DeliveryRouteEntity deliveryRoute;
+
+  const CompletedSummary({super.key, required this.deliveryRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _CompletedBanner(deliveryRoute: deliveryRoute),
+          RouteStatistics(route: deliveryRoute),
+
+          // _OrderListPreview(orders: route.orders),
+        ],
+      ),
+    );
+  }
+}
+
 class _CompletedBanner extends StatelessWidget {
-  const _CompletedBanner();
+  final DeliveryRouteEntity deliveryRoute;
+  const _CompletedBanner({required this.deliveryRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -3182,7 +3309,7 @@ class _CompletedBanner extends StatelessWidget {
         color: RouteColors.greenLight,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(Icons.check_circle, color: RouteColors.green, size: 72),
 
@@ -3200,7 +3327,7 @@ class _CompletedBanner extends StatelessWidget {
           SizedBox(height: 6),
 
           Text(
-            '15/15 đơn giao thành công',
+            '${deliveryRoute.totalDeliveredOrders}/${deliveryRoute.totalOrders} đơn giao thành công',
             style: TextStyle(
               color: RouteColors.text,
               fontSize: 17,
@@ -3211,7 +3338,7 @@ class _CompletedBanner extends StatelessWidget {
           SizedBox(height: 8),
 
           Text(
-            'Hoàn thành lúc 11:42, 20/05/2024',
+            'Hoàn thành lúc ${DateFormat('HH:mm, dd/MM/yyyy').format(deliveryRoute.updatedAt.toLocal())}',
             style: TextStyle(color: RouteColors.secondaryText),
           ),
         ],
@@ -3253,18 +3380,10 @@ class RouteStatistics extends StatelessWidget {
             children: [
               Expanded(
                 child: _StatisticItem(
-                  icon: Icons.access_time,
-                  title: 'Thời gian',
-                  value: '3h 12p',
-                  subtitle: '08:30 – 11:42',
-                ),
-              ),
-
-              Expanded(
-                child: _StatisticItem(
                   icon: Icons.route,
-                  title: 'Quãng đường',
-                  value: '12.8 km',
+                  title: 'Tổng quãng đường',
+                  value:
+                      '${(route.totalDistance! / 1000).toStringAsFixed(2)} km',
                   subtitle: '',
                 ),
               ),
@@ -3288,8 +3407,10 @@ class RouteStatistics extends StatelessWidget {
                 child: _StatisticItem(
                   icon: Icons.check_circle_outline,
                   title: 'Thành công',
-                  value: '${route.totalDeliveredOrders}',
-                  subtitle: '(100%)',
+                  value: route.totalDeliveredOrders.toString(),
+                  subtitle:
+                      '(${(route.totalDeliveredOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
+                  color: RouteColors.green,
                 ),
               ),
 
@@ -3297,8 +3418,10 @@ class RouteStatistics extends StatelessWidget {
                 child: _StatisticItem(
                   icon: Icons.access_time,
                   title: 'Giao sau',
-                  value: '0',
-                  subtitle: '(0%)',
+                  value: route.totalRescheduledOrders.toString(),
+                  subtitle:
+                      '(${(route.totalRescheduledOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
+                  color: const Color(0xFFF59E0B),
                 ),
               ),
 
@@ -3306,14 +3429,86 @@ class RouteStatistics extends StatelessWidget {
                 child: _StatisticItem(
                   icon: Icons.cancel_outlined,
                   title: 'Thất bại',
-                  value: '0',
-                  subtitle: '(0%)',
+                  value: route.totalCancelledOrders.toString(),
+                  subtitle:
+                      '(${(route.totalCancelledOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
+                  color: const Color(0xFFEF4444),
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StatisticItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String subtitle;
+  final Color color;
+
+  const _StatisticItem({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    this.color = RouteColors.green,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.10),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+
+        const SizedBox(width: 8),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: RouteColors.secondaryText,
+                ),
+              ),
+
+              const SizedBox(height: 3),
+
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: RouteColors.text,
+                ),
+              ),
+
+              if (subtitle.isNotEmpty)
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: RouteColors.secondaryText,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -3788,23 +3983,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
         ],
       );
     } else if (_deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      return Row(
-        children: [
-          _OutlineButton(
-            icon: Icons.assignment_outlined,
-            label: 'Xem lại đơn hàng',
-            onPressed: () {},
-          ),
-
-          const SizedBox(width: 12),
-
-          _PrimaryButton(
-            icon: Icons.check_circle_outline,
-            label: 'Về danh sách lộ trình',
-            onPressed: () {},
-          ),
-        ],
-      );
+      return SizedBox.shrink();
     } else {
       throw Exception('Delivery route status does not match any valid case');
     }
@@ -6278,124 +6457,6 @@ class _CircleButton extends StatelessWidget {
     return IconButton(
       icon: Icon(icon, color: Colors.white, size: 20),
       onPressed: onPressed,
-    );
-  }
-}
-
-class _TabItem extends StatelessWidget {
-  final String title;
-  final bool active;
-
-  const _TabItem({required this.title, this.active = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: active ? RouteColors.green : Colors.transparent,
-            width: 3,
-          ),
-        ),
-      ),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: active ? RouteColors.green : RouteColors.text,
-          fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
-}
-
-class _CompletedTabs extends StatelessWidget {
-  const _CompletedTabs();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(child: _TabItem(title: 'Tổng quan', active: true)),
-          Expanded(child: _TabItem(title: 'Đơn hàng')),
-          Expanded(child: _TabItem(title: 'Thống kê')),
-          Expanded(child: _TabItem(title: 'Ghi chú')),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatisticItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final String subtitle;
-
-  const _StatisticItem({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: RouteColors.greenLight,
-          ),
-          child: Icon(icon, color: RouteColors.green, size: 22),
-        ),
-
-        const SizedBox(width: 8),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: RouteColors.secondaryText,
-                ),
-              ),
-
-              const SizedBox(height: 3),
-
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: RouteColors.text,
-                ),
-              ),
-
-              if (subtitle.isNotEmpty)
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: RouteColors.secondaryText,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
