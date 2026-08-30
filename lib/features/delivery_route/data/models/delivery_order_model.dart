@@ -20,7 +20,6 @@ class DeliveryOrderModel {
   final DateTime createdAt;
   final DateTime? checkedAt;
   final DateTime? sortedAt;
-  final DateTime? deliveringAt;
   final DateTime? deliveredAt;
   final DateTime? cancelledAt;
   final DateTime? rescheduledAt;
@@ -43,7 +42,6 @@ class DeliveryOrderModel {
     required this.deliveryRouteId,
     this.checkedAt,
     this.sortedAt,
-    this.deliveringAt,
     this.deliveredAt,
     this.cancelledAt,
     this.rescheduledAt,

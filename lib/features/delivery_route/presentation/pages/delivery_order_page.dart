@@ -23,6 +23,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_resched
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_rescheduled_order/confirm_rescheduled_order_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/create_delivery_route_with_orders/create_delivery_route_with_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/create_delivery_route_with_orders/create_delivery_route_with_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
@@ -96,10 +98,14 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
     final getDeliveryRoutesCubitInDRDP =
-        extra['GetDeliveryRoutesCubitInDRDP'] as GetDeliveryRoutesCubit;
+        extra['GetDeliveryRoutesCubitInDRDP'] != null
+        ? extra['GetDeliveryRoutesCubitInDRDP'] as GetDeliveryRoutesCubit
+        : null;
     final getDeliveryRoutesUsecaseParamsInDRDP =
-        extra['GetDeliveryRoutesUsecaseParamsInDRDP']
-            as GetDeliveryRoutesUsecaseParams;
+        extra['GetDeliveryRoutesUsecaseParamsInDRDP'] != null
+        ? extra['GetDeliveryRoutesUsecaseParamsInDRDP']
+              as GetDeliveryRoutesUsecaseParams
+        : null;
 
     return MultiBlocProvider(
       providers: [
@@ -143,6 +149,9 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<TransitionRouteToCompletedCubit>(
           create: ((context) => di<TransitionRouteToCompletedCubit>()),
         ),
+        BlocProvider<CreateDeliveryRouteWithOrdersCubit>(
+          create: ((context) => di<CreateDeliveryRouteWithOrdersCubit>()),
+        ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
         builder: (_, _) => BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
@@ -153,9 +162,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                   deliveryRoute = state.routes.first;
                 });
               }
-              getDeliveryRoutesCubitInDRDP.call(
-                params: getDeliveryRoutesUsecaseParamsInDRDP,
-              );
+              if (getDeliveryRoutesCubitInDRDP != null &&
+                  getDeliveryRoutesUsecaseParamsInDRDP != null) {
+                getDeliveryRoutesCubitInDRDP.call(
+                  params: getDeliveryRoutesUsecaseParamsInDRDP,
+                );
+              }
             }
           },
           builder: (context, state) => Stack(
@@ -310,6 +322,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         id: deliveryRoute.id,
                       ),
                     );
+                  } else if (state is TransitionRouteToSortingFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
                   }
                 },
                 builder: (context, state) => SmgoLoadingScreen(
@@ -330,6 +348,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         id: deliveryRoute.id,
                       ),
                     );
+                  } else if (state is TransitionRouteToPendingFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
                   }
                 },
                 builder: (context, state) => SmgoLoadingScreen(
@@ -346,6 +370,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         pageSize: 1,
                         id: deliveryRoute.id,
                       ),
+                    );
+                  } else if (state is SortDeliveryOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
                     );
                   }
                 },
@@ -367,6 +397,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         id: deliveryRoute.id,
                       ),
                     );
+                  } else if (state is ConfirmSortedDeliveryOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
                   }
                 },
                 builder: (context, state) => SmgoLoadingScreen(
@@ -386,6 +422,12 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         pageSize: 1,
                         id: deliveryRoute.id,
                       ),
+                    );
+                  } else if (state is TransitionRouteToDeliveringFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
                     );
                   }
                 },
@@ -407,10 +449,42 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         id: deliveryRoute.id,
                       ),
                     );
+                  } else if (state is TransitionRouteToCompletedFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Thao tác thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
                   }
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is TransitionRouteToCompletedLoading,
+                ),
+              ),
+
+              BlocConsumer<
+                CreateDeliveryRouteWithOrdersCubit,
+                CreateDeliveryRouteWithOrdersState
+              >(
+                listener: (context, state) {
+                  if (state is CreateDeliveryRouteWithOrdersDone) {
+                    context.pushNamed(
+                      AppRouteNames.deliveryOrder,
+                      pathParameters: {'id': state.newDeliveryRoute.id},
+                      extra: <String, Object>{
+                        'DeliveryRouteData': state.newDeliveryRoute,
+                      },
+                    );
+                  } else if (state is CreateDeliveryRouteWithOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Tạo lộ trình thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is CreateDeliveryRouteWithOrdersLoading,
                 ),
               ),
             ],
@@ -422,19 +496,51 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
 
   /// Thanh chọn tất cả & đếm số lượng
   Widget _buildSelectionHeader({required BuildContext context}) {
-    final selectionCubit = context.watch<SelectionCubit<String>>();
-    final getDeliveryRoutesCubit = context.watch<GetDeliveryRoutesCubit>();
+    final selectionCubit = context.read<SelectionCubit<String>>();
+    final deliveryOrderPageCubit = context.read<DeliveryOrderPageCubit>();
 
-    final isAllSelectedInThisTab =
-        deliveryRoute.orders.isNotEmpty &&
-        deliveryRoute.orders.every(
-          (e) => selectionCubit.state.selectedItems.contains(e.id),
-        );
+    bool isAllSelectedInThisTab = false;
+    List<DeliveryOrderEntity> currentOrders = [];
+
+    if (deliveryOrderPageCubit.state.selectedTab ==
+        DeliveryOrderPageTab.pending) {
+      currentOrders = deliveryRoute.orders
+          .where((order) => order.status == DeliveryOrderStatus.pending.value)
+          .toList();
+      isAllSelectedInThisTab =
+          currentOrders.isNotEmpty &&
+          currentOrders.every(
+            (e) => selectionCubit.state.selectedItems.contains(e.id),
+          );
+    } else if (deliveryOrderPageCubit.state.selectedTab ==
+        DeliveryOrderPageTab.checked) {
+      currentOrders = deliveryRoute.orders
+          .where((order) => order.status == DeliveryOrderStatus.checked.value)
+          .toList();
+      isAllSelectedInThisTab =
+          currentOrders.isNotEmpty &&
+          currentOrders.every(
+            (e) => selectionCubit.state.selectedItems.contains(e.id),
+          );
+    } else if (deliveryOrderPageCubit.state.selectedTab ==
+        DeliveryOrderPageTab.completedRescheduled) {
+      currentOrders = deliveryRoute.orders
+          .where(
+            (order) => order.status == DeliveryOrderStatus.rescheduled.value,
+          )
+          .toList();
+      isAllSelectedInThisTab =
+          currentOrders.isNotEmpty &&
+          currentOrders.every(
+            (e) => selectionCubit.state.selectedItems.contains(e.id),
+          );
+    }
 
     if (selectionCubit.state.isEnabled &&
-        getDeliveryRoutesCubit.state is! GetDeliveryRoutesLoading &&
-        getDeliveryRoutesCubit.state is! GetDeliveryRoutesFailed &&
-        deliveryRoute.orders.isNotEmpty) {
+        (deliveryRoute.status == DeliveryRouteStatus.pending.value ||
+            (deliveryRoute.status == DeliveryRouteStatus.completed.value &&
+                context.read<DeliveryOrderPageCubit>().state.selectedTab ==
+                    DeliveryOrderPageTab.completedRescheduled))) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
@@ -452,7 +558,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                     primaryColor: AppColors.primary,
                     value: isAllSelectedInThisTab,
                     onChanged: (_) => selectionCubit.toggleSelectAll(
-                      currentItems: deliveryRoute.orders
+                      currentItems: currentOrders
                           .map((order) => order.id)
                           .toList(),
                     ),
@@ -493,7 +599,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
     } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
       return DeliveringView(deliveryRoute: deliveryRoute);
     } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      return CompletedView(deliveryRoute: deliveryRoute);
+      return CompletedView(deliveryRoute: deliveryRoute, context: context);
     } else {
       throw Exception(
         'The delivery route status does not match any valid values',
@@ -522,7 +628,8 @@ class RouteHeader extends StatelessWidget {
           ),
           child: Column(
             children: [
-              if (state.isEnabled)
+              if (state.isEnabled &&
+                  deliveryRoute.status == DeliveryRouteStatus.pending.value)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -706,6 +813,8 @@ class RouteHeader extends StatelessWidget {
                         children: [
                           Text(
                             deliveryRoute.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 22,
@@ -863,11 +972,6 @@ class RouteSummary extends StatelessWidget {
             '${deliveryRoute.totalDeliveredOrders + deliveryRoute.totalCancelledOrders + deliveryRoute.totalRescheduledOrders}/${deliveryRoute.totalOrders} đơn',
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      // return _SummaryItem(
-      //   title: 'Đã giao',
-      //   value: '${deliveryRoute.tota}',
-      //   subtitle: 'đơn',
-      // );
       return _ProgressSummaryItem(
         title: 'Tiến độ',
         progress: 1,
@@ -1307,6 +1411,9 @@ class _PendingViewState extends State<PendingView>
     _parentContext = widget.context;
     _deliveryRoute = widget.deliveryRoute;
     _tabController = TabController(length: 2, vsync: this);
+    _parentContext.read<DeliveryOrderPageCubit>().tabChanged(
+      tab: DeliveryOrderPageTab.pending,
+    );
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -1463,7 +1570,10 @@ class _OrderList extends StatelessWidget {
             orders[index].id,
           ),
           onLongPress: () {
-            if (deliveryRoute.status == 'pending') {
+            if (deliveryRoute.status == DeliveryRouteStatus.pending.value ||
+                (deliveryRoute.status == DeliveryRouteStatus.completed.value &&
+                    context.read<DeliveryOrderPageCubit>().state.selectedTab ==
+                        DeliveryOrderPageTab.completedRescheduled)) {
               if (!selectionCubit.state.isEnabled) {
                 selectionCubit.toggleSelection(item: orders[index].id);
               }
@@ -1593,36 +1703,6 @@ class _SortingViewState extends State<SortingView> {
         ),
       ],
     );
-  }
-
-  Map<String, String> _getUniqueOrderSuffixes(
-    List<DeliveryOrderEntity> orders,
-  ) {
-    final result = <String, String>{};
-
-    for (final order in orders) {
-      final code = order.orderCode;
-
-      for (int length = 1; length <= code.length; length++) {
-        final suffix = code.substring(code.length - length);
-
-        final isUnique = orders.every((other) {
-          if (other.id == order.id) return true;
-
-          final otherCode = other.orderCode;
-
-          if (otherCode.length < length) return true;
-
-          return otherCode.substring(otherCode.length - length) != suffix;
-        });
-
-        if (isUnique) {
-          result[order.id] = suffix;
-          break;
-        }
-      }
-    }
-    return result;
   }
 }
 
@@ -2208,19 +2288,20 @@ class OrderCardContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      order.orderCode.substring(
+            Expanded(
+              child: RichText(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                softWrap: true,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: order.orderCode.substring(
                         0,
                         order.orderCode.length - uniqueOrderCodeSuffix.length,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -2229,23 +2310,21 @@ class OrderCardContent extends StatelessWidget {
                             : RouteColors.text,
                       ),
                     ),
-                  ),
 
-                  Text(
-                    uniqueOrderCodeSuffix,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          status == SortingOrderStatus.current &&
-                              deliveryRoute.currentNeedSortOrder?.id == order.id
-                          ? AppColors.primary
-                          : (status == SortingOrderStatus.unsorted
-                                ? SortingOrderCardColors.unsortedContent
-                                : RouteColors.text),
+                    TextSpan(
+                      text: uniqueOrderCodeSuffix,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            status == SortingOrderStatus.current ||
+                                status == SortingOrderStatus.sorted
+                            ? AppColors.primary
+                            : SortingOrderCardColors.unsortedContent,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -2254,18 +2333,24 @@ class OrderCardContent extends StatelessWidget {
             _buildStatusBadge(),
           ],
         ),
+
         const SizedBox(height: 6),
-        _InfoRow(
+
+        _infoRow(
           icon: Icons.person_outline,
           text: order.contactName,
           status: status,
         ),
-        _InfoRow(
+
+        _infoRow(
           icon: Icons.shopping_bag_outlined,
-          text: order.orderName ?? '',
+          text: order.orderName != null && order.orderName!.isNotEmpty
+              ? order.orderName!
+              : 'Không có tên đơn hàng',
           status: status,
         ),
-        _InfoRow(
+
+        _infoRow(
           icon: Icons.location_on_outlined,
           text: order.address,
           status: status,
@@ -2338,7 +2423,7 @@ class OrderCardContent extends StatelessWidget {
     }
   }
 
-  Widget _InfoRow({
+  Widget _infoRow({
     required IconData icon,
     required String text,
     required SortingOrderStatus status,
@@ -2560,6 +2645,9 @@ class DeliveringOrderList extends StatelessWidget {
       );
     }
 
+    final Map<String, String> uniqueOrderCodeSuffixMap =
+        _getUniqueOrderSuffixes(orders);
+
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
       itemCount: orders.length,
@@ -2588,6 +2676,7 @@ class DeliveringOrderList extends StatelessWidget {
 
         return DeliveringOrderItem(
           index: index,
+          uniqueOrderCodeSuffix: uniqueOrderCodeSuffixMap[order.id]!,
           totalOrders: orders.length,
           sequenceOrder: order.sequenceOrder!,
           orderCode: order.orderCode,
@@ -2634,6 +2723,7 @@ class DeliveringOrderItem extends StatelessWidget {
   final String? time;
   final DeliveryOrderStatus status;
   final VoidCallback? onTap;
+  final String uniqueOrderCodeSuffix;
 
   const DeliveringOrderItem({
     super.key,
@@ -2647,6 +2737,7 @@ class DeliveringOrderItem extends StatelessWidget {
     required this.status,
     this.onTap,
     this.time,
+    required this.uniqueOrderCodeSuffix,
   });
 
   @override
@@ -2714,14 +2805,34 @@ class DeliveringOrderItem extends StatelessWidget {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text(
-                                      orderCode,
-                                      maxLines: 1,
+                                    child: RichText(
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF172554),
+                                      softWrap: true,
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: orderCode.substring(
+                                              0,
+                                              orderCode.length -
+                                                  uniqueOrderCodeSuffix.length,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: theme.primary,
+                                            ),
+                                          ),
+
+                                          TextSpan(
+                                            text: uniqueOrderCodeSuffix,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -3152,8 +3263,13 @@ class _DeliveryTheme {
 // Completed
 class CompletedView extends StatefulWidget {
   final DeliveryRouteEntity deliveryRoute;
+  final BuildContext context;
 
-  const CompletedView({super.key, required this.deliveryRoute});
+  const CompletedView({
+    super.key,
+    required this.deliveryRoute,
+    required this.context,
+  });
 
   @override
   State<CompletedView> createState() => _CompletedViewState();
@@ -3169,6 +3285,26 @@ class _CompletedViewState extends State<CompletedView>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _deliveryRoute = widget.deliveryRoute;
+    widget.context.read<DeliveryOrderPageCubit>().tabChanged(
+      tab: DeliveryOrderPageTab.completedOverview,
+    );
+
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        widget.context.read<SelectionCubit<String>>().closeSelectionMode();
+
+        // Cập nhật trạng thái ở cấp page
+        widget.context.read<DeliveryOrderPageCubit>().tabChanged(
+          tab: _tabController.index == 0
+              ? DeliveryOrderPageTab.completedOverview
+              : _tabController.index == 1
+              ? DeliveryOrderPageTab.completedDelivered
+              : _tabController.index == 2
+              ? DeliveryOrderPageTab.completedCancelled
+              : DeliveryOrderPageTab.completedRescheduled,
+        );
+      }
+    });
   }
 
   @override
@@ -3571,6 +3707,11 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (_deliveryRoute.status == DeliveryRouteStatus.completed.value &&
+        context.read<DeliveryOrderPageCubit>().state.selectedTab !=
+            DeliveryOrderPageTab.completedRescheduled) {
+      return SizedBox.shrink();
+    }
     return SafeArea(
       top: false,
       child: Container(
@@ -3599,7 +3740,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   Widget _buildAction({required BuildContext context}) {
     final deliveryOrderPageCubit = context.read<DeliveryOrderPageCubit>();
     final selectionCubit = context.read<SelectionCubit<String>>();
-
     if (_deliveryRoute.status == DeliveryRouteStatus.pending.value) {
       return Row(
         children: [
@@ -3866,7 +4006,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             const SizedBox(width: 12),
           ],
 
-          _OutlineButton(
+          _PrimaryButton(
             disabled: !_deliveryRoute.isAllSorted,
             icon: Icons.play_arrow,
             label: 'Bắt đầu giao hàng',
@@ -3983,7 +4123,38 @@ class __RouteActionBarState extends State<_RouteActionBar> {
         ],
       );
     } else if (_deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      return SizedBox.shrink();
+      if (deliveryOrderPageCubit.state.selectedTab ==
+          DeliveryOrderPageTab.completedRescheduled) {
+        return Row(
+          children: [
+            const SizedBox(width: 12),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width - 24,
+              child: _PrimaryButton(
+                disabled: !selectionCubit.state.isEnabled,
+                icon: Icons.navigation,
+                label: 'Lập lộ trình mới',
+                subtitle: 'Hãy chọn các đơn muốn giao lại',
+                onPressed: () async {
+                  context.read<CreateDeliveryRouteWithOrdersCubit>().call(
+                    routeName:
+                        'Giao lại các đơn hẹn giao sau (#${_deliveryRoute.id})',
+                    orders: _deliveryRoute.orders
+                        .where(
+                          (order) => selectionCubit.state.selectedItems.any(
+                            (selectedItem) => selectedItem == order.id,
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      } else {
+        return SizedBox.shrink();
+      }
     } else {
       throw Exception('Delivery route status does not match any valid case');
     }
@@ -5914,9 +6085,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
                           "Tên sản phẩm",
-                          order.orderName == null ||
-                                  (order.orderName != null &&
-                                      order.orderName!.isNotEmpty)
+                          order.orderName?.isNotEmpty == true
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
@@ -6233,6 +6402,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: const Color(0xFFA7ABB9)),
             const SizedBox(width: 8),
@@ -6481,4 +6651,32 @@ class RefreshOnlyScrollPhysics extends ScrollPhysics {
     }
     return 0;
   }
+}
+
+Map<String, String> _getUniqueOrderSuffixes(List<DeliveryOrderEntity> orders) {
+  final result = <String, String>{};
+
+  for (final order in orders) {
+    final code = order.orderCode;
+
+    for (int length = 1; length <= code.length; length++) {
+      final suffix = code.substring(code.length - length);
+
+      final isUnique = orders.every((other) {
+        if (other.id == order.id) return true;
+
+        final otherCode = other.orderCode;
+
+        if (otherCode.length < length) return true;
+
+        return otherCode.substring(otherCode.length - length) != suffix;
+      });
+
+      if (isUnique) {
+        result[order.id] = suffix;
+        break;
+      }
+    }
+  }
+  return result;
 }

@@ -15,7 +15,6 @@ class DeliveryOrderEntity {
   final DateTime createdAt;
   final DateTime? checkedAt;
   final DateTime? sortedAt;
-  final DateTime? deliveringAt;
   final DateTime? deliveredAt;
   final DateTime? cancelledAt;
   final DateTime? rescheduledAt;
@@ -38,7 +37,6 @@ class DeliveryOrderEntity {
     required this.createdAt,
     this.checkedAt,
     this.sortedAt,
-    this.deliveringAt,
     this.deliveredAt,
     this.cancelledAt,
     this.rescheduledAt,

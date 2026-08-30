@@ -1,4 +1,11 @@
-enum DeliveryOrderPageTab { pending, checked }
+enum DeliveryOrderPageTab {
+  pending,
+  checked,
+  completedOverview,
+  completedDelivered,
+  completedCancelled,
+  completedRescheduled,
+}
 
 const _absent = Object();
 

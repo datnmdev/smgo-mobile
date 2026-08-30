@@ -34,6 +34,47 @@ Map<String, dynamic> _$AddDeliveryRouteBodyRequestToJson(
   AddDeliveryRouteBodyRequest instance,
 ) => <String, dynamic>{'name': instance.name};
 
+DeliveryOrderRequestData _$DeliveryOrderRequestDataFromJson(
+  Map<String, dynamic> json,
+) => DeliveryOrderRequestData(
+  orderCode: json['orderCode'] as String,
+  orderName: json['orderName'] as String?,
+  orderMediaId: json['orderMediaId'] as String?,
+  contactName: json['contactName'] as String,
+  contactPhone: json['contactPhone'] as String,
+  address: json['address'] as String,
+  appliedLocationId: json['appliedLocationId'] as String?,
+  location: PointRequestData.fromJson(json['location'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$DeliveryOrderRequestDataToJson(
+  DeliveryOrderRequestData instance,
+) => <String, dynamic>{
+  'orderCode': instance.orderCode,
+  'orderName': ?instance.orderName,
+  'orderMediaId': ?instance.orderMediaId,
+  'contactName': instance.contactName,
+  'contactPhone': instance.contactPhone,
+  'address': instance.address,
+  'appliedLocationId': ?instance.appliedLocationId,
+  'location': instance.location,
+};
+
+CreateDeliveryRouteWithOrdersBodyRequest
+_$CreateDeliveryRouteWithOrdersBodyRequestFromJson(Map<String, dynamic> json) =>
+    CreateDeliveryRouteWithOrdersBodyRequest(
+      name: json['name'] as String,
+      orders: (json['orders'] as List<dynamic>)
+          .map(
+            (e) => DeliveryOrderRequestData.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+
+Map<String, dynamic> _$CreateDeliveryRouteWithOrdersBodyRequestToJson(
+  CreateDeliveryRouteWithOrdersBodyRequest instance,
+) => <String, dynamic>{'name': instance.name, 'orders': instance.orders};
+
 UpdateDeliveryRouteBodyRequest _$UpdateDeliveryRouteBodyRequestFromJson(
   Map<String, dynamic> json,
 ) => UpdateDeliveryRouteBodyRequest(
@@ -251,6 +292,44 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
       _value = ApiResponse<dynamic>.fromJson(
         _result.data!,
         (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<DeliveryRouteModel>>>
+  createDeliveryRouteWithOrders({
+    required CreateDeliveryRouteWithOrdersBodyRequest body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<HttpResponse<ApiResponse<DeliveryRouteModel>>>(
+          Options(method: 'POST', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/delivery-route/with-orders',
+                queryParameters: queryParameters,
+                data: _data,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<DeliveryRouteModel> _value;
+    try {
+      _value = ApiResponse<DeliveryRouteModel>.fromJson(
+        _result.data!,
+        (json) => DeliveryRouteModel.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);

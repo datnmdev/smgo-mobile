@@ -876,10 +876,12 @@ class DeliveringRouteCardItem extends StatelessWidget {
                             children: [
                               Text(
                                 item.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: Color(0xFF1E293B),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -1082,6 +1084,8 @@ class PendingRouteCardItem extends StatelessWidget {
                             children: [
                               Text(
                                 item.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -1282,6 +1286,8 @@ class SortingRouteCardItem extends StatelessWidget {
                             children: [
                               Text(
                                 item.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,

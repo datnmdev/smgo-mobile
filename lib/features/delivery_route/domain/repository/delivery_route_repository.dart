@@ -9,6 +9,38 @@ class AddDeliveryRouteParams {
   const AddDeliveryRouteParams({required this.name});
 }
 
+class DeliveryOrderParams {
+  final String orderCode;
+  final String? orderName;
+  final String? orderMediaId;
+  final String contactName;
+  final String contactPhone;
+  final String address;
+  final String? appliedLocationId;
+  final PointParam location;
+
+  DeliveryOrderParams({
+    required this.orderCode,
+    required this.orderName,
+    this.orderMediaId,
+    required this.contactName,
+    required this.contactPhone,
+    required this.address,
+    this.appliedLocationId,
+    required this.location,
+  });
+}
+
+class CreateDeliveryRouteWithOrdersParams {
+  final String name;
+  final List<DeliveryOrderParams> orders;
+
+  const CreateDeliveryRouteWithOrdersParams({
+    required this.name,
+    required this.orders,
+  });
+}
+
 class GetDeliveryRoutesParams {
   final String? keyword;
   final int? pageNumber;
@@ -113,6 +145,9 @@ abstract class DeliveryRouteRepository {
   });
   Future<DataState<dynamic>> addDeliveryRoute({
     required AddDeliveryRouteParams params,
+  });
+  Future<DataState<DeliveryRouteEntity>> createDeliveryRouteWithOrders({
+    required CreateDeliveryRouteWithOrdersParams params,
   });
   Future<DataState<dynamic>> updateDeliveryRoute({
     required String id,

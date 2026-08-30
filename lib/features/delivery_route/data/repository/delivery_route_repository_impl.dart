@@ -63,7 +63,6 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                           updatedAt: order.updatedAt,
                           checkedAt: order.checkedAt,
                           sortedAt: order.sortedAt,
-                          deliveringAt: order.deliveredAt,
                           deliveredAt: order.deliveredAt,
                           cancelledAt: order.cancelledAt,
                           rescheduledAt: order.rescheduledAt,
@@ -92,6 +91,86 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
         body: AddDeliveryRouteBodyRequest(name: params.name),
       );
       return DataSuccess(httpResponse.data.data!);
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<DeliveryRouteEntity>> createDeliveryRouteWithOrders({
+    required CreateDeliveryRouteWithOrdersParams params,
+  }) async {
+    try {
+      final httpResponse = await deliveryRouteApiService
+          .createDeliveryRouteWithOrders(
+            body: CreateDeliveryRouteWithOrdersBodyRequest(
+              name: params.name,
+              orders: params.orders
+                  .map(
+                    (order) => DeliveryOrderRequestData(
+                      orderCode: order.orderCode,
+                      orderName: order.orderName,
+                      orderMediaId: order.orderMediaId,
+                      contactName: order.contactName,
+                      contactPhone: order.contactPhone,
+                      address: order.address,
+                      location: PointRequestData(
+                        x: order.location.x,
+                        y: order.location.y,
+                      ),
+                      appliedLocationId: order.appliedLocationId,
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+      final newDeliveryRouteModel = httpResponse.data.data!;
+      return DataSuccess(
+        DeliveryRouteEntity(
+          id: newDeliveryRouteModel.id,
+          name: newDeliveryRouteModel.name,
+          status: newDeliveryRouteModel.status,
+          totalOrders: newDeliveryRouteModel.totalOrders,
+          totalCancelledOrders: newDeliveryRouteModel.totalCancelledOrders,
+          totalCheckedOrders: newDeliveryRouteModel.totalCheckedOrders,
+          totalPendingOrders: newDeliveryRouteModel.totalPendingOrders,
+          totalSortedOrders: newDeliveryRouteModel.totalSortedOrders,
+          totalRescheduledOrders: newDeliveryRouteModel.totalRescheduledOrders,
+          totalDistance: newDeliveryRouteModel.totalDistance,
+          totalDeliveredOrders: newDeliveryRouteModel.totalDeliveredOrders,
+          orders: newDeliveryRouteModel.orders
+              .map(
+                (orderModel) => DeliveryOrderEntity(
+                  id: orderModel.id,
+                  orderCode: orderModel.orderCode,
+                  orderName: orderModel.orderName,
+                  orderMediaId: orderModel.orderMediaId,
+                  orderMediaUrl: orderModel.orderMediaUrl,
+                  sequenceOrder: orderModel.sequenceOrder,
+                  status: orderModel.status,
+                  contactName: orderModel.contactName,
+                  contactPhone: orderModel.contactPhone,
+                  address: orderModel.address,
+                  location: Point(
+                    x: orderModel.location.x,
+                    y: orderModel.location.y,
+                  ),
+                  deliveryRouteId: orderModel.deliveryRouteId,
+                  appliedLocationId: orderModel.appliedLocationId,
+                  createdAt: orderModel.createdAt,
+                  updatedAt: orderModel.updatedAt,
+                  checkedAt: orderModel.checkedAt,
+                  sortedAt: orderModel.sortedAt,
+                  deliveredAt: orderModel.deliveredAt,
+                  cancelledAt: orderModel.cancelledAt,
+                  rescheduledAt: orderModel.rescheduledAt,
+                ),
+              )
+              .toList(),
+          createdAt: newDeliveryRouteModel.createdAt,
+          updatedAt: newDeliveryRouteModel.updatedAt,
+        ),
+      );
     } catch (e) {
       return DataFailed(e);
     }
@@ -192,13 +271,13 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
     required List<String> deliveryOrderIds,
   }) async {
     try {
-      final dataState = await deliveryRouteApiService.recheckDeliveryOrders(
+      final httpResponse = await deliveryRouteApiService.recheckDeliveryOrders(
         deliveryRouteId: deliveryRouteId,
         body: RecheckDeliveryOrdersBodyRequest(
           deliveryOrderIds: deliveryOrderIds,
         ),
       );
-      return DataSuccess(dataState.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }
@@ -210,13 +289,13 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
     required List<String> deliveryOrderIds,
   }) async {
     try {
-      final dataState = await deliveryRouteApiService.confirmDeliveryOrders(
+      final httpResponse = await deliveryRouteApiService.confirmDeliveryOrders(
         deliveryRouteId: deliveryRouteId,
         body: ConfirmDeliveryOrdersBodyRequest(
           deliveryOrderIds: deliveryOrderIds,
         ),
       );
-      return DataSuccess(dataState.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }
@@ -228,13 +307,13 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
     required Point source,
   }) async {
     try {
-      final dataState = await deliveryRouteApiService.sortDeliveryOrders(
+      final httpResponse = await deliveryRouteApiService.sortDeliveryOrders(
         deliveryRouteId: deliveryRouteId,
         body: SortDeliveryOrdersBodyRequest(
           source: PointRequestData(x: source.x, y: source.y),
         ),
       );
-      return DataSuccess(dataState.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }
@@ -263,14 +342,14 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
     required List<String> deliveryOrderIds,
   }) async {
     try {
-      final dataState = await deliveryRouteApiService
+      final httpResponse = await deliveryRouteApiService
           .confirmSortedDeliveryOrders(
             deliveryRouteId: deliveryRouteId,
             body: ConfirmSortedDeliveryOrdersBodyRequest(
               deliveryOrderIds: deliveryOrderIds,
             ),
           );
-      return DataSuccess(dataState.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }

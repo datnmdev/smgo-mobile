@@ -28,9 +28,6 @@ DeliveryOrderModel _$DeliveryOrderModelFromJson(Map<String, dynamic> json) =>
       sortedAt: json['sortedAt'] == null
           ? null
           : DateTime.parse(json['sortedAt'] as String),
-      deliveringAt: json['deliveringAt'] == null
-          ? null
-          : DateTime.parse(json['deliveringAt'] as String),
       deliveredAt: json['deliveredAt'] == null
           ? null
           : DateTime.parse(json['deliveredAt'] as String),
@@ -61,7 +58,6 @@ Map<String, dynamic> _$DeliveryOrderModelToJson(DeliveryOrderModel instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'checkedAt': instance.checkedAt?.toIso8601String(),
       'sortedAt': instance.sortedAt?.toIso8601String(),
-      'deliveringAt': instance.deliveringAt?.toIso8601String(),
       'deliveredAt': instance.deliveredAt?.toIso8601String(),
       'cancelledAt': instance.cancelledAt?.toIso8601String(),
       'rescheduledAt': instance.rescheduledAt?.toIso8601String(),

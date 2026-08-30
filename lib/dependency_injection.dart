@@ -24,6 +24,7 @@ import 'package:shipgo/features/delivery_route/domain/repository/location_search
 import 'package:shipgo/features/delivery_route/domain/usecases/Confirm_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/confirm_sorted_delivery_orders_usecase.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/create_delivery_route_with_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_orders_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/extract_order_info_usecase.dart';
 import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
@@ -36,6 +37,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_deliver
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_rescheduled_order/confirm_rescheduled_order_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_sorted_delivery_orders/confirm_sorted_delivery_orders_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/create_delivery_route_with_orders/create_delivery_route_with_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
@@ -273,6 +275,11 @@ Future<void> initializeDependencies() async {
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
   );
+  di.registerLazySingleton<CreateDeliveryRouteWithOrdersUsecase>(
+    () => CreateDeliveryRouteWithOrdersUsecase(
+      deliveryRouteRepository: di<DeliveryRouteRepository>(),
+    ),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -415,6 +422,12 @@ Future<void> initializeDependencies() async {
   di.registerFactory<TransitionRouteToCompletedCubit>(
     () => TransitionRouteToCompletedCubit(
       updateDeliveryRouteUsecase: di<UpdateDeliveryRouteUsecase>(),
+    ),
+  );
+  di.registerFactory<CreateDeliveryRouteWithOrdersCubit>(
+    () => CreateDeliveryRouteWithOrdersCubit(
+      createDeliveryRouteWithOrdersUsecase:
+          di<CreateDeliveryRouteWithOrdersUsecase>(),
     ),
   );
 }

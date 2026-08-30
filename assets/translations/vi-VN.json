@@ -179,7 +179,8 @@
     "total_success_orders_label": "Số đơn thành công",
     "total_failed_orders_label": "Số đơn thất bại",
     "total_rescheduled_orders_label": "Số đơn giao sau",
-    "total_total_orders_label": "Tổng số đơn"
+    "total_total_orders_label": "Tổng số đơn",
+    "delivery_route_id_label": "ID"
   },
   "route_page": {
     "delete_selected_routes_dialog_tile": "Xác nhận xoá",

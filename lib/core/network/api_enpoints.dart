@@ -37,6 +37,8 @@ abstract class ApiEndpoints {
   // Delivery route
   static const String getDeliveryRoutes = '$deliveryRouteBaseUrl';
   static const String addDeliveryRoute = '$deliveryRouteBaseUrl';
+  static const String createDeliveryRouteWithOrders =
+      '$deliveryRouteBaseUrl/with-orders';
   static const String updateDeliveryRoute =
       '$deliveryRouteBaseUrl/{deliveryRouteId}';
   static const String deleteDeliveryRoute =
@@ -51,8 +53,8 @@ abstract class ApiEndpoints {
   static const String recheckDeliveryOrders = '$deliveryOrderBaseUrl/m/recheck';
   static const String confirmDeliveryOrders = '$deliveryOrderBaseUrl/m/confirm';
   static const String sortDeliveryOrders = '$deliveryOrderBaseUrl/m/sort';
-  static const String confirmSortedDeliveryOrders = '$deliveryOrderBaseUrl/m/confirm-sorted';
-
+  static const String confirmSortedDeliveryOrders =
+      '$deliveryOrderBaseUrl/m/confirm-sorted';
 
   // Ai
   static const String extractOrderInfo = '$aiBaseUrl/extract/order-info';

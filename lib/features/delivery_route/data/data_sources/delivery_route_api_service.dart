@@ -22,6 +22,12 @@ abstract class DeliveryRouteApiService {
     @Body() required AddDeliveryRouteBodyRequest body,
   });
 
+  @POST(ApiEndpoints.createDeliveryRouteWithOrders)
+  Future<HttpResponse<ApiResponse<DeliveryRouteModel>>>
+  createDeliveryRouteWithOrders({
+    @Body() required CreateDeliveryRouteWithOrdersBodyRequest body,
+  });
+
   @PUT(ApiEndpoints.updateDeliveryRoute)
   Future<HttpResponse<ApiResponse<dynamic>>> updateDeliveryRoute({
     @Path('deliveryRouteId') required String id,
@@ -104,6 +110,47 @@ class AddDeliveryRouteBodyRequest {
   AddDeliveryRouteBodyRequest({required this.name});
 
   Map<String, dynamic> toJson() => _$AddDeliveryRouteBodyRequestToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false)
+class DeliveryOrderRequestData {
+  final String orderCode;
+  final String? orderName;
+  final String? orderMediaId;
+  final String contactName;
+  final String contactPhone;
+  final String address;
+  final String? appliedLocationId;
+  final PointRequestData location;
+
+  DeliveryOrderRequestData({
+    required this.orderCode,
+    required this.orderName,
+    this.orderMediaId,
+    required this.contactName,
+    required this.contactPhone,
+    required this.address,
+    this.appliedLocationId,
+    required this.location,
+  });
+
+  factory DeliveryOrderRequestData.fromJson(Map<String, dynamic> json) =>
+      _$DeliveryOrderRequestDataFromJson(json);
+  Map<String, dynamic> toJson() => _$DeliveryOrderRequestDataToJson(this);
+}
+
+@JsonSerializable()
+class CreateDeliveryRouteWithOrdersBodyRequest {
+  final String name;
+  final List<DeliveryOrderRequestData> orders;
+
+  CreateDeliveryRouteWithOrdersBodyRequest({
+    required this.name,
+    required this.orders,
+  });
+
+  Map<String, dynamic> toJson() =>
+      _$CreateDeliveryRouteWithOrdersBodyRequestToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false)

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shipgo/core/config/app_route_names.dart';
@@ -175,49 +176,50 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              deliveryRouteData.name,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today_outlined,
-                                  size: 14,
-                                  color: Colors.grey,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                deliveryRouteData.name,
+                                softWrap: true,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
-                                SizedBox(width: 4),
-                                Text(
-                                  AppStrings.rDPCreatedRouteDateString.tr(
-                                    namedArgs: {
-                                      'dateTimeString':
-                                          DateFormat(
-                                            'dd/MM/yyyy • HH:mm',
-                                          ).format(
-                                            deliveryRouteData.createdAt
-                                                .toLocal(),
-                                          ),
-                                    },
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 13,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_outlined,
+                                    size: 14,
                                     color: Colors.grey,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  SizedBox(width: 4),
+                                  Text(
+                                    AppStrings.rDPCreatedRouteDateString.tr(
+                                      namedArgs: {
+                                        'dateTimeString':
+                                            DateFormat(
+                                              'dd/MM/yyyy • HH:mm',
+                                            ).format(
+                                              deliveryRouteData.createdAt
+                                                  .toLocal(),
+                                            ),
+                                      },
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-
                         // Nút chỉnh sửa thông tin lộ trình
                         IconButton.outlined(
                           icon: const Icon(
@@ -522,6 +524,15 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
             valueColor: Colors.black87,
           ),
           _buildDetailRow(
+            icon: Icons.tag,
+            iconBgColor: const Color(0xFFE8F5E9),
+            iconColor: primaryGreen,
+            title: AppStrings.rDPDeliveryRouteIdLabel.tr(),
+            value: deliveryRouteData.id,
+            valueColor: Colors.black87,
+            showCopy: true,
+          ),
+          _buildDetailRow(
             icon: Icons.pending_actions_outlined,
             iconBgColor: Colors.transparent,
             iconColor: uncheckedColor,
@@ -554,7 +565,10 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
             title: AppStrings.rDPTotalUnsortedOrdersLabel.tr(),
             value: AppStrings.rDPCountContent.tr(
               namedArgs: {
-                'quantity': (deliveryRouteData.totalOrders - deliveryRouteData.totalSortedOrders).toString(),
+                'quantity':
+                    (deliveryRouteData.totalOrders -
+                            deliveryRouteData.totalSortedOrders)
+                        .toString(),
               },
             ),
             valueColor: checkedColor,
@@ -637,6 +651,7 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
     required String value,
     required Color valueColor,
     FontWeight valueFontWeight = FontWeight.normal,
+    bool showCopy = false,
     bool isLast = false,
   }) {
     return Column(
@@ -644,34 +659,86 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: iconColor, size: 22),
+              // Icon + Title
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: iconBgColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: iconColor, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
-              ),
-              const Spacer(),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: valueColor,
-                  fontWeight: valueFontWeight,
+
+              const SizedBox(width: 20),
+
+              // Value + Copy
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        value,
+                        textAlign: TextAlign.right,
+                        softWrap: true,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: valueColor,
+                          fontWeight: valueFontWeight,
+                        ),
+                      ),
+                    ),
+
+                    if (showCopy) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        onPressed: () {
+                          _copyToClipboard(value);
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                        icon: const Icon(
+                          Icons.copy,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
           ),
         ),
+
         if (!isLast) const Divider(height: 1, color: Color(0xFFF0F0F0)),
       ],
+    );
+  }
+
+  void _copyToClipboard(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã sao chép vào bộ nhớ tạm!'),
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 }

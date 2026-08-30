@@ -244,9 +244,9 @@ abstract class AppStrings {
   static const String rDPCountContent = 'route_detail_page.count_content';
   static const String rDPTotalUncheckedOrdersLabel =
       'route_detail_page.total_unchecked_orders_label';
-      static const String rDPTotalUnsortedOrdersLabel =
+  static const String rDPTotalUnsortedOrdersLabel =
       'route_detail_page.total_unsorted_orders_label';
-      static const String rDPTotalSortedOrdersLabel =
+  static const String rDPTotalSortedOrdersLabel =
       'route_detail_page.total_sorted_orders_label';
   static const String rDPTotalSuccessOrdersLabel =
       'route_detail_page.total_success_orders_label';
@@ -256,6 +256,8 @@ abstract class AppStrings {
       'route_detail_page.total_rescheduled_orders_label';
   static const String rDPTotalOrdersLabel =
       'route_detail_page.total_total_orders_label';
+  static const String rDPDeliveryRouteIdLabel =
+      'route_detail_page.delivery_route_id_label';
 
   // Route page
   static const String rPDeleteSelectedRoutesDialogTitle =
