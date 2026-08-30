@@ -921,7 +921,8 @@ class DeliveringRouteCardItem extends StatelessWidget {
                                   namedArgs: {
                                     'quantity':
                                         (item.totalDeliveredOrders +
-                                                item.totalCancelledOrders)
+                                                item.totalCancelledOrders +
+                                                item.totalRescheduledOrders)
                                             .toString(),
                                     'total': item.totalOrders.toString(),
                                   },
