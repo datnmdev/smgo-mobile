@@ -3461,6 +3461,14 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           ],
 
           _OutlineButton(
+            disabled:
+                !(((_checkOrderMethod == CheckOrderMethod.manual &&
+                            selectionCubit.state.isEnabled) ||
+                        _checkOrderMethod ==
+                            CheckOrderMethod.scanQrOrBarcode) &&
+                    deliveryOrderPageCubit.state.selectedTab ==
+                        DeliveryOrderPageTab.pending &&
+                    !_deliveryRoute.isAllChecked),
             icon: Icons.touch_app_outlined,
             label: 'Xác nhận đơn hàng',
             subtitle: _checkOrderMethod == CheckOrderMethod.scanQrOrBarcode
@@ -3640,38 +3648,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               icon: Icons.done,
               label: 'Xác nhận đã sắp xếp',
               subtitle: 'Xác nhận để chuyển sang đơn tiếp theo',
-              onPressed: () {
-                AppDialogUtils.showSuccess(
-                  context: context,
-                  title:
-                      'Bạn chắc chắn đã sắp xếp hàng hoá này vào thùng rồi chứ?',
-                  subtitle:
-                      'Sắp xếp hàng hoá đúng cách sẽ giúp bạn tiết kiệm rất nhiều thời gian giao hàng',
-                  actions: [
-                    SmgoButton(
-                      isOutlined: true,
-                      text: 'Huỷ',
-                      primaryColor: AppColors.primary,
-                      onPressed: () {
-                        context.pop();
-                      },
-                    ),
-                    SmgoButton(
-                      primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
-                      onPressed: () async {
-                        context.read<ConfirmSortedDeliveryOrdersCubit>().call(
-                          deliveryRouteId: _deliveryRoute.id,
-                          deliveryOrderIds: [
-                            _deliveryRoute.currentNeedSortOrder!.id,
-                          ],
-                        );
-                        context.pop();
-                      },
-                    ),
-                  ],
-                );
-              },
+              onPressed: () =>
+                  _openOrderScanScreenToConfirmSortedOrder(context: context),
             ),
 
             const SizedBox(width: 12),
@@ -3844,7 +3822,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           ),
           SizedBox(height: 8),
           OptionButton(
-            icon: Icon(Icons.sms, color: const ui.Color.fromRGBO(22, 163, 74, 1)),
+            icon: Icon(
+              Icons.sms,
+              color: const ui.Color.fromRGBO(22, 163, 74, 1),
+            ),
             title: 'Nhắn tin qua SMS',
             subtitle: 'Nhắn tin trực tiếp qua ứng dụng nhắn tin',
             onTap: () async {
@@ -3884,6 +3865,408 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _openOrderScanScreenToConfirmSortedOrder({
+    required BuildContext context,
+  }) {
+    final getDeliveryRoutesCubitInParent = context
+        .read<GetDeliveryRoutesCubit>();
+    final parentContext = context;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
+          title: "Quét thông tin đơn hàng",
+          onHandleScan: (rawValue) async {
+            if (rawValue.isNotEmpty) {
+              return _deliveryRoute.currentNeedSortOrder?.orderCode == rawValue
+                  ? _deliveryRoute.currentNeedSortOrder
+                  : null;
+            }
+            return null;
+          },
+          itemBuilder: (context, order) {
+            // ============================================================
+            // QUÉT SAI / KHÔNG TÌM THẤY ĐƠN
+            // ============================================================
+            if (order == null ||
+                order.id != _deliveryRoute.currentNeedSortOrder?.id) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Marker cảnh báo
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: Colors.red.withAlpha((0.10 * 255).round()),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.red,
+                        size: 42,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      'Bạn không lấy đúng đơn cần sắp xếp hiện tại',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    const Text(
+                      'Vui lòng kiểm tra lại mã vận đơn và lấy đúng đơn hàng cần sắp xếp hiện tại.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(
+                          Icons.qr_code_scanner,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Quét lại',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // ============================================================
+            // QUÉT ĐÚNG ĐƠN
+            // ============================================================
+            return BlocProvider<ConfirmSortedDeliveryOrdersCubit>(
+              create: (context) => di<ConfirmSortedDeliveryOrdersCubit>(),
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // ==================================================
+                        // MARKER: ĐÃ LẤY ĐÚNG HÀNG
+                        // ==================================================
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(
+                              (0.08 * 255).round(),
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.primary.withAlpha(
+                                (0.25 * 255).round(),
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Đã lấy đúng hàng',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Đơn hàng này đúng với đơn cần sắp xếp hiện tại',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // ==================================================
+                        // THÔNG TIN ĐƠN HÀNG
+                        // ==================================================
+                        _buildInfoRow(
+                          Icons.view_column,
+                          "Mã vận đơn",
+                          order.orderCode,
+                          showCopy: true,
+                        ),
+
+                        const Divider(height: 24, color: Colors.black12),
+
+                        _buildInfoRow(
+                          Icons.inventory_2_outlined,
+                          "Tên sản phẩm",
+                          order.orderName?.isNotEmpty == true
+                              ? order.orderName!
+                              : 'Không có tên đơn hàng',
+                          showCopy: true,
+                        ),
+
+                        const Divider(height: 24, color: Colors.black12),
+
+                        _buildInfoRow(
+                          Icons.person_outline,
+                          "Tên người nhận",
+                          order.contactName,
+                          showCopy: true,
+                        ),
+
+                        const Divider(height: 24, color: Colors.black12),
+
+                        _buildInfoRow(
+                          Icons.phone_outlined,
+                          "Số điện thoại",
+                          order.contactPhone,
+                          showCopy: true,
+                        ),
+
+                        const Divider(height: 24, color: Colors.black12),
+
+                        _buildInfoRow(
+                          Icons.location_on_outlined,
+                          "Địa chỉ nhận",
+                          order.address,
+                          showCopy: true,
+                        ),
+
+                        const Divider(height: 24, color: Colors.black12),
+
+                        _buildImageRow(
+                          "Ảnh đơn hàng",
+                          order.orderMediaUrl ?? '',
+                        ),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ========================================================
+                // BOTTOM BUTTON
+                // ========================================================
+                bottomNavigationBar: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha((0.2 * 255).round()),
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child:
+                      BlocConsumer<
+                        ConfirmSortedDeliveryOrdersCubit,
+                        ConfirmSortedDeliveryOrdersState
+                      >(
+                        listener: (context, state) {
+                          if (state is ConfirmSortedDeliveryOrdersDone) {
+                            getDeliveryRoutesCubitInParent.call(
+                              params: GetDeliveryRoutesUsecaseParams(
+                                pageNumber: 1,
+                                pageSize: 1,
+                                id: order.deliveryRouteId,
+                              ),
+                            );
+
+                            context.pop();
+                            context.pop();
+
+                            AppDialogUtils.showSuccess(
+                              context: parentContext,
+                              title: 'Xác nhận thành công!',
+                              subtitle:
+                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                            );
+                          } else if (state
+                              is ConfirmSortedDeliveryOrdersFailed) {
+                            AppDialogUtils.showError(
+                              context: context,
+                              title: 'Xác nhận đơn hàng thất bại',
+                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          final isLoading =
+                              state is ConfirmSortedDeliveryOrdersLoading;
+
+                          return SafeArea(
+                            top: false,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: SmgoButton(
+                                      primaryColor: AppColors.primary,
+                                      isDisabled: isLoading,
+                                      onPressed: () {
+                                        context.pop();
+                                      },
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.qr_code_scanner,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Quét lại',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  Expanded(
+                                    child: SmgoButton(
+                                      primaryColor: AppColors.primary,
+                                      isDisabled:
+                                          isLoading ||
+                                          order.status ==
+                                              DeliveryOrderStatus.sorted.value,
+                                      onPressed: () {
+                                        context
+                                            .read<
+                                              ConfirmSortedDeliveryOrdersCubit
+                                            >()
+                                            .call(
+                                              deliveryRouteId:
+                                                  order.deliveryRouteId,
+                                              deliveryOrderIds: [order.id],
+                                            );
+                                      },
+                                      child: isLoading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 1.5,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  order.status ==
+                                                          DeliveryOrderStatus
+                                                              .sorted
+                                                              .value
+                                                      ? 'Đã xác nhận'
+                                                      : 'Xác nhận',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                ),
+              ),
+            );
+          },
+          onComplete: (context, data) {
+            AppAudioUtils.playAndDisposeAudio(AppAssets.audioBeep);
+          },
+        ),
       ),
     );
   }
@@ -4354,7 +4737,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       primaryColor: AppColors.primary,
                                       isDisabled:
                                           isLoading ||
-                                          order.status == 'checked',
+                                          order.status ==
+                                              DeliveryOrderStatus
+                                                  .rescheduled
+                                                  .value,
                                       onPressed: () {
                                         context
                                             .read<
@@ -4386,7 +4772,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  order.status == 'checked'
+                                                  order.status ==
+                                                          DeliveryOrderStatus
+                                                              .rescheduled
+                                                              .value
                                                       ? 'Đã xác nhận'
                                                       : 'Xác nhận',
                                                   style: const TextStyle(
@@ -4753,7 +5142,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       primaryColor: AppColors.primary,
                                       isDisabled:
                                           isLoading ||
-                                          order.status == 'checked',
+                                          order.status ==
+                                              DeliveryOrderStatus
+                                                  .cancelled
+                                                  .value,
                                       onPressed: () {
                                         context
                                             .read<ConfirmCancelledOrderCubit>()
@@ -4783,7 +5175,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  order.status == 'checked'
+                                                  order.status ==
+                                                          DeliveryOrderStatus
+                                                              .cancelled
+                                                              .value
                                                       ? 'Đã xác nhận'
                                                       : 'Xác nhận',
                                                   style: const TextStyle(
@@ -5150,7 +5545,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       primaryColor: AppColors.primary,
                                       isDisabled:
                                           isLoading ||
-                                          order.status == 'checked',
+                                          order.status ==
+                                              DeliveryOrderStatus
+                                                  .delivered
+                                                  .value,
                                       onPressed: () {
                                         context
                                             .read<ConfirmDeliveredOrderCubit>()
@@ -5180,7 +5578,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  order.status == 'checked'
+                                                  order.status ==
+                                                          DeliveryOrderStatus
+                                                              .delivered
+                                                              .value
                                                       ? 'Đã xác nhận'
                                                       : 'Xác nhận',
                                                   style: const TextStyle(
@@ -5439,7 +5840,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                   primaryColor: AppColors.primary,
                                   isDisabled:
                                       state is ConfirmDeliveryOrdersLoading ||
-                                      order.status == 'checked',
+                                      order.status ==
+                                          DeliveryOrderStatus.checked.value,
                                   onPressed: () {
                                     context
                                         .read<ConfirmDeliveryOrdersCubit>()
@@ -5468,7 +5870,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                             ),
                                             SizedBox(width: 8),
                                             Text(
-                                              order.status == 'checked'
+                                              order.status ==
+                                                      DeliveryOrderStatus
+                                                          .checked
+                                                          .value
                                                   ? 'Đã xác nhận'
                                                   : "Xác nhận",
                                               style: TextStyle(
