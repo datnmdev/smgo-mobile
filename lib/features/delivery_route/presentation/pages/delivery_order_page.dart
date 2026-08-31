@@ -780,7 +780,6 @@ class RouteHeader extends StatelessWidget {
                             ),
                           ],
                         );
-                     
                       },
                       icon: const Icon(
                         Icons.delete_outline,
@@ -837,7 +836,7 @@ class RouteHeader extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              const _SearchBox(),
+              _SearchBox(deliveryRoute: deliveryRoute),
 
               const SizedBox(height: 24),
             ],
@@ -850,19 +849,25 @@ class RouteHeader extends StatelessWidget {
 
 // Thanh search
 class _SearchBox extends StatelessWidget {
-  const _SearchBox();
+  final DeliveryRouteEntity deliveryRoute;
+
+  const _SearchBox({required this.deliveryRoute});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       style: const TextStyle(color: RouteColors.text, fontSize: 16),
+      onTapOutside: (event) {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
       decoration: InputDecoration(
         hintText: 'Tìm kiếm đơn hàng...',
         hintStyle: const TextStyle(color: Color(0xFF9AA0B3), fontSize: 16),
         prefixIcon: const Icon(Icons.search, size: 28, color: RouteColors.text),
+
         suffixIcon: IconButton(
           onPressed: () {
-            // TODO: scan QR
+            _openOrderScanScreenToFindOrder(context: context);
           },
           icon: const Icon(Icons.qr_code_scanner, color: RouteColors.green),
         ),
@@ -880,6 +885,248 @@ class _SearchBox extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+  void _openOrderScanScreenToFindOrder({required BuildContext context}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
+          title: "Quét thông tin đơn hàng",
+          onHandleScan: (rawValue) async {
+            if (rawValue.isNotEmpty) {
+              return deliveryRoute.orders
+                  .where((order) => order.orderCode == rawValue)
+                  .firstOrNull;
+            }
+            return null;
+          },
+          itemBuilder: (_, order) {
+            if (order == null) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withAlpha((0.1 * 255).round()),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.search_off_rounded,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Không tìm thấy đơn hàng",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Mã này không tồn tại hoặc không phù hợp với hệ thống. Vui lòng thử lại.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF006837),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Quét mã khác",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildInfoRow(
+                        Icons.view_column,
+                        "Mã vận đơn",
+                        order.orderCode,
+                        showCopy: true,
+                        context: context,
+                      ),
+
+                      const Divider(height: 24, color: Colors.black12),
+
+                      _buildInfoRow(
+                        Icons.inventory_2_outlined,
+                        "Tên sản phẩm",
+                        order.orderName?.isNotEmpty == true
+                            ? order.orderName!
+                            : 'Không có tên đơn hàng',
+                        showCopy: true,
+                        context: context,
+                      ),
+
+                      const Divider(height: 24, color: Colors.black12),
+
+                      _buildInfoRow(
+                        Icons.person_outline,
+                        "Tên người nhận",
+                        order.contactName,
+                        showCopy: true,
+                        context: context,
+                      ),
+                      const Divider(height: 24, color: Colors.black12),
+
+                      _buildInfoRow(
+                        Icons.phone_outlined,
+                        "Số điện thoại",
+                        order.contactPhone,
+                        showCopy: true,
+                        context: context,
+                      ),
+                      const Divider(height: 24, color: Colors.black12),
+
+                      _buildInfoRow(
+                        Icons.location_on_outlined,
+                        "Địa chỉ nhận",
+                        order.address,
+                        showCopy: true,
+                        context: context,
+                      ),
+                      const Divider(height: 24, color: Colors.black12),
+
+                      _buildImageRow("Ảnh đơn hàng", order.orderMediaUrl ?? ''),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+              bottomNavigationBar: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(
+                        (0.4 * 255).round(),
+                      ), // Màu xanh lá đổ bóng
+                      blurRadius: 4, // Độ loè của bóng
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SmgoButton(
+                          primaryColor: AppColors.primary,
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.qr_code_scanner,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Quét lại",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SmgoButton(
+                          primaryColor: AppColors.primary,
+                          onPressed: () {
+                            context.pushNamed(
+                              AppRouteNames.deliveryOrderDetail,
+                              pathParameters: {
+                                'id': order.deliveryRouteId,
+                                'deliveryOrderId': order.id,
+                              },
+                              extra: <String, Object>{
+                                'DeliveryRouteData': deliveryRoute,
+                                'DeliveryOrderData': order,
+                                'GetDeliveryRoutesCubitInDOP': context
+                                    .read<GetDeliveryRoutesCubit>(),
+                                'GetDeliveryRoutesUsecaseParamsInDOP':
+                                    GetDeliveryRoutesUsecaseParams(
+                                      id: deliveryRoute.id,
+                                      pageNumber: 1,
+                                      pageSize: 1,
+                                    ),
+                              },
+                            );
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.visibility_outlined,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Xem chi tiết",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          onComplete: (_, data) {
+            AppAudioUtils.playAndDisposeAudio(AppAssets.audioBeep);
+          },
         ),
       ),
     );
@@ -4430,6 +4677,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Mã vận đơn",
                           order.orderCode,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4441,6 +4689,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4450,6 +4699,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Tên người nhận",
                           order.contactName,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4459,6 +4709,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Số điện thoại",
                           order.contactPhone,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4468,6 +4719,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Địa chỉ nhận",
                           order.address,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4963,6 +5215,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Mã vận đơn",
                           order.orderCode,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4974,6 +5227,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4983,6 +5237,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Tên người nhận",
                           order.contactName,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -4992,6 +5247,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Số điện thoại",
                           order.contactPhone,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5001,6 +5257,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Địa chỉ nhận",
                           order.address,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5368,6 +5625,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Mã vận đơn",
                           order.orderCode,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5379,6 +5637,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5388,6 +5647,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Tên người nhận",
                           order.contactName,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5397,6 +5657,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Số điện thoại",
                           order.contactPhone,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5406,6 +5667,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Địa chỉ nhận",
                           order.address,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5771,6 +6033,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Mã vận đơn",
                           order.orderCode,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5782,6 +6045,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5791,6 +6055,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Tên người nhận",
                           order.contactName,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5800,6 +6065,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Số điện thoại",
                           order.contactPhone,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -5809,6 +6075,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Địa chỉ nhận",
                           order.address,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -6079,6 +6346,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Mã vận đơn",
                           order.orderCode,
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -6090,6 +6358,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                               ? order.orderName!
                               : 'Không có tên đơn hàng',
                           showCopy: true,
+                          context: context,
                         ),
 
                         const Divider(height: 24, color: Colors.black12),
@@ -6099,6 +6368,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Tên người nhận",
                           order.contactName,
                           showCopy: true,
+                          context: context,
                         ),
                         const Divider(height: 24, color: Colors.black12),
 
@@ -6107,6 +6377,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Số điện thoại",
                           order.contactPhone,
                           showCopy: true,
+                          context: context,
                         ),
                         const Divider(height: 24, color: Colors.black12),
 
@@ -6115,6 +6386,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           "Địa chỉ nhận",
                           order.address,
                           showCopy: true,
+                          context: context,
                         ),
                         const Divider(height: 24, color: Colors.black12),
 
@@ -6267,109 +6539,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           },
         ),
       ),
-    );
-  }
-
-  // Helper Widget dựng dòng thông tin đơn giản
-  Widget _buildInfoRow(
-    IconData icon,
-    String label,
-    String value, {
-    bool showCopy = false,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: const Color(0xFF006837)),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 100,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.black54,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        if (showCopy)
-          IconButton(
-            onPressed: () {
-              copyToClipboard(value);
-            },
-            icon: Icon(Icons.copy, size: 18, color: Color(0xFF006837)),
-          ),
-      ],
-    );
-  }
-
-  void copyToClipboard(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã sao chép vào bộ nhớ tạm!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // Helper Widget dựng phần hiển thị ảnh đơn hàng lớn ở dưới cùng
-  Widget _buildImageRow(String label, String imageUrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.image_outlined,
-              size: 20,
-              color: Color(0xFF006837),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            height: 120,
-            width: 160,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const Center(
-                child: Text(
-                  "Không có ảnh",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -6680,4 +6849,110 @@ Map<String, String> _getUniqueOrderSuffixes(List<DeliveryOrderEntity> orders) {
     }
   }
   return result;
+}
+
+// Helper
+Widget _buildInfoRow(
+  IconData icon,
+  String label,
+  String value, {
+  bool showCopy = false,
+  required BuildContext context,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 20, color: const Color(0xFF006837)),
+      const SizedBox(width: 12),
+      SizedBox(
+        width: 100,
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.black54,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      Expanded(
+        child: Text(
+          value,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      if (showCopy)
+        IconButton(
+          onPressed: () {
+            _copyToClipboard(text: value, context: context);
+          },
+          icon: Icon(Icons.copy, size: 18, color: Color(0xFF006837)),
+        ),
+    ],
+  );
+}
+
+void _copyToClipboard({
+  required BuildContext context,
+  required String text,
+}) async {
+  await Clipboard.setData(ClipboardData(text: text));
+  if (!context.mounted) {
+    return;
+  }
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Đã sao chép vào bộ nhớ tạm!'),
+      duration: Duration(seconds: 2),
+    ),
+  );
+}
+
+// Helper Widget dựng phần hiển thị ảnh đơn hàng lớn ở dưới cùng
+Widget _buildImageRow(String label, String imageUrl) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          const Icon(Icons.image_outlined, size: 20, color: Color(0xFF006837)),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.black54,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: 120,
+          width: 160,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const Center(
+              child: Text(
+                "Không có ảnh",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
 }
