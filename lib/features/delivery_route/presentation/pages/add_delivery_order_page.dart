@@ -759,7 +759,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           onChanged: onChanged,
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+            hintStyle: const TextStyle(color: Color.fromARGB(255, 48, 24, 24), fontSize: 13),
             suffixIcon: OutlinedButton.icon(
               onPressed: onLockToggle,
               style: OutlinedButton.styleFrom(

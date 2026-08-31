@@ -16,7 +16,7 @@ class LocationRepositoryImpl implements LocationRepository {
     GetMyLocationParams? params,
   }) async {
     try {
-      final dataState = await locationApiService.getMyLocations(
+      final httpResponse = await locationApiService.getMyLocations(
         query: GetMyLocationsQuery(
           page: params?.pageNumber,
           limit: params?.pageSize,
@@ -24,7 +24,7 @@ class LocationRepositoryImpl implements LocationRepository {
           id: params?.id,
         ),
       );
-      final data = dataState.data.data!;
+      final data = httpResponse.data.data!;
       return DataSuccess(
         Pagination(
           meta: data.meta,
@@ -62,7 +62,7 @@ class LocationRepositoryImpl implements LocationRepository {
     required CreateLocationParams params,
   }) async {
     try {
-      final dataState = await locationApiService.createLocation(
+      final httpResponse = await locationApiService.createLocation(
         body: CreateLocationBodyRequest(
           locationName: params.locationName,
           contactName: params.contactName,
@@ -78,7 +78,7 @@ class LocationRepositoryImpl implements LocationRepository {
           mediaIds: params.mediaIds,
         ),
       );
-      return DataSuccess(dataState.data.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }
@@ -90,7 +90,7 @@ class LocationRepositoryImpl implements LocationRepository {
     required UpdateLocationData data,
   }) async {
     try {
-      final dataState = await locationApiService.updateLocation(
+      final httpResponse = await locationApiService.updateLocation(
         locationId: locationId,
         body: UpdateLocationBodyRequest(
           locationName: data.locationName,
@@ -104,21 +104,21 @@ class LocationRepositoryImpl implements LocationRepository {
           mediaIds: data.mediaIds,
         ),
       );
-      return DataSuccess(dataState.data.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }
   }
 
   @override
-  Future<DataState<dynamic>> deleteLocation({
-    required String locationId,
+  Future<DataState<dynamic>> deleteLocations({
+    required List<String> locationIds,
   }) async {
     try {
-      final dataState = await locationApiService.deleteLocation(
-        locationId: locationId,
+      final httpResponse = await locationApiService.deleteLocations(
+        body: DeleteLocationsBodyRequest(locationIds: locationIds),
       );
-      return DataSuccess(dataState.data.data);
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }

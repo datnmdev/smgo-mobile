@@ -87,7 +87,6 @@ class AddLocationFormCubit extends Cubit<AddLocationFormState> {
       if (dataState is DataSuccess) {
         emit(AddLocationFormDone(state: state));
       } else {
-        print(dataState.error);
         emit(AddLocationFormFailed(state: state, error: dataState.error!));
       }
     }

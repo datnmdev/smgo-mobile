@@ -1,21 +1,31 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
 
 class SearchLocationsCubit extends Cubit<SearchLocationsState> {
   Timer? _debounceTimer;
 
-  SearchLocationsCubit() : super(const SearchLocationsState());
+  SearchLocationsCubit() : super(const SearchLocationsInitial());
 
-  void call({required String searchText, void Function()? cb}) {
-    emit(SearchLocationsState(searchText: searchText));
+  void searchTextChanged(String value) {
+    emit(SearchLocationsInitial(searchText: value));
+  }
+
+  FutureOr<void> submit({required FutureOr<void> Function() cb}) async {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(Duration(seconds: 1), () {
-      if (cb != null) {
-        cb();
+    final completer = Completer<void>();
+    _debounceTimer = Timer(Duration(seconds: 1), () async {
+      emit(SearchLocationsLoading(searchText: state.searchText));
+      try {
+        await cb();
+        emit(SearchLocationsDone(searchText: state.searchText));
+        completer.complete();
+      } catch (e, stackTrace) {
+        completer.completeError(e, stackTrace);
+        emit(SearchLocationsError(searchText: state.searchText, error: e));
       }
     });
+    return completer.future;
   }
 
   @override

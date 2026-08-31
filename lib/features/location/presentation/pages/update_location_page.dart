@@ -138,7 +138,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.arrow_back_ios_new),
+                              icon: Icon(Icons.arrow_back_ios_new, size: 16,),
                               color: Colors.white,
                               onPressed: () {
                                 context.pop();
@@ -148,7 +148,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                             Text(
                               AppStrings.uLPPageTitle.tr(),
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 color: Colors.white,
                               ),
                             ),
@@ -164,7 +164,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                               height: 24,
                               child: CircularProgressIndicator(
                                 color: Colors.white,
-                                strokeWidth: 4.0,
+                                strokeWidth: 2.0,
                               ),
                             ),
                           )
@@ -178,7 +178,6 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -208,7 +207,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 16),
                             Column(
                               children: [
                                 // Tên địa điểm
@@ -262,7 +261,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                   ],
                                 ),
 
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
 
                                 // Tên người liên hệ
                                 Column(
@@ -313,7 +312,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                   ],
                                 ),
 
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
 
                                 // Số điện thoại liên lạc
                                 Column(
@@ -396,7 +395,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 16),
                             Column(
                               children: [
                                 // Địa chỉ
@@ -448,7 +447,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                   ],
                                 ),
 
-                                SizedBox(height: 12),
+                                SizedBox(height: 16),
 
                                 Column(
                                   children: [
@@ -503,7 +502,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: 12),
+                            SizedBox(height: 16),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -559,7 +558,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    SizedBox(height: 16),
 
                                     M3ImagePickerGrid(
                                       initialImages: locationData.media

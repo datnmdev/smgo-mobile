@@ -62,7 +62,7 @@ class AddLocationPage extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.arrow_back_ios_new),
+                            icon: Icon(Icons.arrow_back_ios_new, size: 16),
                             color: Colors.white,
                             onPressed: () {
                               context.pop();
@@ -71,7 +71,7 @@ class AddLocationPage extends StatelessWidget {
                           SizedBox(width: 12),
                           Text(
                             AppStrings.aLPPageTitle.tr(),
-                            style: TextStyle(fontSize: 20, color: Colors.white),
+                            style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ],
                       ),
@@ -96,8 +96,6 @@ class AddLocationPage extends StatelessWidget {
                             );
                           }
                         },
-                        buildWhen: (previous, current) =>
-                            current is! AddLocationFormInitial,
                         builder: (context, state) {
                           if (state is AddLocationFormLoading) {
                             return Padding(
@@ -107,7 +105,7 @@ class AddLocationPage extends StatelessWidget {
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
-                                  strokeWidth: 4.0,
+                                  strokeWidth: 2.0,
                                 ),
                               ),
                             );
@@ -121,7 +119,6 @@ class AddLocationPage extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           );
@@ -153,7 +150,7 @@ class AddLocationPage extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: 12),
+                          SizedBox(height: 16),
                           Column(
                             children: [
                               // Tên địa điểm
@@ -161,9 +158,6 @@ class AddLocationPage extends StatelessWidget {
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.locationName !=
-                                    current.locationName,
                                 builder: (context, state) => Column(
                                   children: [
                                     TextField(
@@ -214,15 +208,13 @@ class AddLocationPage extends StatelessWidget {
                                 ),
                               ),
 
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
 
                               // Tên người liên hệ
                               BlocBuilder<
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.contactName != current.contactName,
                                 builder: (context, state) => Column(
                                   children: [
                                     TextField(
@@ -271,16 +263,13 @@ class AddLocationPage extends StatelessWidget {
                                 ),
                               ),
 
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
 
                               // Số điện thoại liên lạc
                               BlocBuilder<
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.contactPhone !=
-                                    current.contactPhone,
                                 builder: (context, state) => Column(
                                   children: [
                                     TextField(
@@ -361,7 +350,7 @@ class AddLocationPage extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: 12),
+                          SizedBox(height: 16),
                           Column(
                             children: [
                               // Địa chỉ
@@ -369,8 +358,6 @@ class AddLocationPage extends StatelessWidget {
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.address != current.address,
                                 builder: (context, state) => Column(
                                   children: [
                                     TextField(
@@ -419,16 +406,12 @@ class AddLocationPage extends StatelessWidget {
                                 ),
                               ),
 
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
 
                               BlocBuilder<
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.location != current.location ||
-                                    previous.address.value !=
-                                        current.address.value,
                                 builder: (context, state) => Column(
                                   children: [
                                     M3MapWidget(
@@ -480,7 +463,7 @@ class AddLocationPage extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: 12),
+                          SizedBox(height: 16),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -530,7 +513,7 @@ class AddLocationPage extends StatelessWidget {
                                 ),
                               ),
 
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
 
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,7 +525,7 @@ class AddLocationPage extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                  SizedBox(height: 16),
 
                                   BlocBuilder<
                                     AddLocationFormCubit,
@@ -600,9 +583,10 @@ class AddLocationPage extends StatelessWidget {
                                               .readAsBytes();
                                           await di<UploadMediaUsecase>().call(
                                             params: UploadMediaParams(
-                                              presignedUploadUrl: uploadUrlDataState
-                                                  .data!
-                                                  .uploadUrl,
+                                              presignedUploadUrl:
+                                                  uploadUrlDataState
+                                                      .data!
+                                                      .uploadUrl,
                                               mimeType:
                                                   lookupMimeType(file.path) ??
                                                   'application/octet-stream',

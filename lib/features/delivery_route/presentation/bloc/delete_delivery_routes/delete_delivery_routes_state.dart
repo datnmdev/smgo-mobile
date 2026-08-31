@@ -15,5 +15,7 @@ class DeleteDeliveryRoutesDone extends DeleteDeliveryRoutesState {
 }
 
 class DeleteDeliveryRoutesFailed extends DeleteDeliveryRoutesState {
-  const DeleteDeliveryRoutesFailed();
+  final Object error;
+
+  const DeleteDeliveryRoutesFailed({required this.error});
 }

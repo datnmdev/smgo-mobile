@@ -13,7 +13,7 @@ abstract class LocationRepository {
     required String locationId,
     required UpdateLocationData data,
   });
-  Future<DataState<dynamic>> deleteLocation({required String locationId});
+  Future<DataState<dynamic>> deleteLocations({required List<String> locationIds});
 }
 
 class GetMyLocationParams {

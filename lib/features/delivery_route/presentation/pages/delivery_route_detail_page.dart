@@ -13,6 +13,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_routes/delete_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 
 class DeliveryRouteDetailPage extends StatefulWidget {
   const DeliveryRouteDetailPage({super.key});
@@ -361,103 +363,117 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
                 ),
               ),
               const SizedBox(width: 12),
+
+              // Nút xoá lộ trình
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
                     final parentContext = context;
-
-                    showDialog(
+                    AppDialogUtils.showCustomDialog(
                       context: context,
-                      builder: (dialogContext) =>
-                          BlocProvider<DeleteDeliveryRoutesCubit>(
-                            create: (_) => di<DeleteDeliveryRoutesCubit>(),
-                            child:
-                                BlocConsumer<
-                                  DeleteDeliveryRoutesCubit,
-                                  DeleteDeliveryRoutesState
-                                >(
-                                  listener: (consumerContext, dialogState) {
-                                    if (dialogState
-                                        is DeleteDeliveryRoutesDone) {
-                                      getDeliveryRoutesCubitInRP.call(
-                                        params:
-                                            getDeliveryRoutesUsecaseParamsInRP,
-                                      );
-                                      Navigator.of(consumerContext).pop();
-                                      if (parentContext.mounted) {
-                                        Navigator.of(parentContext).pop();
-                                      }
-                                    }
-                                  },
-                                  builder: (consumerContext, dialogState) {
-                                    final isLoading =
-                                        dialogState
-                                            is DeleteDeliveryRoutesLoading;
+                      title: AppStrings.rDPDeleteRouteDialogTitle.tr(),
+                      subtitle: AppStrings.rDPDeleteRouteDialogContent.tr(),
+                      barrierDismissible: false,
+                      actions: [
+                        BlocProvider<DeleteDeliveryRoutesCubit>(
+                          create: (_) => di<DeleteDeliveryRoutesCubit>(),
+                          child:
+                              BlocConsumer<
+                                DeleteDeliveryRoutesCubit,
+                                DeleteDeliveryRoutesState
+                              >(
+                                listener: (consumerContext, dialogState) {
+                                  if (dialogState is DeleteDeliveryRoutesDone) {
+                                    getDeliveryRoutesCubitInRP.call(
+                                      params:
+                                          getDeliveryRoutesUsecaseParamsInRP,
+                                    );
 
-                                    return AlertDialog(
-                                      title: Text(
-                                        AppStrings.rDPDeleteRouteDialogTitle
-                                            .tr(),
-                                      ),
-                                      content: Text(
-                                        AppStrings.rDPDeleteRouteDialogContent
-                                            .tr(),
-                                      ),
-                                      actions: [
-                                        // Nút Hủy
-                                        TextButton(
-                                          onPressed: !isLoading
-                                              ? () => Navigator.of(
-                                                  consumerContext,
-                                                ).pop()
-                                              : null,
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: AppColors.primary,
-                                          ),
-                                          child: Text(
-                                            AppStrings
+                                    context.pop();
+
+                                    if (parentContext.mounted) {
+                                      parentContext.pop();
+                                    }
+
+                                    AppDialogUtils.showSuccess(
+                                      context: context,
+                                      title: 'Xoá lộ trình thành công!',
+                                    );
+                                  } else if (dialogState
+                                      is DeleteDeliveryRoutesFailed) {
+                                    AppDialogUtils.showError(
+                                      context: context,
+                                      title: 'Xoá lộ trình thất bại!',
+                                      subtitle:
+                                          'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                    );
+                                  }
+                                },
+                                builder: (consumerContext, dialogState) {
+                                  final isLoading =
+                                      dialogState
+                                          is DeleteDeliveryRoutesLoading;
+
+                                  return IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          child: SmgoButton(
+                                            isDisabled: isLoading,
+                                            primaryColor: AppColors.primary,
+                                            text: AppStrings
                                                 .rDPDeleteRouteDialogCancelBtnTitle
                                                 .tr(),
+                                            isOutlined: true,
+                                            onPressed: () {
+                                              consumerContext.pop();
+                                            },
                                           ),
                                         ),
 
-                                        // Nút Đồng ý xóa
-                                        TextButton(
-                                          onPressed: !isLoading
-                                              ? () {
-                                                  consumerContext
-                                                      .read<
-                                                        DeleteDeliveryRoutesCubit
-                                                      >()
-                                                      .call([
-                                                        deliveryRouteData.id,
-                                                      ]);
-                                                }
-                                              : null, // Disable nút khi đang xóa
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: Colors.red,
+                                        const SizedBox(width: 12),
+
+                                        Expanded(
+                                          child: SmgoButton(
+                                            isDisabled: isLoading,
+                                            primaryColor: AppColors.primary,
+                                            onPressed: () {
+                                              consumerContext
+                                                  .read<
+                                                    DeleteDeliveryRoutesCubit
+                                                  >()
+                                                  .call([deliveryRouteData.id]);
+                                            },
+                                            child: isLoading
+                                                ? const SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: Colors.white,
+                                                        ),
+                                                  )
+                                                : Text(
+                                                    AppStrings
+                                                        .rDPDeleteRouteDialogDeleteBtnTitle
+                                                        .tr(),
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                           ),
-                                          child: isLoading
-                                              ? const SizedBox(
-                                                  width: 16,
-                                                  height: 16,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        color: Colors.red,
-                                                        strokeWidth: 2,
-                                                      ),
-                                                )
-                                              : Text(
-                                                  AppStrings
-                                                      .rDPDeleteRouteDialogDeleteBtnTitle
-                                                      .tr(),
-                                                ),
                                         ),
                                       ],
-                                    );
-                                  },
-                                ),
-                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                        ),
+                      ],
                     );
                   },
                   icon: const Icon(

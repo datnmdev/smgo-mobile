@@ -16,7 +16,7 @@ abstract class LocationApiService {
     @Queries() required GetMyLocationsQuery query,
   });
 
-  @POST(ApiEndpoints.locationBaseUrl)
+  @POST(ApiEndpoints.createLocation)
   Future<HttpResponse<ApiResponse<dynamic>>> createLocation({
     @Body() required CreateLocationBodyRequest body,
   });
@@ -27,9 +27,9 @@ abstract class LocationApiService {
     @Body() required UpdateLocationBodyRequest body,
   });
 
-  @DELETE(ApiEndpoints.deleteLocation)
-  Future<HttpResponse<ApiResponse<dynamic>>> deleteLocation({
-    @Path('locationId') required String locationId,
+  @DELETE(ApiEndpoints.deleteLocations)
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteLocations({
+    @Body() required DeleteLocationsBodyRequest body,
   });
 }
 
@@ -102,4 +102,13 @@ class UpdateLocationBodyRequest {
   });
 
   Map<String, dynamic> toJson() => _$UpdateLocationBodyRequestToJson(this);
+}
+
+@JsonSerializable()
+class DeleteLocationsBodyRequest {
+  final List<String> locationIds;
+
+  DeleteLocationsBodyRequest({required this.locationIds});
+
+  Map<String, dynamic> toJson() => _$DeleteLocationsBodyRequestToJson(this);
 }

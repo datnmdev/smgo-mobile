@@ -1,22 +1,25 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_route_usecase.dart';
+import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_routes_usecase.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_routes/delete_delivery_routes_state.dart';
 
 class DeleteDeliveryRoutesCubit extends Cubit<DeleteDeliveryRoutesState> {
-  final DeleteDeliveryRouteUsecase deleteDeliveryRouteUsecase;
+  final DeleteDeliveryRoutesUsecase deleteDeliveryRoutesUsecase;
 
-  DeleteDeliveryRoutesCubit({required this.deleteDeliveryRouteUsecase})
+  DeleteDeliveryRoutesCubit({required this.deleteDeliveryRoutesUsecase})
     : super(const DeleteDeliveryRoutesInitial());
 
   Future<void> call(List<String> routeIds) async {
     emit(const DeleteDeliveryRoutesLoading());
-    await Future.wait(
-      routeIds.map(
-        (routeId) => deleteDeliveryRouteUsecase.call(
-          params: DeleteDeliveryRouteUsecaseParams(id: routeId),
-        ),
-      ),
+    final dataState = await deleteDeliveryRoutesUsecase.call(
+      params: DeleteDeliveryRoutesUsecaseParams(deliveryRouteIds: routeIds),
     );
-    emit(const DeleteDeliveryRoutesDone());
+    if (dataState is DataSuccess) {
+      emit(const DeleteDeliveryRoutesDone());
+    } else if (dataState is DataFailed) {
+      print((dataState.error as DioException).response?.data);
+      emit(DeleteDeliveryRoutesFailed(error: dataState.error!));
+    }
   }
 }

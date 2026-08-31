@@ -11,6 +11,7 @@ import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_rout
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_state.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 
 class UpdateDeliveryRoutePage extends StatefulWidget {
   const UpdateDeliveryRoutePage({Key? key}) : super(key: key);
@@ -26,6 +27,7 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
 
   @override
   void dispose() {
+    _updateDeliveryRouteFormCubit.close();
     _routeNameController.dispose();
     super.dispose();
   }
@@ -58,6 +60,23 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
             UpdateDeliveryRouteFormCubit,
             UpdateDeliveryRouteFormState
           >(
+            listener: (context, state) {
+              if (state is UpdateDeliveryRouteFormDone) {
+                getDeliveryRoutesCubitInDRDP.call(
+                  params: getDeliveryRoutesUsecaseParamsInDRDP,
+                );
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Cập nhật thông tin lộ trình thành công!',
+                );
+              } else if (state is UpdateDeliveryRouteFormFailed) {
+                AppDialogUtils.showError(
+                  context: context,
+                  title: 'Cập nhật thông tin lộ trình thất bại!',
+                  subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                );
+              }
+            },
             builder: (context, state) => Scaffold(
               backgroundColor: primaryGreen,
               appBar: AppBar(
@@ -156,6 +175,9 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
                       Column(
                         children: [
                           TextField(
+                            onTapOutside: (event) {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
                             controller: _routeNameController,
                             onChanged: (value) => context
                                 .read<UpdateDeliveryRouteFormCubit>()
@@ -203,14 +225,6 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
                 ),
               ),
             ),
-            listener: (context, state) {
-              if (state is UpdateDeliveryRouteFormDone) {
-                getDeliveryRoutesCubitInDRDP.call(
-                  params: getDeliveryRoutesUsecaseParamsInDRDP,
-                );
-                context.pop();
-              }
-            },
           ),
     );
   }

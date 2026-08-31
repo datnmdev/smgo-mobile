@@ -14,10 +14,12 @@ import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/dependency_injection.dart';
 import 'package:shipgo/shared/domain/entities/location_entity.dart';
 import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
-import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/delete_location/delete_location_state.dart';
+import 'package:shipgo/features/location/presentation/bloc/delete_locations/delete_locations_cubit.dart';
+import 'package:shipgo/features/location/presentation/bloc/delete_locations/delete_locations_state.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_state.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LocationDetailPage extends StatefulWidget {
@@ -82,7 +84,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
           listener: (context, state) {
             if (state is GetMyLocationsDone) {
               getMyLocationsCubitInLP.call(getMyLocationsParamsInLP);
-              
+
               setState(() {
                 location = state.data!.data[0];
               });
@@ -495,86 +497,110 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                     onPressed: () {
                       // Lưu lại context của màn hình chính
                       final parentContext = context;
-                      showDialog(
+                      AppDialogUtils.showCustomDialog(
                         context: context,
-                        builder: (dialogContext) => BlocProvider<DeleteLocationCubit>(
-                          create: (_) => di<DeleteLocationCubit>(),
-                          child: BlocConsumer<DeleteLocationCubit, DeleteLocationState>(
-                            listener: (consumerContext, dialogState) {
-                              if (dialogState is DeleteLocationDone) {
-                                Navigator.of(consumerContext).pop();
-                                if (parentContext.mounted) {
-                                  Navigator.of(parentContext).pop();
+                        title: AppStrings.lDPDeleteLocationDialogTitle.tr(),
+                        subtitle: AppStrings.lDPDeleteLocationDialogContent
+                            .tr(),
+                        barrierDismissible: false,
+                        actions: [
+                          BlocProvider<DeleteLocationsCubit>(
+                            create: (_) => di<DeleteLocationsCubit>(),
+                            child: BlocConsumer<DeleteLocationsCubit, DeleteLocationsState>(
+                              listener: (consumerContext, dialogState) {
+                                if (dialogState is DeleteLocationsDone) {
+                                  // Đóng dialog
+                                  consumerContext.pop();
+
+                                  // Đóng màn hình hiện tại
+                                  if (parentContext.mounted) {
+                                    parentContext.pop();
+                                  }
+
+                                  // Reload danh sách địa điểm
+                                  getMyLocationsCubitInLP.call(
+                                    getMyLocationsParamsInLP,
+                                  );
+
+                                  // Thông báo thành công
+                                  AppDialogUtils.showSuccess(
+                                    context: context,
+                                    title: 'Xoá địa điểm thành công!',
+                                  );
+                                } else if (dialogState
+                                    is DeleteLocationsFailed) {
+                                  AppDialogUtils.showError(
+                                    context: context,
+                                    title: 'Xoá địa điểm thất bại!',
+                                    subtitle:
+                                        'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                  );
                                 }
-                                getMyLocationsCubitInLP.call(
-                                  getMyLocationsParamsInLP,
-                                );
-                              }
-                            },
-                            builder: (consumerContext, dialogState) {
-                              final isLoading =
-                                  dialogState is DeleteLocationLoading;
+                              },
+                              builder: (consumerContext, dialogState) {
+                                final isLoading =
+                                    dialogState is DeleteLocationsLoading;
 
-                              return AlertDialog(
-                                title: Text(
-                                  AppStrings.lDPDeleteLocationDialogTitle.tr(),
-                                ),
-                                content: Text(
-                                  AppStrings.lDPDeleteLocationDialogContent
-                                      .tr(),
-                                ),
-                                actions: [
-                                  // Nút Hủy
-                                  TextButton(
-                                    onPressed: !isLoading
-                                        ? () => Navigator.of(
-                                            consumerContext,
-                                          ).pop()
-                                        : null,
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.green,
-                                    ),
-                                    child: Text(
-                                      AppStrings
-                                          .lDPDeleteLocationDialogCancelBtnTitle
-                                          .tr(),
-                                    ),
-                                  ),
+                                return IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Expanded(
+                                        child: SmgoButton(
+                                          isDisabled: isLoading,
+                                          primaryColor: AppColors.primary,
+                                          text: AppStrings
+                                              .lDPDeleteLocationDialogCancelBtnTitle
+                                              .tr(),
+                                          isOutlined: true,
+                                          onPressed: () {
+                                            consumerContext.pop();
+                                          },
+                                        ),
+                                      ),
 
-                                  // Nút Đồng ý xóa
-                                  TextButton(
-                                    onPressed: !isLoading
-                                        ? () {
-                                            // Chỉ gọi hàm xóa, KHÔNG pop() ở đây.
-                                            // Việc pop() sẽ do listener ở trên tự đảm nhận khi xóa thành công.
+                                      const SizedBox(width: 12),
+
+                                      Expanded(
+                                        child: SmgoButton(
+                                          isDisabled: isLoading,
+                                          primaryColor: AppColors.primary,
+                                          onPressed: () {
                                             consumerContext
-                                                .read<DeleteLocationCubit>()
-                                                .call(location!.id);
-                                          }
-                                        : null, // Disable nút khi đang xóa
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                    ),
-                                    child: isLoading
-                                        ? const SizedBox(
-                                            width: 16,
-                                            height: 16,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.red,
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : Text(
-                                            AppStrings
-                                                .lDPDeleteLocationDialogDeleteBtnTitle
-                                                .tr(),
-                                          ),
+                                                .read<DeleteLocationsCubit>()
+                                                .call(
+                                                  locationIds: [location!.id],
+                                                );
+                                          },
+                                          child: isLoading
+                                              ? const SizedBox(
+                                                  width: 16,
+                                                  height: 16,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Colors.white,
+                                                      ),
+                                                )
+                                              : Text(
+                                                  AppStrings
+                                                      .lDPDeleteLocationDialogDeleteBtnTitle
+                                                      .tr(),
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
+                        ],
                       );
                     },
                     icon: const Icon(

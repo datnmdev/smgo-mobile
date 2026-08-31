@@ -121,6 +121,7 @@ class _LocationContactCardState extends State<LocationContactCard> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(

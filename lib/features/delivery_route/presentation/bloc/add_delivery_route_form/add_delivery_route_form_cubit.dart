@@ -10,6 +10,10 @@ class AddDeliveryRouteFormCubit extends Cubit<AddDeliveryRouteFormState> {
   AddDeliveryRouteFormCubit({required this.addDeliveryRouteUsecase})
     : super(const AddDeliveryRouteFormInitial());
 
+  void reset() {
+    emit(state.copyWith(routeNameInput: RouteNameInput.pure()));
+  }
+
   void routeNameInputChanged(String value) {
     emit(state.copyWith(routeNameInput: RouteNameInput.dirty(value)));
   }

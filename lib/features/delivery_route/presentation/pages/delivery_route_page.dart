@@ -14,7 +14,9 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_ro
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_state.dart';
+import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
 import 'package:shipgo/shared/presentation/widgets/smgo_checkbox.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 
 class DeliveryRoutePage extends StatefulWidget {
   const DeliveryRoutePage({Key? key}) : super(key: key);
@@ -75,86 +77,115 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
   }
 
   void _deleteSelected(BuildContext parentContext) {
-    showDialog(
+    AppDialogUtils.showCustomDialog(
       context: context,
-      builder: (dialogContext) => BlocProvider<DeleteDeliveryRoutesCubit>(
-        create: (_) => di<DeleteDeliveryRoutesCubit>(),
-        child:
-            BlocConsumer<DeleteDeliveryRoutesCubit, DeleteDeliveryRoutesState>(
-              builder: (context, state) {
-                final isLoading = state is DeleteDeliveryRoutesLoading;
-
-                return AlertDialog(
-                  title: Text(
-                    AppStrings.rPDeleteSelectedRoutesDialogTitle.tr(),
-                  ),
-                  content: Text(
-                    AppStrings.rPDeleteSelectedRoutesDialogContent.tr(
-                      namedArgs: {'quantity': _selectedIds.length.toString()},
-                    ),
-                  ),
-                  actions: [
-                    // Nút Hủy
-                    TextButton(
-                      onPressed: !isLoading
-                          ? () => Navigator.of(dialogContext).pop()
-                          : null,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary,
+      iconData: Icons.delete_forever,
+      title: AppStrings.rPDeleteSelectedRoutesDialogTitle.tr(),
+      subtitle: AppStrings.rPDeleteSelectedRoutesDialogContent.tr(
+        namedArgs: {'quantity': _selectedIds.length.toString()},
+      ),
+      barrierDismissible: false,
+      actions: [
+        BlocProvider<DeleteDeliveryRoutesCubit>(
+          create: (_) => di<DeleteDeliveryRoutesCubit>(),
+          child:
+              BlocConsumer<
+                DeleteDeliveryRoutesCubit,
+                DeleteDeliveryRoutesState
+              >(
+                listener: (consumerContext, state) {
+                  if (state is DeleteDeliveryRoutesDone) {
+                    // Giữ nguyên luồng reload danh sách
+                    parentContext.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        keyword: parentContext
+                            .read<SearchDeliveryRoutesCubit>()
+                            .state
+                            .searchText,
                       ),
-                      child: Text(
-                        AppStrings.rPDeleteSelectedRoutesDialogCancelBtnTitle
-                            .tr(),
-                      ),
-                    ),
+                    );
 
-                    // Nút Đồng ý xóa
-                    TextButton(
-                      onPressed: !isLoading
-                          ? () {
-                              context.read<DeleteDeliveryRoutesCubit>().call(
-                                _selectedIds.toList(),
-                              );
-                            }
-                          : null, // Disable nút khi đang xóa
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: isLoading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                color: Colors.red,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              AppStrings
-                                  .rPDeleteSelectedRoutesDialogDeleteBtnTitle
-                                  .tr(),
-                            ),
-                    ),
-                  ],
-                );
-              },
-              listener: (_, state) {
-                if (state is DeleteDeliveryRoutesDone) {
-                  parentContext.read<GetDeliveryRoutesCubit>().call(
-                    params: GetDeliveryRoutesUsecaseParams(
-                      keyword: parentContext
-                          .read<SearchDeliveryRoutesCubit>()
-                          .state
-                          .searchText,
+                    // Đóng dialog
+                    consumerContext.pop();
+
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xoá lộ trình thành công',
+                      subtitle: '${_selectedIds.length} lộ trình đã bị xoá',
+                    );
+
+                    // Giữ nguyên clear selection
+                    setState(() {
+                      _selectedIds.clear();
+                      _isSelectionMode = false;
+                    });
+                  } else if (state is DeleteDeliveryRoutesFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xoá lộ trình thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (consumerContext, state) {
+                  final isLoading = state is DeleteDeliveryRoutesLoading;
+
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: SmgoButton(
+                            primaryColor: AppColors.primary,
+                            text: AppStrings
+                                .rPDeleteSelectedRoutesDialogCancelBtnTitle
+                                .tr(),
+                            isOutlined: true,
+                            isDisabled: isLoading,
+                            onPressed: () {
+                              consumerContext.pop();
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: SmgoButton(
+                            primaryColor: AppColors.primary,
+                            isDisabled: isLoading,
+                            onPressed: () {
+                              consumerContext
+                                  .read<DeleteDeliveryRoutesCubit>()
+                                  .call(_selectedIds.toList());
+                            },
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    AppStrings
+                                        .rPDeleteSelectedRoutesDialogDeleteBtnTitle
+                                        .tr(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
-                  dialogContext.pop();
-                  setState(() {
-                    _selectedIds.clear();
-                    _isSelectionMode = false;
-                  });
-                }
-              },
-            ),
-      ),
+                },
+              ),
+        ),
+      ],
     );
   }
 
@@ -687,6 +718,9 @@ class CustomHeaderWithTabBar extends StatelessWidget {
                           >(
                             builder: (context, state) => TextField(
                               controller: searchController,
+                              onTapOutside: (event) {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
                               onChanged: (value) {
                                 final searchDeliveryRoutesCubit = context
                                     .read<SearchDeliveryRoutesCubit>();

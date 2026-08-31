@@ -34,9 +34,9 @@ abstract class DeliveryRouteApiService {
     @Body() required UpdateDeliveryRouteBodyRequest body,
   });
 
-  @DELETE(ApiEndpoints.deleteDeliveryRoute)
-  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryRoute({
-    @Path('deliveryRouteId') required String id,
+  @DELETE(ApiEndpoints.deleteDeliveryRoutes)
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryRoutes({
+    @Body() required DeleteDeliveryRoutesBodyRequest body,
   });
 
   // Delivery order
@@ -277,4 +277,14 @@ class ConfirmSortedDeliveryOrdersBodyRequest {
 
   Map<String, dynamic> toJson() =>
       _$ConfirmSortedDeliveryOrdersBodyRequestToJson(this);
+}
+
+@JsonSerializable()
+class DeleteDeliveryRoutesBodyRequest {
+  final List<String> deliveryRouteIds;
+
+  DeleteDeliveryRoutesBodyRequest({required this.deliveryRouteIds});
+
+  Map<String, dynamic> toJson() =>
+      _$DeleteDeliveryRoutesBodyRequestToJson(this);
 }

@@ -165,7 +165,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                   ),
                                   IconButton(
                                     onPressed: () {
-                                      copyToClipboard(deliveryOrder!.orderCode);
+                                      _copyToClipboard(
+                                        deliveryOrder!.orderCode,
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.copy,
@@ -252,7 +254,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                               SizedBox(width: 4),
                               IconButton(
                                 onPressed: () {
-                                  copyToClipboard(deliveryOrder!.orderName!);
+                                  _copyToClipboard(deliveryOrder!.orderName!);
                                 },
                                 icon: Icon(
                                   Icons.copy,
@@ -782,6 +784,19 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                               );
                                               context.pop();
                                               parentContext.pop();
+                                              AppDialogUtils.showSuccess(
+                                                context: context,
+                                                title:
+                                                    'Xoá đơn hàng thành công!',
+                                              );
+                                            } else if (state
+                                                is DeleteDeliveryOrdersFailed) {
+                                              AppDialogUtils.showError(
+                                                context: context,
+                                                title: 'Xoá đơn hàng thất bại!',
+                                                subtitle:
+                                                    'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                              );
                                             }
                                           },
                                           builder: (context, state) => IntrinsicHeight(
@@ -935,7 +950,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
           const SizedBox(width: 4),
           IconButton(
             onPressed: () {
-              copyToClipboard(value);
+              _copyToClipboard(value);
             },
             icon: Icon(Icons.copy, size: 16, color: AppColors.primary),
           ),
@@ -944,7 +959,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
     );
   }
 
-  void copyToClipboard(String text) async {
+  void _copyToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

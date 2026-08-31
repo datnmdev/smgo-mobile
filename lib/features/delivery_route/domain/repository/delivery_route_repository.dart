@@ -64,10 +64,10 @@ class UpdateDeliveryRouteParams {
   UpdateDeliveryRouteParams({this.name, this.status});
 }
 
-class DeleteDeliveryRouteParams {
-  final String id;
+class DeleteDeliveryRoutesParams {
+  final List<String> deliveryRouteIds;
 
-  DeleteDeliveryRouteParams({required this.id});
+  DeleteDeliveryRoutesParams({required this.deliveryRouteIds});
 }
 
 class PointParam {
@@ -153,8 +153,8 @@ abstract class DeliveryRouteRepository {
     required String id,
     required UpdateDeliveryRouteParams params,
   });
-  Future<DataState<dynamic>> deleteDeliveryRoute({
-    required DeleteDeliveryRouteParams params,
+  Future<DataState<dynamic>> deleteDeliveryRoutes({
+    required DeleteDeliveryRoutesParams params,
   });
 
   // Delivery order

@@ -10,6 +10,7 @@ import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_rout
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
+import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 
 class AddDeliveryRoutePage extends StatefulWidget {
   const AddDeliveryRoutePage({Key? key}) : super(key: key);
@@ -19,13 +20,29 @@ class AddDeliveryRoutePage extends StatefulWidget {
 }
 
 class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
+  late AddDeliveryRouteFormCubit _addDeliveryRouteFormCubit;
   final TextEditingController _deliveryRouteNameController =
       TextEditingController();
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _addDeliveryRouteFormCubit = di<AddDeliveryRouteFormCubit>();
+  }
+
+  @override
   void dispose() {
+    _addDeliveryRouteFormCubit.close();
     _deliveryRouteNameController.dispose();
     super.dispose();
+  }
+
+  void _resetAddDeliveryRouteForm() {
+    // Cập nhật controls
+    _deliveryRouteNameController.text = '';
+
+    // Cập nhật trạng thái
+    _addDeliveryRouteFormCubit.reset();
   }
 
   @override
@@ -38,9 +55,27 @@ class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
         extra['GetDeliveryRoutesUsecaseParamsInRP']
             as GetDeliveryRoutesUsecaseParams;
 
-    return BlocProvider<AddDeliveryRouteFormCubit>(
-      create: (context) => di<AddDeliveryRouteFormCubit>(),
+    return BlocProvider.value(
+      value: _addDeliveryRouteFormCubit,
       child: BlocConsumer<AddDeliveryRouteFormCubit, AddDeliveryRouteFormState>(
+        listener: (context, state) {
+          if (state is AddDeliveryRouteFormDone) {
+            getDeliveryRoutesCubitInRP.call(
+              params: getDeliveryRoutesUsecaseParamsInRP,
+            );
+            _resetAddDeliveryRouteForm();
+            AppDialogUtils.showSuccess(
+              context: context,
+              title: 'Thêm lộ trình thành công!',
+            );
+          } else if (state is AddDeliveryRouteFormFailed) {
+            AppDialogUtils.showError(
+              context: context,
+              title: 'Thêm lộ trình thất bại!',
+              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+            );
+          }
+        },
         builder: (context, state) => Scaffold(
           backgroundColor: primaryGreen,
           appBar: AppBar(
@@ -137,6 +172,9 @@ class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
                   Column(
                     children: [
                       TextField(
+                        onTapOutside: (event) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
                         controller: _deliveryRouteNameController,
                         onChanged: (value) => context
                             .read<AddDeliveryRouteFormCubit>()
@@ -183,14 +221,6 @@ class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
             ),
           ),
         ),
-        listener: (context, state) {
-          if (state is AddDeliveryRouteFormDone) {
-            getDeliveryRoutesCubitInRP.call(
-              params: getDeliveryRoutesUsecaseParamsInRP,
-            );
-            context.pop();
-          }
-        },
       ),
     );
   }

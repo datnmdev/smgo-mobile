@@ -196,12 +196,14 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   }
 
   @override
-  Future<DataState<dynamic>> deleteDeliveryRoute({
-    required DeleteDeliveryRouteParams params,
+  Future<DataState<dynamic>> deleteDeliveryRoutes({
+    required DeleteDeliveryRoutesParams params,
   }) async {
     try {
-      final httpResponse = await deliveryRouteApiService.deleteDeliveryRoute(
-        id: params.id,
+      final httpResponse = await deliveryRouteApiService.deleteDeliveryRoutes(
+        body: DeleteDeliveryRoutesBodyRequest(
+          deliveryRouteIds: params.deliveryRouteIds,
+        ),
       );
       return DataSuccess(httpResponse.data.data);
     } catch (e) {

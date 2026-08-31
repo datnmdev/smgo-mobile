@@ -209,6 +209,18 @@ Map<String, dynamic> _$ConfirmSortedDeliveryOrdersBodyRequestToJson(
   ConfirmSortedDeliveryOrdersBodyRequest instance,
 ) => <String, dynamic>{'deliveryOrderIds': instance.deliveryOrderIds};
 
+DeleteDeliveryRoutesBodyRequest _$DeleteDeliveryRoutesBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => DeleteDeliveryRoutesBodyRequest(
+  deliveryRouteIds: (json['deliveryRouteIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+);
+
+Map<String, dynamic> _$DeleteDeliveryRoutesBodyRequestToJson(
+  DeleteDeliveryRoutesBodyRequest instance,
+) => <String, dynamic>{'deliveryRouteIds': instance.deliveryRouteIds};
+
 // dart format off
 
 // **************************************************************************
@@ -375,18 +387,19 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
   }
 
   @override
-  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryRoute({
-    required String id,
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteDeliveryRoutes({
+    required DeleteDeliveryRoutesBodyRequest body,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
     final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/delivery-route/${id}',
+            '/delivery-route/m',
             queryParameters: queryParameters,
             data: _data,
           )

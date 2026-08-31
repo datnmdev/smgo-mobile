@@ -26,8 +26,9 @@ abstract class ApiEndpoints {
 
   // Location
   static const String getMyLocations = '$myLocationBaseUrl';
+  static const String createLocation = '$myLocationBaseUrl';
   static const String updateLocation = '$myLocationBaseUrl/{locationId}';
-  static const String deleteLocation = '$myLocationBaseUrl/{locationId}';
+  static const String deleteLocations = '$myLocationBaseUrl/m';
   static const String getLocationSuggestions = '$locationBaseUrl/suggestions';
 
   // Storage
@@ -41,8 +42,7 @@ abstract class ApiEndpoints {
       '$deliveryRouteBaseUrl/with-orders';
   static const String updateDeliveryRoute =
       '$deliveryRouteBaseUrl/{deliveryRouteId}';
-  static const String deleteDeliveryRoute =
-      '$deliveryRouteBaseUrl/{deliveryRouteId}';
+  static const String deleteDeliveryRoutes = '$deliveryRouteBaseUrl/m';
 
   // Delivery order
   static const String getDeliveryOrders = '$deliveryOrderBaseUrl';

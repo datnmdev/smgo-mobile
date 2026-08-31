@@ -89,6 +89,18 @@ Map<String, dynamic> _$UpdateLocationBodyRequestToJson(
   'location': instance.location,
 };
 
+DeleteLocationsBodyRequest _$DeleteLocationsBodyRequestFromJson(
+  Map<String, dynamic> json,
+) => DeleteLocationsBodyRequest(
+  locationIds: (json['locationIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+);
+
+Map<String, dynamic> _$DeleteLocationsBodyRequestToJson(
+  DeleteLocationsBodyRequest instance,
+) => <String, dynamic>{'locationIds': instance.locationIds};
+
 // dart format off
 
 // **************************************************************************
@@ -159,7 +171,7 @@ class _LocationApiService implements LocationApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/location',
+            '/user/locations',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -216,18 +228,19 @@ class _LocationApiService implements LocationApiService {
   }
 
   @override
-  Future<HttpResponse<ApiResponse<dynamic>>> deleteLocation({
-    required String locationId,
+  Future<HttpResponse<ApiResponse<dynamic>>> deleteLocations({
+    required DeleteLocationsBodyRequest body,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
     final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/user/locations/${locationId}',
+            '/user/locations/m',
             queryParameters: queryParameters,
             data: _data,
           )
