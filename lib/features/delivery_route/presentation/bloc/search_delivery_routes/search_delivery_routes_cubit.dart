@@ -14,7 +14,7 @@ class SearchDeliveryRoutesCubit extends Cubit<SearchDeliveryRoutesState> {
   FutureOr<void> submit({required FutureOr<void> Function() cb}) async {
     _debounceTimer?.cancel();
     final completer = Completer<void>();
-    _debounceTimer = Timer(Duration(seconds: 1), () async {
+    _debounceTimer = Timer(Duration(milliseconds: 400), () async {
       emit(SearchDeliveryRoutesLoading(searchText: state.searchText));
       try {
         await cb();

@@ -1,3 +1,5 @@
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
+
 class DeliveryOrderEntity {
   final String id;
   final String? orderMediaId;
@@ -11,6 +13,7 @@ class DeliveryOrderEntity {
   final String address;
   final Point location;
   final String? appliedLocationId;
+  final LocationEntity? appliedLocation;
   final String deliveryRouteId;
   final DateTime createdAt;
   final DateTime? checkedAt;
@@ -33,6 +36,7 @@ class DeliveryOrderEntity {
     required this.address,
     required this.location,
     this.appliedLocationId,
+    this.appliedLocation,
     required this.deliveryRouteId,
     required this.createdAt,
     this.checkedAt,
@@ -48,6 +52,7 @@ enum DeliveryOrderStatus {
   pending(value: 'pending'),
   checked(value: 'checked'),
   sorted(value: 'sorted'),
+  sorting(value: 'sorting'), // Chỉ phục vụ mục đích hiển thị
   delivering(value: 'delivering'), // Chỉ phục vụ mục đích hiển thị
   delivered(value: 'delivered'),
   cancelled(value: 'cancelled'),

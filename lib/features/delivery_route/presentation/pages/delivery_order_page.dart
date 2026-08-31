@@ -31,6 +31,7 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_
 import 'package:shipgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
@@ -151,6 +152,9 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         ),
         BlocProvider<CreateDeliveryRouteWithOrdersCubit>(
           create: ((context) => di<CreateDeliveryRouteWithOrdersCubit>()),
+        ),
+        BlocProvider<GetProfileCubit>(
+          create: (_) => di<GetProfileCubit>()..call(),
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
@@ -856,6 +860,20 @@ class _SearchBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onTap: () => context.pushNamed(
+        AppRouteNames.searchDeliveryOrder,
+        pathParameters: {'id': deliveryRoute.id},
+        extra: <String, Object>{
+          'DeliveryRouteDataInDOP': deliveryRoute,
+          'GetDeliveryRoutesCubitInDOP': context.read<GetDeliveryRoutesCubit>(),
+          'GetDeliveryRoutesUsecaseParamsInDOP': GetDeliveryRoutesUsecaseParams(
+            id: deliveryRoute.id,
+            pageNumber: 1,
+            pageSize: 1,
+          ),
+        },
+      ),
+      readOnly: true,
       style: const TextStyle(color: RouteColors.text, fontSize: 16),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
@@ -864,7 +882,6 @@ class _SearchBox extends StatelessWidget {
         hintText: 'Tìm kiếm đơn hàng...',
         hintStyle: const TextStyle(color: Color(0xFF9AA0B3), fontSize: 16),
         prefixIcon: const Icon(Icons.search, size: 28, color: RouteColors.text),
-
         suffixIcon: IconButton(
           onPressed: () {
             _openOrderScanScreenToFindOrder(context: context);
@@ -1078,6 +1095,8 @@ class _SearchBox extends StatelessWidget {
                         child: SmgoButton(
                           primaryColor: AppColors.primary,
                           onPressed: () {
+                            context.pop();
+                            context.pop();
                             context.pushNamed(
                               AppRouteNames.deliveryOrderDetail,
                               pathParameters: {
@@ -1142,7 +1161,12 @@ class RouteSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final familarCount = deliveryRoute.orders
-        .where((order) => order.appliedLocationId != null)
+        .where(
+          (order) =>
+              order.appliedLocation != null &&
+              order.appliedLocation!.userId ==
+                  context.read<GetProfileCubit>().state.profile?.id,
+        )
         .length;
 
     return Container(
@@ -2277,7 +2301,14 @@ class OrderCard extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 10),
                                     _CustomerBadge(
-                                      familiar: order.appliedLocationId != null,
+                                      familiar:
+                                          order.appliedLocation != null &&
+                                          order.appliedLocation!.userId ==
+                                              context
+                                                  .read<GetProfileCubit>()
+                                                  .state
+                                                  .profile
+                                                  ?.id,
                                     ),
                                   ],
                                 ),

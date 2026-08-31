@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:shipgo/core/network/api_enpoints.dart';
 import 'package:shipgo/core/network/api_response.dart';
+import 'package:shipgo/features/delivery_route/data/models/delivery_order_model.dart';
 import 'package:shipgo/features/delivery_route/data/models/delivery_route_model.dart';
 
 part 'delivery_route_api_service.g.dart';
@@ -40,6 +41,13 @@ abstract class DeliveryRouteApiService {
   });
 
   // Delivery order
+  @GET(ApiEndpoints.getDeliveryOrders)
+  Future<HttpResponse<ApiResponse<List<DeliveryOrderModel>>>>
+  getDeliveryOrders({
+    @Path('deliveryRouteId') required String deliveryRouteId,
+    @Queries() required GetDeliveryOrdersQueryRequest queries,
+  });
+
   @POST(ApiEndpoints.addDeliveryOrder)
   Future<HttpResponse<ApiResponse<dynamic>>> addDeliveryOrder({
     @Path('deliveryRouteId') required String deliveryRouteId,
@@ -287,4 +295,13 @@ class DeleteDeliveryRoutesBodyRequest {
 
   Map<String, dynamic> toJson() =>
       _$DeleteDeliveryRoutesBodyRequestToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false)
+class GetDeliveryOrdersQueryRequest {
+  final String? keyword;
+
+  GetDeliveryOrdersQueryRequest({required this.keyword});
+
+  Map<String, dynamic> toJson() => _$GetDeliveryOrdersQueryRequestToJson(this);
 }

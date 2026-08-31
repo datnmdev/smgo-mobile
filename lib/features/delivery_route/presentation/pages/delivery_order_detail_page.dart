@@ -18,11 +18,15 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery
 import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
+import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/widgets/image_thumbnail.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:shipgo/shared/presentation/widgets/google_map_screen.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
 import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DeliveryOrderDetailPage extends StatefulWidget {
@@ -46,15 +50,26 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
     deliveryOrder =
         deliveryOrder ?? (extra['DeliveryOrderData'] as DeliveryOrderEntity);
     final getDeliveryRoutesCubitInDOP =
-        extra['GetDeliveryRoutesCubitInDOP'] as GetDeliveryRoutesCubit;
+        extra['GetDeliveryRoutesCubitInDOP'] == null
+        ? null
+        : extra['GetDeliveryRoutesCubitInDOP'] as GetDeliveryRoutesCubit;
     final getDeliveryRoutesUsecaseParamsInDOP =
-        extra['GetDeliveryRoutesUsecaseParamsInDOP']
-            as GetDeliveryRoutesUsecaseParams;
+        extra['GetDeliveryRoutesUsecaseParamsInDOP'] == null
+        ? null
+        : extra['GetDeliveryRoutesUsecaseParamsInDOP']
+              as GetDeliveryRoutesUsecaseParams;
+    final searchDeliveryOrdersCubitInSDOP =
+        extra['SearchDeliveryOrdersCubitInSDOP'] == null
+        ? null
+        : extra['SearchDeliveryOrdersCubitInSDOP'] as SearchDeliveryOrdersCubit;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<GetDeliveryRoutesCubit>(
           create: (context) => di<GetDeliveryRoutesCubit>(),
+        ),
+        BlocProvider<GetProfileCubit>(
+          create: (_) => di<GetProfileCubit>()..call(),
         ),
       ],
       child: Scaffold(
@@ -81,25 +96,40 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
             ),
           ),
           actions: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha((0.2 * 255).round()),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.person, color: Colors.white, size: 16),
-                  SizedBox(width: 4),
-                  Text(
-                    deliveryOrder!.appliedLocationId != null
-                        ? 'Khách quen'
-                        : 'Khách lạ',
-                    style: TextStyle(color: Colors.white, fontSize: 13),
+            BlocBuilder<GetProfileCubit, GetProfileState>(
+              builder: (context, state) {
+                return Skeletonizer(
+                  enabled: state is GetProfileLoading,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha((0.2 * 255).round()),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          deliveryOrder!.appliedLocation != null &&
+                                  deliveryOrder!.appliedLocation!.userId ==
+                                      state.profile?.id
+                              ? 'Khách quen'
+                              : 'Khách lạ',
+                          style: TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -115,9 +145,17 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                   deliveryOrder = res;
                 });
               }
-              getDeliveryRoutesCubitInDOP.call(
-                params: getDeliveryRoutesUsecaseParamsInDOP,
-              );
+              if (getDeliveryRoutesUsecaseParamsInDOP != null &&
+                  getDeliveryRoutesCubitInDOP != null) {
+                getDeliveryRoutesCubitInDOP.call(
+                  params: getDeliveryRoutesUsecaseParamsInDOP,
+                );
+              }
+              if (searchDeliveryOrdersCubitInSDOP != null) {
+                searchDeliveryOrdersCubitInSDOP.submit(
+                  deliveryRouteId: deliveryRoute!.id,
+                );
+              }
             }
           },
           builder: (context, state) => RefreshIndicator(
@@ -778,10 +816,23 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                           listener: (context, state) {
                                             if (state
                                                 is DeleteDeliveryOrdersDone) {
-                                              getDeliveryRoutesCubitInDOP.call(
-                                                params:
-                                                    getDeliveryRoutesUsecaseParamsInDOP,
-                                              );
+                                              if (getDeliveryRoutesUsecaseParamsInDOP !=
+                                                      null &&
+                                                  getDeliveryRoutesCubitInDOP !=
+                                                      null) {
+                                                getDeliveryRoutesCubitInDOP.call(
+                                                  params:
+                                                      getDeliveryRoutesUsecaseParamsInDOP,
+                                                );
+                                              }
+                                              if (searchDeliveryOrdersCubitInSDOP !=
+                                                  null) {
+                                                searchDeliveryOrdersCubitInSDOP
+                                                    .submit(
+                                                      deliveryRouteId:
+                                                          deliveryRoute!.id,
+                                                    );
+                                              }
                                               context.pop();
                                               parentContext.pop();
                                               AppDialogUtils.showSuccess(

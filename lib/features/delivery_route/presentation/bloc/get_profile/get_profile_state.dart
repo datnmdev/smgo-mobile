@@ -1,7 +1,8 @@
 import 'package:shipgo/shared/domain/entities/user_entity.dart';
 
 abstract class GetProfileState {
-  const GetProfileState();
+  final UserEntity? profile;
+  const GetProfileState({this.profile});
 }
 
 class GetProfileInitial extends GetProfileState {
@@ -13,9 +14,7 @@ class GetProfileLoading extends GetProfileState {
 }
 
 class GetProfileDone extends GetProfileState {
-  final UserEntity profile;
-
-  const GetProfileDone({required this.profile});
+  const GetProfileDone({super.profile});
 }
 
 class GetProfileFailed extends GetProfileState {

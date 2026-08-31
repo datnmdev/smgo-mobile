@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:shipgo/shared/data/models/location_model.dart';
 
 part 'delivery_order_model.g.dart';
 
@@ -16,6 +17,7 @@ class DeliveryOrderModel {
   final String address;
   final Point location;
   final String? appliedLocationId;
+  final LocationModel? appliedLocation;
   final String deliveryRouteId;
   final DateTime createdAt;
   final DateTime? checkedAt;
@@ -38,6 +40,7 @@ class DeliveryOrderModel {
     required this.address,
     required this.location,
     this.appliedLocationId,
+    this.appliedLocation,
     required this.createdAt,
     required this.deliveryRouteId,
     this.checkedAt,

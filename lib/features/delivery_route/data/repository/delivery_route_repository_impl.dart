@@ -4,6 +4,9 @@ import 'package:shipgo/features/delivery_route/data/data_sources/delivery_route_
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:shipgo/features/delivery_route/domain/repository/delivery_route_repository.dart';
+import 'package:shipgo/shared/domain/entities/location_entity.dart';
+import 'package:shipgo/shared/domain/entities/media_entity.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
 
 class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   final DeliveryRouteApiService deliveryRouteApiService;
@@ -67,6 +70,34 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                           cancelledAt: order.cancelledAt,
                           rescheduledAt: order.rescheduledAt,
                           appliedLocationId: order.appliedLocationId,
+                          appliedLocation: order.appliedLocation != null
+                              ? LocationEntity(
+                                  id: order.appliedLocation!.id,
+                                  locationName:
+                                      order.appliedLocation!.locationName,
+                                  contactName:
+                                      order.appliedLocation!.contactName,
+                                  contactPhone:
+                                      order.appliedLocation!.contactPhone,
+                                  media: order.appliedLocation!.media
+                                      .map(
+                                        (mediaModel) => MediaEntity(
+                                          id: mediaModel.id,
+                                          url: mediaModel.url,
+                                        ),
+                                      )
+                                      .toList(),
+                                  address: order.appliedLocation!.address,
+                                  location: PointEntity(
+                                    x: order.appliedLocation!.location.x,
+                                    y: order.appliedLocation!.location.y,
+                                  ),
+                                  userId: order.appliedLocation!.userId,
+                                  note: order.appliedLocation!.note,
+                                  createdAt: order.appliedLocation!.createdAt,
+                                  updatedAt: order.appliedLocation!.updatedAt,
+                                )
+                              : null,
                         ),
                       )
                       .toList(),
@@ -157,6 +188,33 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
                   ),
                   deliveryRouteId: orderModel.deliveryRouteId,
                   appliedLocationId: orderModel.appliedLocationId,
+                  appliedLocation: orderModel.appliedLocation != null
+                      ? LocationEntity(
+                          id: orderModel.appliedLocation!.id,
+                          locationName:
+                              orderModel.appliedLocation!.locationName,
+                          contactName: orderModel.appliedLocation!.contactName,
+                          contactPhone:
+                              orderModel.appliedLocation!.contactPhone,
+                          media: orderModel.appliedLocation!.media
+                              .map(
+                                (mediaModel) => MediaEntity(
+                                  id: mediaModel.id,
+                                  url: mediaModel.url,
+                                ),
+                              )
+                              .toList(),
+                          address: orderModel.appliedLocation!.address,
+                          location: PointEntity(
+                            x: orderModel.appliedLocation!.location.x,
+                            y: orderModel.appliedLocation!.location.y,
+                          ),
+                          userId: orderModel.appliedLocation!.userId,
+                          note: orderModel.appliedLocation!.note,
+                          createdAt: orderModel.appliedLocation!.createdAt,
+                          updatedAt: orderModel.appliedLocation!.updatedAt,
+                        )
+                      : null,
                   createdAt: orderModel.createdAt,
                   updatedAt: orderModel.updatedAt,
                   checkedAt: orderModel.checkedAt,
@@ -212,6 +270,81 @@ class DeliveryRouteRepositoryImpl implements DeliveryRouteRepository {
   }
 
   // Delivery order
+  @override
+  Future<DataState<List<DeliveryOrderEntity>>> getDeliveryOrders({
+    required GetDeliveryOrdersParams params,
+  }) async {
+    try {
+      final httpResponse = await deliveryRouteApiService.getDeliveryOrders(
+        deliveryRouteId: params.deliveryRouteId,
+        queries: GetDeliveryOrdersQueryRequest(keyword: params.keyword),
+      );
+      return DataSuccess(
+        httpResponse.data.data!
+            .map(
+              (deliveryOrderModel) => DeliveryOrderEntity(
+                id: deliveryOrderModel.id,
+                orderCode: deliveryOrderModel.orderCode,
+                orderName: deliveryOrderModel.orderName,
+                orderMediaId: deliveryOrderModel.orderMediaId,
+                orderMediaUrl: deliveryOrderModel.orderMediaUrl,
+                sequenceOrder: deliveryOrderModel.sequenceOrder,
+                status: deliveryOrderModel.status,
+                contactName: deliveryOrderModel.contactName,
+                contactPhone: deliveryOrderModel.contactPhone,
+                address: deliveryOrderModel.address,
+                location: Point(
+                  x: deliveryOrderModel.location.x,
+                  y: deliveryOrderModel.location.y,
+                ),
+                deliveryRouteId: deliveryOrderModel.deliveryRouteId,
+                appliedLocationId: deliveryOrderModel.appliedLocationId,
+                appliedLocation: deliveryOrderModel.appliedLocation != null
+                    ? LocationEntity(
+                        id: deliveryOrderModel.appliedLocation!.id,
+                        locationName:
+                            deliveryOrderModel.appliedLocation!.locationName,
+                        contactName:
+                            deliveryOrderModel.appliedLocation!.contactName,
+                        contactPhone:
+                            deliveryOrderModel.appliedLocation!.contactPhone,
+                        media: deliveryOrderModel.appliedLocation!.media
+                            .map(
+                              (mediaModel) => MediaEntity(
+                                id: mediaModel.id,
+                                url: mediaModel.url,
+                              ),
+                            )
+                            .toList(),
+                        address: deliveryOrderModel.appliedLocation!.address,
+                        location: PointEntity(
+                          x: deliveryOrderModel.appliedLocation!.location.x,
+                          y: deliveryOrderModel.appliedLocation!.location.y,
+                        ),
+                        userId: deliveryOrderModel.appliedLocation!.userId,
+                        note: deliveryOrderModel.appliedLocation!.note,
+                        createdAt:
+                            deliveryOrderModel.appliedLocation!.createdAt,
+                        updatedAt:
+                            deliveryOrderModel.appliedLocation!.updatedAt,
+                      )
+                    : null,
+                createdAt: deliveryOrderModel.createdAt,
+                updatedAt: deliveryOrderModel.updatedAt,
+                checkedAt: deliveryOrderModel.checkedAt,
+                sortedAt: deliveryOrderModel.sortedAt,
+                deliveredAt: deliveryOrderModel.deliveredAt,
+                cancelledAt: deliveryOrderModel.cancelledAt,
+                rescheduledAt: deliveryOrderModel.rescheduledAt,
+              ),
+            )
+            .toList(),
+      );
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
   @override
   Future<DataState<dynamic>> addDeliveryOrder({
     required AddDeliveryOrderParams params,

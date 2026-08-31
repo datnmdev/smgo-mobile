@@ -14,7 +14,7 @@ class SearchLocationsCubit extends Cubit<SearchLocationsState> {
   FutureOr<void> submit({required FutureOr<void> Function() cb}) async {
     _debounceTimer?.cancel();
     final completer = Completer<void>();
-    _debounceTimer = Timer(Duration(seconds: 1), () async {
+    _debounceTimer = Timer(Duration(milliseconds: 400), () async {
       emit(SearchLocationsLoading(searchText: state.searchText));
       try {
         await cb();

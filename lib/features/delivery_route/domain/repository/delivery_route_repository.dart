@@ -139,6 +139,13 @@ class DeleteDeliveryOrdersParams {
   });
 }
 
+class GetDeliveryOrdersParams {
+  final String deliveryRouteId;
+  final String? keyword;
+
+  GetDeliveryOrdersParams({required this.deliveryRouteId, this.keyword});
+}
+
 abstract class DeliveryRouteRepository {
   Future<DataState<Pagination<DeliveryRouteEntity>>> getDeliveryRoutes({
     required GetDeliveryRoutesParams params,
@@ -158,6 +165,9 @@ abstract class DeliveryRouteRepository {
   });
 
   // Delivery order
+  Future<DataState<List<DeliveryOrderEntity>>> getDeliveryOrders({
+    required GetDeliveryOrdersParams params,
+  });
   Future<DataState<dynamic>> addDeliveryOrder({
     required AddDeliveryOrderParams params,
   });

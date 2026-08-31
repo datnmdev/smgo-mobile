@@ -4,6 +4,7 @@ import 'package:shipgo/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/add_delivery_order_page.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/delivery_order_detail_page.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/delivery_route_page.dart';
+import 'package:shipgo/features/delivery_route/presentation/pages/search_delivery_order_page.dart';
 import 'package:shipgo/features/delivery_route/presentation/pages/update_delivery_order_page.dart';
 import 'package:shipgo/features/explore/presentation/pages/explore_page.dart';
 import 'package:shipgo/features/location/presentation/pages/add_location_page.dart';
@@ -98,6 +99,11 @@ final appRouter = GoRouter(
                   path: '/:id/delivery-order',
                   builder: (context, state) => DeliveryOrderPage(),
                   routes: [
+                    GoRoute(
+                      name: AppRouteNames.searchDeliveryOrder,
+                      path: '/search',
+                      builder: (context, state) => SearchDeliveryOrderPage(),
+                    ),
                     GoRoute(
                       name: AppRouteNames.addDeliveryOrder,
                       path: '/add',

@@ -759,7 +759,10 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           onChanged: onChanged,
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: const TextStyle(color: Color.fromARGB(255, 48, 24, 24), fontSize: 13),
+            hintStyle: const TextStyle(
+              color: Color.fromARGB(255, 48, 24, 24),
+              fontSize: 13,
+            ),
             suffixIcon: OutlinedButton.icon(
               onPressed: onLockToggle,
               style: OutlinedButton.styleFrom(
@@ -821,8 +824,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           await di<UploadMediaUsecase>().call(
             params: UploadMediaParams(
               presignedUploadUrl: uploadUrlDataState.data!.uploadUrl,
-              mimeType:
-                  lookupMimeType(file.path) ?? 'application/octet-stream',
+              mimeType: lookupMimeType(file.path) ?? 'application/octet-stream',
               fileBytes: fileBytes,
             ),
           );
@@ -845,9 +847,6 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
       create: (context) => di<GetProfileCubit>()..call(),
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
         builder: (context, state) {
-          final isGetProfileDone = state is GetProfileDone;
-          final profileId = isGetProfileDone ? state.profile.id : null;
-
           return Container(
             decoration: BoxDecoration(
               color: lightGreenBg,
@@ -1002,7 +1001,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                               const SizedBox(width: 4),
                                             ],
                                             Skeletonizer(
-                                              enabled: !isGetProfileDone,
+                                              enabled:
+                                                  state is GetProfileLoading,
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -1019,8 +1019,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                                 ),
                                                 child: Text(
                                                   suggestions[index].userId ==
-                                                          profileId
-                                                      ? 'Bởi tôi'
+                                                          state.profile?.id
+                                                      ? 'Lưu bởi tôi'
                                                       : 'Cộng đồng',
                                                   style: TextStyle(
                                                     fontSize: 9,

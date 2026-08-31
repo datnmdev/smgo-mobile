@@ -221,6 +221,14 @@ Map<String, dynamic> _$DeleteDeliveryRoutesBodyRequestToJson(
   DeleteDeliveryRoutesBodyRequest instance,
 ) => <String, dynamic>{'deliveryRouteIds': instance.deliveryRouteIds};
 
+GetDeliveryOrdersQueryRequest _$GetDeliveryOrdersQueryRequestFromJson(
+  Map<String, dynamic> json,
+) => GetDeliveryOrdersQueryRequest(keyword: json['keyword'] as String?);
+
+Map<String, dynamic> _$GetDeliveryOrdersQueryRequestToJson(
+  GetDeliveryOrdersQueryRequest instance,
+) => <String, dynamic>{'keyword': ?instance.keyword};
+
 // dart format off
 
 // **************************************************************************
@@ -411,6 +419,52 @@ class _DeliveryRouteApiService implements DeliveryRouteApiService {
       _value = ApiResponse<dynamic>.fromJson(
         _result.data!,
         (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<ApiResponse<List<DeliveryOrderModel>>>>
+  getDeliveryOrders({
+    required String deliveryRouteId,
+    required GetDeliveryOrdersQueryRequest queries,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(queries.toJson());
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<HttpResponse<ApiResponse<List<DeliveryOrderModel>>>>(
+          Options(method: 'GET', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/delivery-route/${deliveryRouteId}/delivery-order',
+                queryParameters: queryParameters,
+                data: _data,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<DeliveryOrderModel>> _value;
+    try {
+      _value = ApiResponse<List<DeliveryOrderModel>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                  .map<DeliveryOrderModel>(
+                    (i) =>
+                        DeliveryOrderModel.fromJson(i as Map<String, dynamic>),
+                  )
+                  .toList()
+            : List.empty(),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);

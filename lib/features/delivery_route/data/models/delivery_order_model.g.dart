@@ -20,6 +20,11 @@ DeliveryOrderModel _$DeliveryOrderModelFromJson(Map<String, dynamic> json) =>
       address: json['address'] as String,
       location: Point.fromJson(json['location'] as Map<String, dynamic>),
       appliedLocationId: json['appliedLocationId'] as String?,
+      appliedLocation: json['appliedLocation'] == null
+          ? null
+          : LocationModel.fromJson(
+              json['appliedLocation'] as Map<String, dynamic>,
+            ),
       createdAt: DateTime.parse(json['createdAt'] as String),
       deliveryRouteId: json['deliveryRouteId'] as String,
       checkedAt: json['checkedAt'] == null
@@ -54,6 +59,7 @@ Map<String, dynamic> _$DeliveryOrderModelToJson(DeliveryOrderModel instance) =>
       'address': instance.address,
       'location': instance.location,
       'appliedLocationId': instance.appliedLocationId,
+      'appliedLocation': instance.appliedLocation,
       'deliveryRouteId': instance.deliveryRouteId,
       'createdAt': instance.createdAt.toIso8601String(),
       'checkedAt': instance.checkedAt?.toIso8601String(),

@@ -837,9 +837,6 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
       create: (context) => di<GetProfileCubit>()..call(),
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
         builder: (context, state) {
-          final isGetProfileDone = state is GetProfileDone;
-          final profileId = isGetProfileDone ? state.profile.id : null;
-
           return Container(
             decoration: BoxDecoration(
               color: lightGreenBg,
@@ -1001,7 +998,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                                               const SizedBox(width: 4),
                                             ],
                                             Skeletonizer(
-                                              enabled: !isGetProfileDone,
+                                              enabled:
+                                                  state is GetProfileLoading,
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -1018,8 +1016,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                                                 ),
                                                 child: Text(
                                                   suggestions[index].userId ==
-                                                          profileId
-                                                      ? 'Bởi tôi'
+                                                          state.profile?.id
+                                                      ? 'Lưu bởi tôi'
                                                       : 'Cộng đồng',
                                                   style: TextStyle(
                                                     fontSize: 9,
