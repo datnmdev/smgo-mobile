@@ -156,6 +156,18 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<GetProfileCubit>(
           create: (_) => di<GetProfileCubit>()..call(),
         ),
+        BlocProvider<ConfirmSortedDeliveryOrdersCubit>(
+          create: (_) => di<ConfirmSortedDeliveryOrdersCubit>(),
+        ),
+        BlocProvider<ConfirmDeliveredOrderCubit>(
+          create: (_) => di<ConfirmDeliveredOrderCubit>(),
+        ),
+        BlocProvider<ConfirmCancelledOrderCubit>(
+          create: (_) => di<ConfirmCancelledOrderCubit>(),
+        ),
+        BlocProvider<ConfirmRescheduledOrderCubit>(
+          create: (_) => di<ConfirmRescheduledOrderCubit>(),
+        ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
         builder: (_, _) => BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
@@ -489,6 +501,130 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                 },
                 builder: (context, state) => SmgoLoadingScreen(
                   isLoading: state is CreateDeliveryRouteWithOrdersLoading,
+                ),
+              ),
+
+              // Loading cho xác nhận đã sắp xếp
+              BlocConsumer<
+                ConfirmSortedDeliveryOrdersCubit,
+                ConfirmSortedDeliveryOrdersState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmSortedDeliveryOrdersDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thành công!',
+                    );
+                  } else if (state is ConfirmSortedDeliveryOrdersFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmSortedDeliveryOrdersLoading,
+                ),
+              ),
+
+              // Loading cho xác nhận giao thành công
+              BlocConsumer<
+                ConfirmDeliveredOrderCubit,
+                ConfirmDeliveredOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmDeliveredOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thành công!',
+                    );
+                  } else if (state is ConfirmDeliveredOrderFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmDeliveredOrderLoading,
+                ),
+              ),
+
+              // Loading cho xác nhận giao thất bại
+              BlocConsumer<
+                ConfirmCancelledOrderCubit,
+                ConfirmCancelledOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmCancelledOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thành công!',
+                    );
+                  } else if (state is ConfirmCancelledOrderFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmCancelledOrderLoading,
+                ),
+              ),
+
+              // Loading cho xác nhận hẹn giao sau
+              BlocConsumer<
+                ConfirmRescheduledOrderCubit,
+                ConfirmRescheduledOrderState
+              >(
+                listener: (context, state) {
+                  if (state is ConfirmRescheduledOrderDone) {
+                    context.read<GetDeliveryRoutesCubit>().call(
+                      params: GetDeliveryRoutesUsecaseParams(
+                        pageNumber: 1,
+                        pageSize: 1,
+                        id: deliveryRoute.id,
+                      ),
+                    );
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thành công!',
+                    );
+                  } else if (state is ConfirmRescheduledOrderFailed) {
+                    AppDialogUtils.showError(
+                      context: context,
+                      title: 'Xác nhận đơn hàng thất bại!',
+                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    );
+                  }
+                },
+                builder: (context, state) => SmgoLoadingScreen(
+                  isLoading: state is ConfirmRescheduledOrderLoading,
                 ),
               ),
             ],
@@ -3932,6 +4068,10 @@ enum CheckOrderMethod { scanQrOrBarcode, manual }
 
 enum DirectionToMapMethod { googleMap, smGoMap }
 
+enum ConfirmSortedOrderMethod { scanQrOrBarcode, manual }
+
+enum ConfirmResultDeliveringOrderMethod { scanQrOrBarcode, manual }
+
 class _RouteActionBar extends StatefulWidget {
   final DeliveryRouteEntity route;
   final BuildContext context;
@@ -3951,6 +4091,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   late DeliveryRouteEntity _deliveryRoute;
   CheckOrderMethod _checkOrderMethod = CheckOrderMethod.scanQrOrBarcode;
   DirectionToMapMethod _directionToMapMethod = DirectionToMapMethod.googleMap;
+  ConfirmSortedOrderMethod _confirmSortedOrderMethod =
+      ConfirmSortedOrderMethod.scanQrOrBarcode;
+  ConfirmResultDeliveringOrderMethod _confirmResultDeliveringOrderMethod =
+      ConfirmResultDeliveringOrderMethod.scanQrOrBarcode;
 
   @override
   void initState() {
@@ -3981,6 +4125,22 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   void _changeDirectionToMapMethod({required DirectionToMapMethod value}) {
     setState(() {
       _directionToMapMethod = value;
+    });
+  }
+
+  void _changeConfirmSortedOrderMethod({
+    required ConfirmSortedOrderMethod value,
+  }) {
+    setState(() {
+      _confirmSortedOrderMethod = value;
+    });
+  }
+
+  void _changeConfirmResultDeliveringOrderMethod({
+    required ConfirmResultDeliveringOrderMethod value,
+  }) {
+    setState(() {
+      _confirmResultDeliveringOrderMethod = value;
     });
   }
 
@@ -4277,9 +4437,49 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               disabled: _deliveryRoute.currentNeedSortOrder == null,
               icon: Icons.done,
               label: 'Xác nhận đã sắp xếp',
-              subtitle: 'Xác nhận để chuyển sang đơn tiếp theo',
-              onPressed: () =>
-                  _openOrderScanScreenToConfirmSortedOrder(context: context),
+              subtitle:
+                  _confirmSortedOrderMethod ==
+                      ConfirmSortedOrderMethod.scanQrOrBarcode
+                  ? 'Quét mã QR hoặc Barcode'
+                  : 'Xác nhận nhanh',
+              onPressed: () {
+                if (_confirmSortedOrderMethod ==
+                    ConfirmSortedOrderMethod.scanQrOrBarcode) {
+                  _openOrderScanScreenToConfirmSortedOrder(context: context);
+                } else {
+                  AppDialogUtils.showSuccess(
+                    context: context,
+                    title: 'Bạn có chắc đã sắp xếp đơn vào đúng vị trí?',
+                    subtitle:
+                        'Lưu ý: Sắp xếp đúng vị trí mà hệ thống đưa ra sẽ giúp bạn tiết kiệm thời gian và chi phí giao hàng.',
+                    actions: [
+                      SmgoButton(
+                        isOutlined: true,
+                        text: 'Huỷ',
+                        primaryColor: AppColors.primary,
+                        onPressed: () {
+                          context.pop();
+                        },
+                      ),
+                      SmgoButton(
+                        primaryColor: AppColors.primary,
+                        text: 'Xác nhận',
+                        onPressed: () {
+                          context.read<ConfirmSortedDeliveryOrdersCubit>().call(
+                            deliveryRouteId: _deliveryRoute.id,
+                            deliveryOrderIds: [
+                              _deliveryRoute.currentNeedSortOrder!.id,
+                            ],
+                          );
+                          context.pop();
+                        },
+                      ),
+                    ],
+                  );
+                }
+              },
+              onLongPress: () =>
+                  _showConfirmSortedOrderMethods(context: context),
             ),
 
             const SizedBox(width: 12),
@@ -4332,7 +4532,9 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             _PrimaryButton(
               icon: Icons.navigation,
               label: 'Điều hướng trên bản đồ',
-              subtitle: 'Sử dụng google map',
+              subtitle: _directionToMapMethod == DirectionToMapMethod.googleMap
+                  ? 'Sử dụng Google Map'
+                  : 'Sử dụng SmGo Map',
               onPressed: () async {
                 final googleMapDirectionsUri =
                     ExternalUrlUtil.getGoogleMapsDirectionsUri(
@@ -4366,9 +4568,15 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             _OutlineButton(
               icon: Icons.task_alt_rounded,
               label: 'Xác nhận giao hàng',
-              subtitle: 'Xác nhận để giao đơn tiếp theo',
+              subtitle:
+                  _confirmResultDeliveringOrderMethod ==
+                      ConfirmResultDeliveringOrderMethod.scanQrOrBarcode
+                  ? 'Quét mã QR hoặc Barcode'
+                  : 'Xác nhận nhanh',
               onPressed: () =>
                   _showConfirmDeliveryOrderMethod(context: context),
+              onLongPress: () =>
+                  _showConfirmResultDeliveringOrderMethods(context: context),
             ),
 
             const SizedBox(width: 12),
@@ -4938,8 +5146,43 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             title: 'Giao hàng thành công',
             subtitle: 'Hàng đã trao tận tay cho người nhận',
             onTap: () {
-              _openOrderScanScreenToConfirmDeliveredOrder(context: context);
-              context.pop();
+              if (_confirmResultDeliveringOrderMethod ==
+                  ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
+                _openOrderScanScreenToConfirmDeliveredOrder(context: context);
+                context.pop();
+              } else {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn có chắc đã giao đơn này thành công?',
+                  subtitle:
+                      'Chỉ thực hiện thao tác này khi đơn đã được trao tận tay cho khách hàng.',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<ConfirmDeliveredOrderCubit>().call(
+                          deliveryRouteId: _deliveryRoute
+                              .currentNeedDeliveringOrder!
+                              .deliveryRouteId,
+                          deliveryOrderId:
+                              _deliveryRoute.currentNeedDeliveringOrder!.id,
+                        );
+                        context.pop();
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              }
             },
           ),
           SizedBox(height: 8),
@@ -4948,8 +5191,43 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             title: 'Giao hàng thất bại',
             subtitle: 'Người nhận không nhận hàng',
             onTap: () {
-              _openOrderScanScreenToConfirmCancelledOrder(context: context);
-              context.pop();
+              if (_confirmResultDeliveringOrderMethod ==
+                  ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
+                _openOrderScanScreenToConfirmCancelledOrder(context: context);
+                context.pop();
+              } else {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn có chắc khách hàng không nhận đơn hàng này?',
+                  subtitle:
+                      'Chỉ thực hiện thao tác này khi khách từ chối nhận hàng hoặc không liên lạc được với khách.',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<ConfirmCancelledOrderCubit>().call(
+                          deliveryRouteId: _deliveryRoute
+                              .currentNeedDeliveringOrder!
+                              .deliveryRouteId,
+                          deliveryOrderId:
+                              _deliveryRoute.currentNeedDeliveringOrder!.id,
+                        );
+                        context.pop();
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              }
             },
           ),
           SizedBox(height: 8),
@@ -4958,9 +5236,131 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             title: 'Hẹn giao sau',
             subtitle: 'Người nhận yêu cầu giao đơn hàng này sau',
             onTap: () {
-              _openOrderScanScreenToConfirmRescheduledOrder(context: context);
+              if (_confirmResultDeliveringOrderMethod ==
+                  ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
+                _openOrderScanScreenToConfirmRescheduledOrder(context: context);
+                context.pop();
+              } else {
+                AppDialogUtils.showSuccess(
+                  context: context,
+                  title: 'Bạn có chắc giao đơn hàng này sau?',
+                  subtitle:
+                      'Chỉ thực hiện thao tác này khi khách hàng hẹn giao sau hoặc bạn muốn giao sau.',
+                  actions: [
+                    SmgoButton(
+                      isOutlined: true,
+                      text: 'Huỷ',
+                      primaryColor: AppColors.primary,
+                      onPressed: () {
+                        context.pop();
+                      },
+                    ),
+                    SmgoButton(
+                      primaryColor: AppColors.primary,
+                      text: 'Xác nhận',
+                      onPressed: () {
+                        context.read<ConfirmRescheduledOrderCubit>().call(
+                          deliveryRouteId: _deliveryRoute
+                              .currentNeedDeliveringOrder!
+                              .deliveryRouteId,
+                          deliveryOrderId:
+                              _deliveryRoute.currentNeedDeliveringOrder!.id,
+                        );
+                        context.pop();
+                        context.pop();
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConfirmSortedOrderMethods({required BuildContext context}) {
+    AppDialogUtils.showCustomDialog(
+      context: context,
+      iconData: Icons.rule_folder_outlined,
+      title: 'Tuỳ chọn cách xác nhận sắp xếp đơn hàng',
+      subtitle: 'Hãy chọn một mục mà bạn muốn',
+      content: Column(
+        children: [
+          OptionButton(
+            icon: Icon(Icons.qr_code_scanner, size: 24, color: Colors.blue),
+            title: 'Quét mã QR hoặc Barcode',
+            subtitle:
+                'Giúp bạn sắp xếp chính xác hơn, không lấy nhầm hàng khi sắp xếp',
+            onTap: () {
+              _changeConfirmSortedOrderMethod(
+                value: ConfirmSortedOrderMethod.scanQrOrBarcode,
+              );
               context.pop();
             },
+            isChosen:
+                _confirmSortedOrderMethod ==
+                ConfirmSortedOrderMethod.scanQrOrBarcode,
+          ),
+          SizedBox(height: 8),
+          OptionButton(
+            icon: Icon(Icons.flash_on, size: 24, color: Colors.orange),
+            title: 'Xác nhận nhanh',
+            subtitle: 'Giúp bạn xác nhận nhanh mà không cần phải quét mã',
+            onTap: () {
+              _changeConfirmSortedOrderMethod(
+                value: ConfirmSortedOrderMethod.manual,
+              );
+              context.pop();
+            },
+            isChosen:
+                _confirmSortedOrderMethod == ConfirmSortedOrderMethod.manual,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConfirmResultDeliveringOrderMethods({
+    required BuildContext context,
+  }) {
+    AppDialogUtils.showCustomDialog(
+      context: context,
+      iconData: Icons.local_shipping_outlined,
+      title: 'Tuỳ chọn cách xác nhận giao hàng',
+      subtitle: 'Hãy chọn một mục mà bạn muốn',
+      content: Column(
+        children: [
+          OptionButton(
+            icon: Icon(Icons.qr_code_scanner, size: 24, color: Colors.blue),
+            title: 'Quét mã QR hoặc Barcode',
+            subtitle:
+                'Giúp bạn lấy đơn hàng chính xác cần giao không bị giao nhầm hàng',
+            onTap: () {
+              _changeConfirmResultDeliveringOrderMethod(
+                value: ConfirmResultDeliveringOrderMethod.scanQrOrBarcode,
+              );
+              context.pop();
+            },
+            isChosen:
+                _confirmResultDeliveringOrderMethod ==
+                ConfirmResultDeliveringOrderMethod.scanQrOrBarcode,
+          ),
+          SizedBox(height: 8),
+          OptionButton(
+            icon: Icon(Icons.flash_on, size: 24, color: Colors.orange),
+            title: 'Xác nhận nhanh',
+            subtitle: 'Xác nhận nhanh chóng không cần quét mã',
+            onTap: () {
+              _changeConfirmResultDeliveringOrderMethod(
+                value: ConfirmResultDeliveringOrderMethod.manual,
+              );
+              context.pop();
+            },
+            isChosen:
+                _confirmResultDeliveringOrderMethod ==
+                ConfirmResultDeliveringOrderMethod.manual,
           ),
         ],
       ),
