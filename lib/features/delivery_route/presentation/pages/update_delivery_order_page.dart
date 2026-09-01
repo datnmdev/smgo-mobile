@@ -67,12 +67,12 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
 
   @override
   void dispose() {
-    super.dispose();
     orderCodeInputController.dispose();
     orderNameInputController.dispose();
     contactNameInputController.dispose();
     contactPhoneInputController.dispose();
     addressInputController.dispose();
+    super.dispose();
   }
 
   @override
@@ -181,7 +181,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   SmgoAiOcrScanButton<Map<String, dynamic>>(
                     builder: (context, onPressed) {
                       return _buildHeaderAction(
-                        icon: Icons.qr_code_scanner,
+                        icon: Icons.document_scanner,
                         label: 'Quét nhanh',
                         onTap: onPressed,
                       );

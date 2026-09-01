@@ -84,13 +84,13 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _addLocationFormCubit.close();
     _locationNameInputController.dispose();
     _contactNameInputController.dispose();
     _contactPhoneInputController.dispose();
     _addressInputController.dispose();
     _noteInputController.dispose();
+    super.dispose();
   }
 
   @override

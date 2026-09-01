@@ -2906,8 +2906,8 @@ class _DeliveringViewState extends State<DeliveringView>
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -3734,8 +3734,8 @@ class _CompletedViewState extends State<CompletedView>
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override

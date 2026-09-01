@@ -41,12 +41,12 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
 
   @override
   void dispose() {
-    super.dispose();
     locationNameController.dispose();
     contactNameController.dispose();
     contactPhoneController.dispose();
     addressController.dispose();
     noteController.dispose();
+    super.dispose();
   }
 
   @override
@@ -138,7 +138,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.arrow_back_ios_new, size: 16,),
+                              icon: Icon(Icons.arrow_back_ios_new, size: 16),
                               color: Colors.white,
                               onPressed: () {
                                 context.pop();
