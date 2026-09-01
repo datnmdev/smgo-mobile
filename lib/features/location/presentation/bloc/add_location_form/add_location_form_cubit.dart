@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/shared/data/models/point_model.dart';
 import 'package:shipgo/features/location/domain/repository/location_repository.dart';
 import 'package:shipgo/features/location/domain/usecases/add_location_usecase.dart';
 import 'package:shipgo/features/location/presentation/bloc/add_location_form/add_location_form_state.dart';
@@ -10,12 +9,63 @@ import 'package:shipgo/features/location/presentation/inputs/contact_name.dart';
 import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
 import 'package:shipgo/features/location/presentation/inputs/location.dart';
 import 'package:shipgo/features/location/presentation/inputs/location_name.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
+
+const _absent = Object();
 
 class AddLocationFormCubit extends Cubit<AddLocationFormState> {
   final AddLocationUsecase addLocationUsecase;
 
   AddLocationFormCubit({required this.addLocationUsecase})
     : super(AddLocationFormInitial(state: AddLocationFormState()));
+
+  void initialize({
+    String? locationName,
+    String? contactName,
+    String? contactPhone,
+    String? address,
+    Object? note = _absent,
+    LatLng? location,
+  }) {
+    emit(
+      state.copyWith(
+        locationName: locationName != null
+            ? LocationName.pure(locationName)
+            : state.locationName,
+        contactName: contactName != null
+            ? ContactName.pure(contactName)
+            : state.contactName,
+        contactPhone: contactPhone != null
+            ? ContactPhone.pure(contactPhone)
+            : state.contactPhone,
+        address: address != null ? Address.pure(address) : state.address,
+        note: note == _absent
+            ? state.note
+            : note == null
+            ? null
+            : note as String,
+        location: location != null
+            ? Location.pure(
+                PointEntity(x: location.longitude, y: location.latitude),
+              )
+            : state.location,
+      ),
+    );
+  }
+
+  void reset() {
+    emit(
+      state.copyWith(
+        locationName: LocationName.pure(),
+        contactName: ContactName.pure(),
+        contactPhone: ContactPhone.pure(),
+        address: Address.pure(),
+        location: Location.pure(),
+        note: null,
+        mediaIds: [],
+      ),
+    );
+  }
 
   void locationNameChanged(String value) {
     emit(state.copyWith(locationName: LocationName.dirty(value)));
@@ -38,7 +88,7 @@ class AddLocationFormCubit extends Cubit<AddLocationFormState> {
       state.copyWith(
         location: Location.dirty(
           location != null
-              ? PointModel(x: location.longitude, y: location.latitude)
+              ? PointEntity(x: location.longitude, y: location.latitude)
               : null,
         ),
       ),

@@ -22,6 +22,8 @@ import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get
 import 'package:shipgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
 import 'package:shipgo/features/delivery_route/presentation/widgets/image_thumbnail.dart';
+import 'package:shipgo/shared/domain/entities/initital_add_location_form_entity.dart';
+import 'package:shipgo/shared/domain/entities/point_entity.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:shipgo/shared/presentation/widgets/google_map_screen.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_map.dart';
@@ -379,20 +381,90 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(
-                              Icons.person_outline,
-                              color: primaryColor,
-                              size: 18,
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.person_outline,
+                                  color: primaryColor,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Thông tin người nhận',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Thông tin người nhận',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+
+                            // Nút lưu người nhận
+                            if (deliveryOrder!.appliedLocation == null ||
+                                (deliveryOrder!.appliedLocation != null &&
+                                    deliveryOrder!.appliedLocation!.userId !=
+                                        context
+                                            .read<GetProfileCubit>()
+                                            .state
+                                            .profile
+                                            ?.id))
+                              SizedBox(
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    context.pushNamed(
+                                      AppRouteNames.addLocation,
+                                      extra: <String, Object>{
+                                        'InitialAddLocationFormData':
+                                            InititalAddLocationFormEntity(
+                                              locationName:
+                                                  'Vị trí của ${deliveryOrder!.contactName}',
+                                              contactName:
+                                                  deliveryOrder!.contactName,
+                                              contactPhone:
+                                                  deliveryOrder!.contactPhone,
+                                              address: deliveryOrder!.address,
+                                              location: PointEntity(
+                                                x: deliveryOrder!.location.x,
+                                                y: deliveryOrder!.location.y,
+                                              ),
+                                            ),
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.bookmark_outline,
+                                    color: Color(0xFF10A142),
+                                    size: 16,
+                                  ),
+                                  label: const Text(
+                                    'Lưu người nhận',
+                                    style: TextStyle(
+                                      color: Color(0xFF10A142),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(
+                                      color: Color(0xFF10A142),
+                                      width: 1,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 12,
+                                    ),
+                                    backgroundColor: Colors.transparent,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const Divider(height: 24),

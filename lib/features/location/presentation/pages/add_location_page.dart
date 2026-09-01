@@ -9,6 +9,7 @@ import 'package:shipgo/core/config/env.dart';
 import 'package:shipgo/core/resources/app_colors.dart';
 import 'package:shipgo/core/resources/app_strings.dart';
 import 'package:shipgo/core/resources/data_state.dart';
+import 'package:shipgo/shared/domain/entities/initital_add_location_form_entity.dart';
 import 'package:shipgo/shared/utils/app_dialog_utils.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
 import 'package:shipgo/shared/presentation/widgets/m3_image_picker.dart';
@@ -22,20 +23,89 @@ import 'package:shipgo/features/location/presentation/bloc/add_location_form/add
 import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
 import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
 
-class AddLocationPage extends StatelessWidget {
+class AddLocationPage extends StatefulWidget {
   const AddLocationPage({super.key});
+
+  @override
+  State<AddLocationPage> createState() => _AddLocationPageState();
+}
+
+class _AddLocationPageState extends State<AddLocationPage> {
+  late final AddLocationFormCubit _addLocationFormCubit;
+  late final TextEditingController _locationNameInputController;
+  late final TextEditingController _contactNameInputController;
+  late final TextEditingController _contactPhoneInputController;
+  late final TextEditingController _addressInputController;
+  late final TextEditingController _noteInputController;
+  late final InititalAddLocationFormEntity? _inititalAddLocationFormData;
+
+  @override
+  void initState() {
+    super.initState();
+    _addLocationFormCubit = di<AddLocationFormCubit>();
+    _locationNameInputController = TextEditingController(text: '');
+    _contactNameInputController = TextEditingController(text: '');
+    _contactPhoneInputController = TextEditingController(text: '');
+    _addressInputController = TextEditingController(text: '');
+    _noteInputController = TextEditingController(text: '');
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra as Map<String, Object>;
+      _inititalAddLocationFormData = extra['InitialAddLocationFormData'] == null
+          ? null
+          : extra['InitialAddLocationFormData']
+                as InititalAddLocationFormEntity;
+      if (_inititalAddLocationFormData != null) {
+        // Khởi tạo value cho các input
+        _locationNameInputController.text =
+            _inititalAddLocationFormData.locationName;
+        _contactNameInputController.text =
+            _inititalAddLocationFormData.contactName;
+        _contactPhoneInputController.text =
+            _inititalAddLocationFormData.contactPhone;
+        _addressInputController.text = _inititalAddLocationFormData.address;
+        _noteInputController.text = _inititalAddLocationFormData.note ?? '';
+
+        // Khởi tạo trạng thái form
+        _addLocationFormCubit.initialize(
+          locationName: _inititalAddLocationFormData.locationName,
+          contactName: _inititalAddLocationFormData.contactName,
+          contactPhone: _inititalAddLocationFormData.contactPhone,
+          address: _inititalAddLocationFormData.address,
+          note: _inititalAddLocationFormData.note,
+          location: LatLng(
+            _inititalAddLocationFormData.location.y,
+            _inititalAddLocationFormData.location.x,
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _addLocationFormCubit.close();
+    _locationNameInputController.dispose();
+    _contactNameInputController.dispose();
+    _contactPhoneInputController.dispose();
+    _addressInputController.dispose();
+    _noteInputController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final extra = GoRouterState.of(context).extra as Map<String, Object>;
-    final getMyLocationsCubitInLP =
-        extra['GetMyLocationsCubitInLP'] as GetMyLocationsCubit;
-    final getMyLocationsParamsInLP =
-        extra['GetMyLocationsParamsInLP'] as GetMyLocationsParams;
+    final getMyLocationsCubitInLP = extra['GetMyLocationsCubitInLP'] == null
+        ? null
+        : extra['GetMyLocationsCubitInLP'] as GetMyLocationsCubit;
+    final getMyLocationsParamsInLP = extra['GetMyLocationsParamsInLP'] == null
+        ? null
+        : extra['GetMyLocationsParamsInLP'] as GetMyLocationsParams;
 
-    return BlocProvider(
-      create: (context) => di<AddLocationFormCubit>(),
+    return BlocProvider.value(
+      value: _addLocationFormCubit,
       child: Scaffold(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,9 +150,23 @@ class AddLocationPage extends StatelessWidget {
                       BlocConsumer<AddLocationFormCubit, AddLocationFormState>(
                         listener: (context, state) {
                           if (state is AddLocationFormDone) {
-                            getMyLocationsCubitInLP.call(
-                              getMyLocationsParamsInLP,
-                            );
+                            if (getMyLocationsParamsInLP != null &&
+                                getMyLocationsCubitInLP != null) {
+                              getMyLocationsCubitInLP.call(
+                                getMyLocationsParamsInLP,
+                              );
+                            }
+
+                            // Reset trạng thái form
+                            context.read<AddLocationFormCubit>().reset();
+
+                            // Reset form value
+                            _locationNameInputController.text = '';
+                            _contactNameInputController.text = '';
+                            _contactPhoneInputController.text = '';
+                            _addressInputController.text = '';
+                            _noteInputController.text = '';
+
                             AppDialogUtils.showSuccess(
                               context: context,
                               title: 'Tạo địa điểm thành công!',
@@ -160,7 +244,8 @@ class AddLocationPage extends StatelessWidget {
                               >(
                                 builder: (context, state) => Column(
                                   children: [
-                                    TextField(
+                                    TextFormField(
+                                      controller: _locationNameInputController,
                                       onChanged: (value) => context
                                           .read<AddLocationFormCubit>()
                                           .locationNameChanged(value),
@@ -217,7 +302,8 @@ class AddLocationPage extends StatelessWidget {
                               >(
                                 builder: (context, state) => Column(
                                   children: [
-                                    TextField(
+                                    TextFormField(
+                                      controller: _contactNameInputController,
                                       onChanged: (value) => context
                                           .read<AddLocationFormCubit>()
                                           .contactNameChanged(value),
@@ -272,7 +358,8 @@ class AddLocationPage extends StatelessWidget {
                               >(
                                 builder: (context, state) => Column(
                                   children: [
-                                    TextField(
+                                    TextFormField(
+                                      controller: _contactPhoneInputController,
                                       onChanged: (value) => context
                                           .read<AddLocationFormCubit>()
                                           .contactPhoneChanged(value),
@@ -360,7 +447,8 @@ class AddLocationPage extends StatelessWidget {
                               >(
                                 builder: (context, state) => Column(
                                   children: [
-                                    TextField(
+                                    TextFormField(
+                                      controller: _addressInputController,
                                       onChanged: (value) => context
                                           .read<AddLocationFormCubit>()
                                           .addressChanged(value),
@@ -472,9 +560,8 @@ class AddLocationPage extends StatelessWidget {
                                 AddLocationFormCubit,
                                 AddLocationFormState
                               >(
-                                buildWhen: (previous, current) =>
-                                    previous.note != current.note,
-                                builder: (context, state) => TextField(
+                                builder: (context, state) => TextFormField(
+                                  controller: _noteInputController,
                                   onChanged: (value) => context
                                       .read<AddLocationFormCubit>()
                                       .noteChanged(value),
@@ -531,9 +618,8 @@ class AddLocationPage extends StatelessWidget {
                                     AddLocationFormCubit,
                                     AddLocationFormState
                                   >(
-                                    buildWhen: (previous, current) =>
-                                        previous.mediaIds != current.mediaIds,
                                     builder: (context, state) => M3ImagePickerGrid(
+                                      reset: state.mediaIds.isEmpty,
                                       initialImages: [],
                                       takeNewPhotoTitle: AppStrings
                                           .m3IPGTakeNewPhotoTitle
