@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:shipgo/features/auth/domain/entities/auth_token_entity.dart';
+import 'package:smgo/features/auth/domain/entities/auth_token_entity.dart';
 
 abstract class SignInState extends Equatable {
   final AuthTokensEntity? authTokens;

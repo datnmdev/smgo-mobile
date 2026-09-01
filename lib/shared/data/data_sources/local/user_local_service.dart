@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shipgo/core/security/token/domain/repository/token_repository.dart';
-import 'package:shipgo/shared/data/models/user_model.dart';
+import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
+import 'package:smgo/shared/data/models/user_model.dart';
 
 class UserLocalService {
   final TokenRepository tokenRepository;

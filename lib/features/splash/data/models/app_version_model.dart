@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shipgo/features/splash/domain/entities/app_version_entity.dart';
+import 'package:smgo/features/splash/domain/entities/app_version_entity.dart';
 
 part 'app_version_model.g.dart';
 

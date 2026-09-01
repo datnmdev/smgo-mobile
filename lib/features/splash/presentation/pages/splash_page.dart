@@ -2,15 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shipgo/core/config/app_route_names.dart';
-import 'package:shipgo/core/resources/app_assets.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/core/utils/app_update_util.dart';
-import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
-import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
-import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
+import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
+import 'package:smgo/core/utils/app_update_util.dart';
+import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -421,7 +421,7 @@ class _ProgressStateView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircularProgressIndicator(color: AppColors.primary),
+        CircularProgressIndicator(color: Colors.white),
         SizedBox(height: 20),
         BlocBuilder<CheckAppVersionBloc, CheckAppVersionState>(
           builder: (context, state) {

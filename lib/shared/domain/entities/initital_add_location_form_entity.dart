@@ -1,4 +1,4 @@
-import 'package:shipgo/shared/domain/entities/point_entity.dart';
+import 'package:smgo/shared/domain/entities/point_entity.dart';
 
 class InititalAddLocationFormEntity {
   final String locationName;

@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/auth/domain/usecases/sign_in_with_facebook_usecase.dart';
-import 'package:shipgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
-import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
-import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/auth/domain/usecases/sign_in_with_facebook_usecase.dart';
+import 'package:smgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
+import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
+import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final SignInWithGoogleUsecase signInWithGoogleUsecase;

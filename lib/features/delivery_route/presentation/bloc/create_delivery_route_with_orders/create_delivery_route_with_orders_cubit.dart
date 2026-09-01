@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/create_delivery_route_with_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/create_delivery_route_with_orders/create_delivery_route_with_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/create_delivery_route_with_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/create_delivery_route_with_orders/create_delivery_route_with_orders_state.dart';
 
 class CreateDeliveryRouteWithOrdersCubit
     extends Cubit<CreateDeliveryRouteWithOrdersState> {

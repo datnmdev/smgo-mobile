@@ -1,4 +1,4 @@
-import 'package:shipgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
 
 class ExtractOrderInfoParams {
   final String ocrText;

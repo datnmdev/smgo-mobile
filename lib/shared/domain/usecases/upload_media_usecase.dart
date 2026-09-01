@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/shared/domain/repository/storage_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/shared/domain/repository/storage_repository.dart';
 
 class UploadMediaUsecase
     implements Usecase<DataState<dynamic>, UploadMediaParams> {

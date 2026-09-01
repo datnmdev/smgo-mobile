@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/route_name_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/route_name_input.dart';
 
 class UpdateDeliveryRouteFormState extends Equatable with FormzMixin {
   final RouteNameInput routeNameInput;

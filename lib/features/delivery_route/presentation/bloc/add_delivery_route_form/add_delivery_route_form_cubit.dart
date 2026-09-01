@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_route_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_state.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/route_name_input.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/add_delivery_route_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/add_delivery_route_form/add_delivery_route_form_state.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/route_name_input.dart';
 
 class AddDeliveryRouteFormCubit extends Cubit<AddDeliveryRouteFormState> {
   final AddDeliveryRouteUsecase addDeliveryRouteUsecase;

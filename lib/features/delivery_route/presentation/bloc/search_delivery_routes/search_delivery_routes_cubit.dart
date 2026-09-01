@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_state.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_routes/search_delivery_routes_state.dart';
 
 class SearchDeliveryRoutesCubit extends Cubit<SearchDeliveryRoutesState> {
   Timer? _debounceTimer;

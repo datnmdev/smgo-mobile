@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 
 class GetDeliveryRoutesCubit extends Cubit<GetDeliveryRoutesState> {
   final GetDeliveryRoutesUsecase getDeliveryRoutesUsecase;

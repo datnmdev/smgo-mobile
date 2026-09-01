@@ -1,5 +1,5 @@
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/core/security/token/domain/repository/token_repository.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
 
 class CheckAuthenticationUsecase implements Usecase<bool, void> {
   final TokenRepository tokenRepository;

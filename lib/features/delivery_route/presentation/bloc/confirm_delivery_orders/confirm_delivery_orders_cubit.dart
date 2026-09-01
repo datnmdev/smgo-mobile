@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/Confirm_delivery_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/Confirm_delivery_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/confirm_delivery_orders/confirm_delivery_orders_state.dart';
 
 class ConfirmDeliveryOrdersCubit extends Cubit<ConfirmDeliveryOrdersState> {
   final ConfirmDeliveryOrdersUsecase confirmDeliveryOrdersUsecase;

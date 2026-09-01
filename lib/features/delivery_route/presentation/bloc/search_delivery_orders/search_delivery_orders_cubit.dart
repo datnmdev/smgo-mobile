@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/get_delivery_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_state.dart';
 
 class SearchDeliveryOrdersCubit extends Cubit<SearchDeliveryOrdersState> {
   final GetDeliveryOrdersUsecase getDeliveryOrdersUsecase;

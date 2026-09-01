@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/shared/domain/entities/media_entity.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/shared/domain/entities/media_entity.dart';
 
 class LocationContactCard extends StatefulWidget {
   final List<MediaEntity> media;

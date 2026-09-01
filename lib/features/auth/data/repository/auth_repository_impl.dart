@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shipgo/core/config/env.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/auth/data/data_sources/auth_api_service.dart';
-import 'package:shipgo/features/auth/data/exceptions/unauthenticated_exception.dart';
-import 'package:shipgo/features/auth/data/exceptions/user_canceled_exception.dart';
-import 'package:shipgo/features/auth/data/models/auth_token_model.dart';
-import 'package:shipgo/features/auth/domain/repository/auth_repository.dart';
+import 'package:smgo/core/config/env.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/auth/data/data_sources/auth_api_service.dart';
+import 'package:smgo/features/auth/data/exceptions/unauthenticated_exception.dart';
+import 'package:smgo/features/auth/data/exceptions/user_canceled_exception.dart';
+import 'package:smgo/features/auth/data/models/auth_token_model.dart';
+import 'package:smgo/features/auth/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthApiService authApiService;

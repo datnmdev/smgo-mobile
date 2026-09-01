@@ -1,4 +1,4 @@
-package com.techbox.shipgo
+package com.vntsoft.smgo
 
 import io.flutter.embedding.android.FlutterActivity
 

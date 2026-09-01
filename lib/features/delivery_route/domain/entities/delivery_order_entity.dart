@@ -1,4 +1,4 @@
-import 'package:shipgo/shared/domain/entities/location_entity.dart';
+import 'package:smgo/shared/domain/entities/location_entity.dart';
 
 class DeliveryOrderEntity {
   final String id;

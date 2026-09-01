@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class AppNavigationBar extends StatelessWidget {

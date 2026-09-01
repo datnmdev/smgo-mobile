@@ -1,13 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_state.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/address_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/contact_name_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/location_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/order_code_input.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/add_delivery_order_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/add_delivery_order_form/add_delivery_order_form_state.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/address_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/contact_name_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/location_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/order_code_input.dart';
 
 class AddDeliveryOrderFormCubit extends Cubit<AddDeliveryOrderFormState> {
   final AddDeliveryOrderUsecase addDeliveryOrderUsecase;

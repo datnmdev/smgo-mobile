@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/splash/domain/usecase/check_app_version_usecase.dart';
-import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
-import 'package:shipgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/splash/domain/usecase/check_app_version_usecase.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
 
 class CheckAppVersionBloc
     extends Bloc<CheckAppVersionEvent, CheckAppVersionState> {

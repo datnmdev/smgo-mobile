@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
+import 'package:smgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
 
 class SearchLocationsCubit extends Cubit<SearchLocationsState> {
   Timer? _debounceTimer;

@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:shipgo/app_router.dart';
-import 'package:shipgo/core/config/app_route_names.dart';
-import 'package:shipgo/core/config/env.dart';
-import 'package:shipgo/core/localization/domain/repository/localization_repository.dart';
-import 'package:shipgo/core/network/api_enpoints.dart';
-import 'package:shipgo/core/security/token/domain/repository/token_repository.dart';
+import 'package:smgo/app_router.dart';
+import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/config/env.dart';
+import 'package:smgo/core/localization/domain/repository/localization_repository.dart';
+import 'package:smgo/core/network/api_enpoints.dart';
+import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
   final Dio dio;

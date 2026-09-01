@@ -1,4 +1,4 @@
-import 'package:shipgo/shared/domain/entities/user_entity.dart';
+import 'package:smgo/shared/domain/entities/user_entity.dart';
 
 abstract class GetProfileState {
   final UserEntity? profile;

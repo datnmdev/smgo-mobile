@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/shared/domain/entities/upload_url_entity.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/shared/domain/entities/upload_url_entity.dart';
 
 abstract interface class StorageRepository {
   Future<DataState<UploadUrlEntity>> getUploadUrl();

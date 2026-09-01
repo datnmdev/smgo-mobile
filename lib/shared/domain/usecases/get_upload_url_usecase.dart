@@ -1,7 +1,7 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/shared/domain/entities/upload_url_entity.dart';
-import 'package:shipgo/shared/domain/repository/storage_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/shared/domain/entities/upload_url_entity.dart';
+import 'package:smgo/shared/domain/repository/storage_repository.dart';
 
 class GetUploadUrlUsecase
     implements Usecase<DataState<UploadUrlEntity>, void> {

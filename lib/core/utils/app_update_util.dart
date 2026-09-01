@@ -1,4 +1,4 @@
-import 'package:shipgo/core/utils/store_url_util.dart';
+import 'package:smgo/core/utils/store_url_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUpdateUtil {

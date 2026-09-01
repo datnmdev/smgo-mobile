@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:shipgo/shared/presentation/widgets/smgo_loading.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_loading.dart';
 
 class SmgoLoadingScreen extends StatelessWidget {
   final bool isLoading;

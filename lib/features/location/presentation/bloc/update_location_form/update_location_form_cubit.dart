@@ -1,15 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/location/domain/repository/location_repository.dart';
-import 'package:shipgo/features/location/domain/usecases/update_location_usecase.dart';
-import 'package:shipgo/features/location/presentation/bloc/update_location_form/update_location_form_state.dart';
-import 'package:shipgo/features/location/presentation/inputs/address.dart';
-import 'package:shipgo/features/location/presentation/inputs/contact_name.dart';
-import 'package:shipgo/features/location/presentation/inputs/contact_phone.dart';
-import 'package:shipgo/features/location/presentation/inputs/location.dart';
-import 'package:shipgo/features/location/presentation/inputs/location_name.dart';
-import 'package:shipgo/shared/domain/entities/point_entity.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/location/domain/repository/location_repository.dart';
+import 'package:smgo/features/location/domain/usecases/update_location_usecase.dart';
+import 'package:smgo/features/location/presentation/bloc/update_location_form/update_location_form_state.dart';
+import 'package:smgo/features/location/presentation/inputs/address.dart';
+import 'package:smgo/features/location/presentation/inputs/contact_name.dart';
+import 'package:smgo/features/location/presentation/inputs/contact_phone.dart';
+import 'package:smgo/features/location/presentation/inputs/location.dart';
+import 'package:smgo/features/location/presentation/inputs/location_name.dart';
+import 'package:smgo/shared/domain/entities/point_entity.dart';
 
 class UpdateLocationFormCubit extends Cubit<UpdateLocationFormState> {
   final String locationId;

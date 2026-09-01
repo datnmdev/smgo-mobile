@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_colors.dart';
 
 abstract class AppTheme {
   static final ThemeData lightTheme = ThemeData(

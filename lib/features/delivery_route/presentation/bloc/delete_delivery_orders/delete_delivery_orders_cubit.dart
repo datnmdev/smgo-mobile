@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/delete_delivery_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/delete_delivery_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 
 class DeleteDeliveryOrdersCubit extends Cubit<DeleteDeliveryOrdersState> {
   final DeleteDeliveryOrdersUsecase deleteDeliveryOrdersUsecase;

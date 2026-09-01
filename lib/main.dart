@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shipgo/app_router.dart';
-import 'package:shipgo/core/resources/app_assets.dart';
-import 'package:shipgo/core/resources/app_theme.dart';
-import 'package:shipgo/dependency_injection.dart';
+import 'package:smgo/app_router.dart';
+import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_theme.dart';
+import 'package:smgo/dependency_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

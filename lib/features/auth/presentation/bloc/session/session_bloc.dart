@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/features/auth/domain/usecases/check_authentication_usecase.dart';
-import 'package:shipgo/features/auth/presentation/bloc/session/session_event.dart';
-import 'package:shipgo/features/auth/presentation/bloc/session/session_state.dart';
+import 'package:smgo/features/auth/domain/usecases/check_authentication_usecase.dart';
+import 'package:smgo/features/auth/presentation/bloc/session/session_event.dart';
+import 'package:smgo/features/auth/presentation/bloc/session/session_state.dart';
 
 class SessionBloc extends Bloc<SessionEvent, SessionState> {
   final CheckAuthenticationUsecase checkAuthenticationUsecase;

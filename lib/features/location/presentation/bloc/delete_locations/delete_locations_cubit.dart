@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/location/domain/usecases/delete_locations_usecase.dart';
-import 'package:shipgo/features/location/presentation/bloc/delete_locations/delete_locations_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/location/domain/usecases/delete_locations_usecase.dart';
+import 'package:smgo/features/location/presentation/bloc/delete_locations/delete_locations_state.dart';
 
 class DeleteLocationsCubit extends Cubit<DeleteLocationsState> {
   final DeleteLocationsUsecase deleteLocationsUsecase;

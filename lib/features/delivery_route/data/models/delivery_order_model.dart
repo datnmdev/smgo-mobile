@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shipgo/shared/data/models/location_model.dart';
+import 'package:smgo/shared/data/models/location_model.dart';
 
 part 'delivery_order_model.g.dart';
 

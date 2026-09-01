@@ -1,8 +1,8 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/shared/data/data_sources/local/user_local_service.dart';
-import 'package:shipgo/shared/data/data_sources/remote/user_api_service.dart';
-import 'package:shipgo/shared/domain/entities/user_entity.dart';
-import 'package:shipgo/shared/domain/repository/user_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/shared/data/data_sources/local/user_local_service.dart';
+import 'package:smgo/shared/data/data_sources/remote/user_api_service.dart';
+import 'package:smgo/shared/domain/entities/user_entity.dart';
+import 'package:smgo/shared/domain/repository/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserApiService userApiService;

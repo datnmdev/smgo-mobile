@@ -1,5 +1,5 @@
-import 'package:shipgo/core/security/token/data/data_sources/token_data_source.dart';
-import 'package:shipgo/core/security/token/domain/repository/token_repository.dart';
+import 'package:smgo/core/security/token/data/data_sources/token_data_source.dart';
+import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
 
 class TokenRepositoryImpl implements TokenRepository {
   final String _accessTokenKey = "access_token";

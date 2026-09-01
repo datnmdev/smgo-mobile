@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shipgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/exceptions/app_exception.dart';
 
 /// Model đại diện cho mỗi item ảnh trong lưới
 class GridImageItem {

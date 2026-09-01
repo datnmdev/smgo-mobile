@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:shipgo/core/network/api_enpoints.dart';
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/shared/data/models/upload_url_model.dart';
+import 'package:smgo/core/network/api_enpoints.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/shared/data/models/upload_url_model.dart';
 
 part 'storage_api_service.g.dart';
 

@@ -1,4 +1,4 @@
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 
 abstract class GetDeliveryRoutesState {
   final bool isFirstLoad;

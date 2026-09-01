@@ -2,18 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shipgo/core/config/app_route_names.dart';
-import 'package:shipgo/core/exceptions/app_exception.dart';
-import 'package:shipgo/core/resources/app_assets.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/auth/presentation/bloc/session/session_bloc.dart';
-import 'package:shipgo/features/auth/presentation/bloc/session/session_event.dart';
-import 'package:shipgo/features/auth/presentation/bloc/session/session_state.dart';
-import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
-import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
-import 'package:shipgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
+import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
+import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/auth/presentation/bloc/session/session_bloc.dart';
+import 'package:smgo/features/auth/presentation/bloc/session/session_event.dart';
+import 'package:smgo/features/auth/presentation/bloc/session/session_state.dart';
+import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
+import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
+import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class SignInPage extends StatelessWidget {
@@ -187,7 +187,7 @@ class _ProgressSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircularProgressIndicator(color: AppColors.primary),
+        CircularProgressIndicator(color: Colors.white),
         SizedBox(height: 20),
         if (message != null && message!.isNotEmpty)
           Text(

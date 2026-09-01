@@ -1,5 +1,5 @@
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 
 abstract class SearchDeliveryOrdersState {
   final String searchText;

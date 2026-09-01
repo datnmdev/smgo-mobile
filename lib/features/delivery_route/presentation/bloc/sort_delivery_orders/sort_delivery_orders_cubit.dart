@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/sort_delivery_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/sort_delivery_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_state.dart';
 
 class SortDeliveryOrdersCubit extends Cubit<SortDeliveryOrdersState> {
   final SortDeliveryOrdersUsecase sortDeliveryOrdersUsecase;

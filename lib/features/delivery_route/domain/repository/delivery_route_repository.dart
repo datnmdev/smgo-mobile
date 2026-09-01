@@ -1,7 +1,7 @@
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 
 class AddDeliveryRouteParams {
   final String name;

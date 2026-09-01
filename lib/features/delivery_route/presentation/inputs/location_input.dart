@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 
 enum LocationInputValidationError { empty }
 

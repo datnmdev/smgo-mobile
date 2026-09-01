@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/shared/presentation/bloc/selection/selection_state.dart';
+import 'package:smgo/shared/presentation/bloc/selection/selection_state.dart';
 
 class SelectionCubit<T> extends Cubit<SelectionState<T>> {
   SelectionCubit() : super(SelectionState<T>());

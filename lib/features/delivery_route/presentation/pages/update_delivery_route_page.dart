@@ -2,16 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/shared/presentation/widgets/m3_error_text.dart';
-import 'package:shipgo/dependency_injection.dart';
-import 'package:shipgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_cubit.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_state.dart';
-import 'package:shipgo/shared/utils/app_dialog_utils.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
+import 'package:smgo/shared/presentation/widgets/m3_error_text.dart';
+import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/get_delivery_routes_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_cubit.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/update_delivery_route_form/update_delivery_route_form_state.dart';
+import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 class UpdateDeliveryRoutePage extends StatefulWidget {
   const UpdateDeliveryRoutePage({Key? key}) : super(key: key);

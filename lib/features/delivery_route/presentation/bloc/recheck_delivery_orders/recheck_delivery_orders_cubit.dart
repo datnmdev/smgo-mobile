@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/recheck_delivery_orders_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/recheck_delivery_orders_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 
 class RecheckDeliveryOrdersCubit extends Cubit<RecheckDeliveryOrdersState> {
   final RecheckDeliveryOrdersUsecase recheckDeliveryOrdersUsecase;

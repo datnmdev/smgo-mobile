@@ -1,7 +1,7 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/core/utils/package_info_util.dart';
-import 'package:shipgo/features/splash/domain/repository/app_version_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/core/utils/package_info_util.dart';
+import 'package:smgo/features/splash/domain/repository/app_version_repository.dart';
 
 class CheckAppVersionUsecase
     implements Usecase<DataState<CheckAppVersionResult>, void> {

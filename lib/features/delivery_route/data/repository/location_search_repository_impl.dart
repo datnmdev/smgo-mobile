@@ -1,10 +1,10 @@
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/data/data_sources/location_search_api_service.dart';
-import 'package:shipgo/features/delivery_route/domain/repository/location_search_repository.dart';
-import 'package:shipgo/shared/domain/entities/location_entity.dart';
-import 'package:shipgo/shared/domain/entities/media_entity.dart';
-import 'package:shipgo/shared/domain/entities/point_entity.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/data/data_sources/location_search_api_service.dart';
+import 'package:smgo/features/delivery_route/domain/repository/location_search_repository.dart';
+import 'package:smgo/shared/domain/entities/location_entity.dart';
+import 'package:smgo/shared/domain/entities/media_entity.dart';
+import 'package:smgo/shared/domain/entities/point_entity.dart';
 
 class LocationSearchRepositoryImpl implements LocationSearchRepository {
   final LocationSearchApiService locationSearchApiService;

@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shipgo/shared/data/models/media_model.dart';
-import 'package:shipgo/shared/data/models/point_model.dart';
+import 'package:smgo/shared/data/models/media_model.dart';
+import 'package:smgo/shared/data/models/point_model.dart';
 
 part 'location_model.g.dart';
 

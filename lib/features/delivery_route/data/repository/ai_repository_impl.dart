@@ -1,6 +1,6 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/data/data_sources/ai_api_service.dart';
-import 'package:shipgo/features/delivery_route/domain/repository/ai_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/data/data_sources/ai_api_service.dart';
+import 'package:smgo/features/delivery_route/domain/repository/ai_repository.dart';
 
 class AiRepositoryImpl implements AiRepository {
   final AiApiService aiApiService;

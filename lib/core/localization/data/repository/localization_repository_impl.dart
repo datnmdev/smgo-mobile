@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shipgo/core/localization/data/data_sources/localization_data_source.dart';
-import 'package:shipgo/core/localization/domain/repository/localization_repository.dart';
+import 'package:smgo/core/localization/data/data_sources/localization_data_source.dart';
+import 'package:smgo/core/localization/domain/repository/localization_repository.dart';
 
 class LocalizationRepositoryImpl implements LocalizationRepository {
   final LocalizationDataSource _localizationDataSource;

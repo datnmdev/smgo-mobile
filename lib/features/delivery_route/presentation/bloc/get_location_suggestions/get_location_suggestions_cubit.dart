@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
-import 'package:shipgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/get_location_suggestions_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
 
 class GetLocationSuggestionsCubit extends Cubit<GetLocationSuggestionsState> {
   final GetLocationSuggestionsUsecase getLocationSuggestionsUsecase;

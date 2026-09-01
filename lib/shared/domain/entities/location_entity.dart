@@ -1,5 +1,5 @@
-import 'package:shipgo/shared/domain/entities/media_entity.dart';
-import 'package:shipgo/shared/domain/entities/point_entity.dart';
+import 'package:smgo/shared/domain/entities/media_entity.dart';
+import 'package:smgo/shared/domain/entities/point_entity.dart';
 
 class LocationEntity {
   final String id;

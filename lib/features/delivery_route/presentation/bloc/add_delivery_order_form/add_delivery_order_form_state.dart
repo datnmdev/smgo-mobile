@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/address_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/contact_name_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/location_input.dart';
-import 'package:shipgo/features/delivery_route/presentation/inputs/order_code_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/address_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/contact_name_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/contact_phone_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/location_input.dart';
+import 'package:smgo/features/delivery_route/presentation/inputs/order_code_input.dart';
 
 const Object _absent = Object();
 

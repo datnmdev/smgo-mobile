@@ -3,27 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:shipgo/core/config/app_route_names.dart';
-import 'package:shipgo/core/resources/app_assets.dart';
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/dependency_injection.dart';
+import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
+import 'package:smgo/dependency_injection.dart';
 
-import 'package:shipgo/features/location/presentation/bloc/delete_locations/delete_locations_cubit.dart';
-import 'package:shipgo/features/location/domain/usecases/get_my_locations_usecase.dart';
-import 'package:shipgo/features/location/presentation/bloc/delete_locations/delete_locations_state.dart';
-import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/get_my_locations/get_my_locations_state.dart';
-import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
-import 'package:shipgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
+import 'package:smgo/features/location/presentation/bloc/delete_locations/delete_locations_cubit.dart';
+import 'package:smgo/features/location/domain/usecases/get_my_locations_usecase.dart';
+import 'package:smgo/features/location/presentation/bloc/delete_locations/delete_locations_state.dart';
+import 'package:smgo/features/location/presentation/bloc/get_my_locations/get_my_locations_cubit.dart';
+import 'package:smgo/features/location/presentation/bloc/get_my_locations/get_my_locations_state.dart';
+import 'package:smgo/features/location/presentation/bloc/search_locations/search_locations_cubit.dart';
+import 'package:smgo/features/location/presentation/bloc/search_locations/search_locations_state.dart';
 
-import 'package:shipgo/shared/domain/entities/location_entity.dart';
-import 'package:shipgo/features/location/presentation/widgets/location_contact_card.dart';
-import 'package:shipgo/shared/presentation/bloc/selection/selection_cubit.dart';
-import 'package:shipgo/shared/presentation/bloc/selection/selection_state.dart';
-import 'package:shipgo/shared/presentation/widgets/smgo_button.dart';
-import 'package:shipgo/shared/presentation/widgets/smgo_checkbox.dart';
-import 'package:shipgo/shared/utils/app_dialog_utils.dart';
+import 'package:smgo/shared/domain/entities/location_entity.dart';
+import 'package:smgo/features/location/presentation/widgets/location_contact_card.dart';
+import 'package:smgo/shared/presentation/bloc/selection/selection_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/selection/selection_state.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_button.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_checkbox.dart';
+import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 /// ===============================================================
 /// LOCATION PAGE

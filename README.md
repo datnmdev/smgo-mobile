@@ -1,4 +1,4 @@
-# shipbox
+# smgo
 
 A new Flutter project.
 

@@ -16,7 +16,7 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
-    <string name="app_title">Shipgo</string>
+    <string name="app_title">SmGo</string>
     <string name="facebook_app_id">1817703986269320</string>
     <string name="facebook_client_token">de7bca3346c698a2b7cab5eb1eeab8d3</string>
 </resources>

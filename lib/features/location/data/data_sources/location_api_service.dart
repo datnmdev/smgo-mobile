@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:shipgo/core/network/api_enpoints.dart';
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/shared/data/models/location_model.dart';
+import 'package:smgo/core/network/api_enpoints.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/shared/data/models/location_model.dart';
 
 part 'location_api_service.g.dart';
 

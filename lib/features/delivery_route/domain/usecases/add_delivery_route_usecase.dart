@@ -1,6 +1,6 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/features/delivery_route/domain/repository/delivery_route_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/features/delivery_route/domain/repository/delivery_route_repository.dart';
 
 class AddDeliveryRouteUsecase
     implements Usecase<dynamic, AddDeliveryRouteUsecaseParams> {

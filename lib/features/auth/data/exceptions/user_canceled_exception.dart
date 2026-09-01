@@ -1,4 +1,4 @@
-import 'package:shipgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/exceptions/app_exception.dart';
 
 class UserCanceledException extends AppException {
   UserCanceledException({

@@ -4,10 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
-import 'package:shipgo/core/resources/app_colors.dart';
-import 'package:shipgo/core/resources/app_strings.dart';
-import 'package:shipgo/core/utils/location_util.dart';
-import 'package:shipgo/shared/presentation/widgets/google_map_screen.dart';
+import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
+import 'package:smgo/core/utils/location_util.dart';
+import 'package:smgo/shared/presentation/widgets/google_map_screen.dart';
 
 enum MapMode { view, select }
 

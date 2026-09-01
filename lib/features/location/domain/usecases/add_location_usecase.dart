@@ -1,6 +1,6 @@
-import 'package:shipgo/core/resources/data_state.dart';
-import 'package:shipgo/core/resources/usecase.dart';
-import 'package:shipgo/features/location/domain/repository/location_repository.dart';
+import 'package:smgo/core/resources/data_state.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/features/location/domain/repository/location_repository.dart';
 
 class AddLocationUsecase
     implements Usecase<DataState<dynamic>, AddLocationUsecaseParams> {

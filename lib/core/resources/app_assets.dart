@@ -8,7 +8,7 @@ abstract class AppAssets {
 
   // --- Images ---
   static const String logo = '$_imagesPath/logo.png';
-  static const String bgSplash = '$_imagesPath/bg_splash.jpeg';
+  static const String bgSplash = '$_imagesPath/bg_splash.png';
   static const String locationEmpty =
       '$_imagesPath/map_location_empty_state.png';
 

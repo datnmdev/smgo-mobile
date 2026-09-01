@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:shipgo/core/network/api_enpoints.dart';
-import 'package:shipgo/core/network/api_response.dart';
-import 'package:shipgo/features/delivery_route/data/models/delivery_order_model.dart';
-import 'package:shipgo/features/delivery_route/data/models/delivery_route_model.dart';
+import 'package:smgo/core/network/api_enpoints.dart';
+import 'package:smgo/core/network/api_response.dart';
+import 'package:smgo/features/delivery_route/data/models/delivery_order_model.dart';
+import 'package:smgo/features/delivery_route/data/models/delivery_route_model.dart';
 
 part 'delivery_route_api_service.g.dart';
 
