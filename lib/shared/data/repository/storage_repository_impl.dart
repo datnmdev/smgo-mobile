@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:smgo/core/resources/data_state.dart';
-import 'package:smgo/shared/data/data_sources/remote/storage_api_service.dart';
+import 'package:smgo/shared/data/data_sources/storage_api_service.dart';
 import 'package:smgo/shared/domain/entities/upload_url_entity.dart';
 import 'package:smgo/shared/domain/repository/storage_repository.dart';
 

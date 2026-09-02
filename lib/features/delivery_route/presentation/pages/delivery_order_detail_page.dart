@@ -18,8 +18,8 @@ import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_o
 import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
-import 'package:smgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
-import 'package:smgo/features/delivery_route/presentation/bloc/get_profile/get_profile_state.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/widgets/image_thumbnail.dart';
 import 'package:smgo/shared/domain/entities/initital_add_location_form_entity.dart';

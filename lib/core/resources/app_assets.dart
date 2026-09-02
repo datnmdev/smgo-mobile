@@ -15,6 +15,7 @@ abstract class AppAssets {
   static const String carousel1 = '$_imagesPath/carousel_1.png';
   static const String carousel2 = '$_imagesPath/carousel_2.png';
   static const String carousel3 = '$_imagesPath/carousel_3.png';
+  static const String defaultAvatar = '$_imagesPath/default_avatar.png';
 
   // --- Icons ---
   static const String icGoogle = '$_iconsPath/google.png';

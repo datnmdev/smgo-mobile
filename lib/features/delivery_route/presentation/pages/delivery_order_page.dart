@@ -31,7 +31,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_pa
 import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
-import 'package:smgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';

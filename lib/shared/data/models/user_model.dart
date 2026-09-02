@@ -8,6 +8,7 @@ class UserModel {
   final String name;
   final String provider;
   final String uuid;
+  final String? avatarUrl;
   final DateTime createdAt;
 
   UserModel({
@@ -15,6 +16,7 @@ class UserModel {
     required this.name,
     required this.provider,
     required this.uuid,
+    this.avatarUrl,
     required this.createdAt,
   });
 

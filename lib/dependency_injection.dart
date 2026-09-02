@@ -42,7 +42,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/create_delivery_r
 import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
-import 'package:smgo/features/delivery_route/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/sort_delivery_orders/sort_delivery_orders_cubit.dart';
@@ -52,7 +52,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/transition_route_
 import 'package:smgo/features/delivery_route/presentation/bloc/transition_route_to_sorting/transition_route_to_sorting_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/update_delivery_order_form/update_delivery_order_form_cubit.dart';
 import 'package:smgo/features/location/data/data_sources/location_api_service.dart';
-import 'package:smgo/shared/data/data_sources/remote/storage_api_service.dart';
+import 'package:smgo/shared/data/data_sources/storage_api_service.dart';
 import 'package:smgo/features/location/data/repository/location_repository_impl.dart';
 import 'package:smgo/shared/data/repository/storage_repository_impl.dart';
 import 'package:smgo/features/location/domain/repository/location_repository.dart';
@@ -85,8 +85,7 @@ import 'package:smgo/features/splash/data/repository/app_version_repository_impl
 import 'package:smgo/features/splash/domain/repository/app_version_repository.dart';
 import 'package:smgo/features/splash/domain/usecase/check_app_version_usecase.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
-import 'package:smgo/shared/data/data_sources/local/user_local_service.dart';
-import 'package:smgo/shared/data/data_sources/remote/user_api_service.dart';
+import 'package:smgo/shared/data/data_sources/user_api_service.dart';
 import 'package:smgo/shared/data/repository/user_repository_impl.dart';
 import 'package:smgo/shared/domain/repository/user_repository.dart';
 import 'package:smgo/shared/domain/usecases/get_profile_usecase.dart';
@@ -126,9 +125,6 @@ Future<void> initializeDependencies() async {
     () => LocationSearchApiService(di<Dio>()),
   );
   di.registerLazySingleton<UserApiService>(() => UserApiService(di<Dio>()));
-  di.registerLazySingleton<UserLocalService>(
-    () => UserLocalService(tokenRepository: di<TokenRepository>()),
-  );
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -167,7 +163,6 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(
       userApiService: di<UserApiService>(),
-      userLocalService: di<UserLocalService>(),
     ),
   );
 

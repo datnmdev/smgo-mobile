@@ -3,6 +3,7 @@ class UserEntity {
   final String name;
   final String provider;
   final String uuid;
+  final String? avatarUrl;
   final DateTime createdAt;
 
   UserEntity({
@@ -10,6 +11,7 @@ class UserEntity {
     required this.name,
     required this.provider,
     required this.uuid,
+    this.avatarUrl,
     required this.createdAt,
   });
 }

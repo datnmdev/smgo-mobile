@@ -1,42 +1,26 @@
 import 'package:smgo/core/resources/data_state.dart';
-import 'package:smgo/shared/data/data_sources/local/user_local_service.dart';
-import 'package:smgo/shared/data/data_sources/remote/user_api_service.dart';
+import 'package:smgo/shared/data/data_sources/user_api_service.dart';
 import 'package:smgo/shared/domain/entities/user_entity.dart';
 import 'package:smgo/shared/domain/repository/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserApiService userApiService;
-  final UserLocalService userLocalService;
 
-  UserRepositoryImpl({
-    required this.userApiService,
-    required this.userLocalService,
-  });
+  UserRepositoryImpl({required this.userApiService});
 
   @override
   Future<DataState<UserEntity>> getProfile() async {
     try {
-      final userModel = await userLocalService.getProfile();
-      if (userModel != null) {
-        return DataSuccess(
-          UserEntity(
-            id: userModel.id,
-            name: userModel.name,
-            provider: userModel.provider,
-            uuid: userModel.uuid,
-            createdAt: userModel.createdAt,
-          ),
-        );
-      }
-      final dataState = await userApiService.getProfile();
-      await userLocalService.saveProfile(userModel: dataState.data.data!);
+      final httpRespose = await userApiService.getProfile();
+      final userModel = httpRespose.data.data!;
       return DataSuccess(
         UserEntity(
-          id: dataState.data.data!.id,
-          name: dataState.data.data!.name,
-          provider: dataState.data.data!.provider,
-          uuid: dataState.data.data!.uuid,
-          createdAt: dataState.data.data!.createdAt,
+          id: userModel.id,
+          name: userModel.name,
+          provider: userModel.provider,
+          uuid: userModel.uuid,
+          avatarUrl: userModel.avatarUrl,
+          createdAt: userModel.createdAt,
         ),
       );
     } catch (e) {
