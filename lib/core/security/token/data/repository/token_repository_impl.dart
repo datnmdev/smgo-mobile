@@ -1,3 +1,4 @@
+import 'package:smgo/core/resources/data_state.dart';
 import 'package:smgo/core/security/token/data/data_sources/token_data_source.dart';
 import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
 
@@ -34,10 +35,15 @@ class TokenRepositoryImpl implements TokenRepository {
   }
 
   @override
-  Future<void> clearToken() async {
-    _accessToken = null;
-    _refreshToken = null;
-    await _tokenDataSource.delete(key: _accessTokenKey);
-    await _tokenDataSource.delete(key: _refreshTokenKey);
+  Future<DataState<dynamic>> clearToken() async {
+    try {
+      _accessToken = null;
+      _refreshToken = null;
+      await _tokenDataSource.delete(key: _accessTokenKey);
+      await _tokenDataSource.delete(key: _refreshTokenKey);
+      return DataSuccess(null);
+    } catch (e) {
+      return DataFailed(e);
+    }
   }
 }

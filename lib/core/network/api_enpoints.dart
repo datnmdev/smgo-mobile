@@ -17,6 +17,7 @@ abstract class ApiEndpoints {
   static const String signInWithGoogle = '$authBaseUrl/oauth/google';
   static const String signInWithFacebook = '$authBaseUrl/oauth/facebook';
   static const String refreshToken = '$authBaseUrl/refresh';
+  static const String signout = '$authBaseUrl/sign-out';
 
   // User
   static const String getProfile = '$userBaseUrl/profile';

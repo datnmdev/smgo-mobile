@@ -7,6 +7,7 @@ import 'package:smgo/core/network/dio_client.dart';
 import 'package:smgo/core/security/token/data/data_sources/token_data_source.dart';
 import 'package:smgo/core/security/token/data/repository/token_repository_impl.dart';
 import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
+import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/features/auth/data/data_sources/auth_api_service.dart';
 import 'package:smgo/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:smgo/features/auth/domain/repository/auth_repository.dart';
@@ -42,6 +43,10 @@ import 'package:smgo/features/delivery_route/presentation/bloc/create_delivery_r
 import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
+import 'package:smgo/shared/data/data_sources/session_api_service.dart';
+import 'package:smgo/shared/data/repository/session_repository_impl.dart';
+import 'package:smgo/shared/domain/repository/session_repository.dart';
+import 'package:smgo/shared/domain/usecases/signout_usecase.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
@@ -90,6 +95,7 @@ import 'package:smgo/shared/data/repository/user_repository_impl.dart';
 import 'package:smgo/shared/domain/repository/user_repository.dart';
 import 'package:smgo/shared/domain/usecases/get_profile_usecase.dart';
 import 'package:smgo/shared/presentation/bloc/selection/selection_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/signout/signout_cubit.dart';
 
 final di = GetIt.instance;
 
@@ -125,6 +131,9 @@ Future<void> initializeDependencies() async {
     () => LocationSearchApiService(di<Dio>()),
   );
   di.registerLazySingleton<UserApiService>(() => UserApiService(di<Dio>()));
+  di.registerLazySingleton<SessionApiService>(
+    () => SessionApiService(di<Dio>()),
+  );
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -161,9 +170,10 @@ Future<void> initializeDependencies() async {
     ),
   );
   di.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(
-      userApiService: di<UserApiService>(),
-    ),
+    () => UserRepositoryImpl(userApiService: di<UserApiService>()),
+  );
+  di.registerLazySingleton<SessionRepository>(
+    () => SessionRepositoryImpl(sessionApiService: di<SessionApiService>()),
   );
 
   // Đăng ký các usecase
@@ -280,6 +290,12 @@ Future<void> initializeDependencies() async {
     () => GetDeliveryOrdersUsecase(
       deliveryRouteRepository: di<DeliveryRouteRepository>(),
     ),
+  );
+  di.registerLazySingleton<SignoutUsecase>(
+    () => SignoutUsecase(sessionRepository: di<SessionRepository>()),
+  );
+  di.registerLazySingleton<ClearTokenUsecase>(
+    () => ClearTokenUsecase(tokenRepository: di<TokenRepository>()),
   );
 
   // Đăng ký các bloc
@@ -435,5 +451,8 @@ Future<void> initializeDependencies() async {
     () => SearchDeliveryOrdersCubit(
       getDeliveryOrdersUsecase: di<GetDeliveryOrdersUsecase>(),
     ),
+  );
+  di.registerFactory<SignoutCubit>(
+    () => SignoutCubit(signoutUsecase: di<SignoutUsecase>()),
   );
 }

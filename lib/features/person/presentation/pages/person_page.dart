@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/usecase.dart';
+import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/shared/domain/entities/user_entity.dart';
+import 'package:smgo/shared/presentation/bloc/signout/signout_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/signout/signout_state.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_button.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_loading_screen.dart';
+import 'package:smgo/shared/utils/app_dialog_utils.dart';
+
+enum MenuItem { plan, language, group, guide, signout }
 
 class PersonPage extends StatelessWidget {
   const PersonPage({Key? key}) : super(key: key);
@@ -21,56 +32,93 @@ class PersonPage extends StatelessWidget {
         BlocProvider<GetProfileCubit>(
           create: (context) => di<GetProfileCubit>()..call(),
         ),
+        BlocProvider<SignoutCubit>(create: (context) => di<SignoutCubit>()),
       ],
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
-        builder: (context, state) => Scaffold(
-          backgroundColor: const Color(0xFFF8FAF8),
-          appBar: AppBar(
-            backgroundColor: primaryColor,
-            elevation: 0,
-            centerTitle: true,
-            title: const Text(
-              'Cá nhân',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+        builder: (context, state) => Stack(
+          children: [
+            Scaffold(
+              backgroundColor: const Color(0xFFF8FAF8),
+              appBar: AppBar(
+                backgroundColor: primaryColor,
+                elevation: 0,
+                centerTitle: true,
+                title: const Text(
+                  'Cá nhân',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-          ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              await context.read<GetProfileCubit>().call();
-            },
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Skeletonizer(
-                enabled: state is GetProfileLoading,
-                child: Column(
-                  children: [
-                    // Thẻ Thông tin cá nhân
-                    _buildProfileCard(
-                      primaryColor: primaryColor,
-                      profile: state.profile,
-                      context: context,
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<GetProfileCubit>().call();
+                },
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Skeletonizer(
+                    enabled: state is GetProfileLoading,
+                    child: Column(
+                      children: [
+                        // Thẻ Thông tin cá nhân
+                        _buildProfileCard(
+                          primaryColor: primaryColor,
+                          profile: state.profile,
+                          context: context,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Thẻ Gói hiện tại
+                        _buildSubscriptionCard(primaryColor),
+                        const SizedBox(height: 16),
+
+                        // Danh sách Menu
+                        _buildMenuList(
+                          primaryColor: primaryColor,
+                          context: context,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-
-                    // Thẻ Gói hiện tại
-                    _buildSubscriptionCard(primaryColor),
-                    const SizedBox(height: 16),
-
-                    // Danh sách Menu
-                    _buildMenuList(primaryColor),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+
+            // Loadings
+            BlocConsumer<SignoutCubit, SignoutState>(
+              listener: (context, state) async {
+                if (state is SignoutDone) {
+                  await di<ClearTokenUsecase>().call(params: NoParams());
+                  if (!context.mounted) {
+                    return;
+                  }
+                  context.goNamed(AppRouteNames.onboarding);
+                } else if (state is SignoutFailed) {
+                  AppDialogUtils.showError(
+                    context: context,
+                    title: 'Đăng xuất thất bại!',
+                    subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                  );
+                }
+              },
+              builder: (context, state) => SmgoLoadingScreen(
+                isLoading: state is SignoutLoading,
+                title: 'Đang đăng xuất...',
+                subtitle: 'Vui lòng chờ',
+                icon: Icon(
+                  Icons.logout_outlined,
+                  color: AppColors.primary,
+                  size: 12,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -155,6 +203,7 @@ class PersonPage extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   profile?.name ?? '',
@@ -164,10 +213,10 @@ class PersonPage extends StatelessWidget {
                     color: Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
@@ -181,7 +230,7 @@ class PersonPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     IconButton(
-                      constraints: const BoxConstraints(),
+                      // constraints: const BoxConstraints(),
                       padding: EdgeInsets.all(8),
                       onPressed: () async {
                         final uuid = profile?.uuid;
@@ -379,15 +428,20 @@ class PersonPage extends StatelessWidget {
   }
 
   // Widget: Danh sách Menu bên dưới
-  Widget _buildMenuList(Color primaryColor) {
+  Widget _buildMenuList({
+    required Color primaryColor,
+    required BuildContext context,
+  }) {
     final List<Map<String, dynamic>> menuItems = [
       {
+        'name': MenuItem.plan,
         'icon': Icons.shopping_bag_outlined,
         'title': 'Mua gói',
         'color': const Color(0xFFFEF3C7),
         'iconColor': Colors.orange,
       },
       {
+        'name': MenuItem.language,
         'icon': Icons.language,
         'title': 'Ngôn ngữ',
         'trailingText': 'Tiếng Việt',
@@ -395,24 +449,21 @@ class PersonPage extends StatelessWidget {
         'iconColor': primaryColor,
       },
       {
-        'icon': Icons.headset_mic_outlined,
-        'title': 'Hỗ trợ',
+        'name': MenuItem.group,
+        'icon': Icons.groups_outlined,
+        'title': 'Tham gia cộng đồng SmGo',
         'color': const Color(0xFFE0F2FE),
         'iconColor': Colors.blue,
       },
       {
+        'name': MenuItem.guide,
         'icon': Icons.menu_book_outlined,
         'title': 'Hướng dẫn sử dụng',
         'color': const Color(0xFFE0E7FF),
         'iconColor': Colors.indigo,
       },
       {
-        'icon': Icons.chat_bubble_outline,
-        'title': 'Góp ý',
-        'color': const Color(0xFFF3E8FF),
-        'iconColor': Colors.purple,
-      },
-      {
+        'name': MenuItem.signout,
         'icon': Icons.logout,
         'title': 'Đăng xuất',
         'color': const Color(0xFFFEE2E2),
@@ -473,7 +524,47 @@ class PersonPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                onTap: () {},
+                onTap: () {
+                  switch (item['name']) {
+                    case MenuItem.plan:
+                      break;
+                    case MenuItem.language:
+                      break;
+                    case MenuItem.group:
+                      break;
+                    case MenuItem.guide:
+                      break;
+                    case MenuItem.signout:
+                      AppDialogUtils.showCustomDialog(
+                        context: context,
+                        title: 'Bạn có chắc chắn muốn đăng xuất tài khoản?',
+                        iconData: Icons.logout,
+                        actions: [
+                          SmgoButton(
+                            isOutlined: true,
+                            text: 'Huỷ',
+                            primaryColor: AppColors.primary,
+                            onPressed: () {
+                              context.pop();
+                            },
+                          ),
+                          SmgoButton(
+                            primaryColor: AppColors.primary,
+                            text: 'Xác nhận',
+                            onPressed: () {
+                              context.read<SignoutCubit>().call();
+                              context.pop();
+                            },
+                          ),
+                        ],
+                      );
+                      break;
+                    default:
+                      throw Exception(
+                        'Menu item name does not match any value.',
+                      );
+                  }
+                },
               ),
               if (!isLast)
                 const Divider(
