@@ -8,9 +8,6 @@ import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/dependency_injection.dart';
-import 'package:smgo/features/auth/presentation/bloc/session/session_bloc.dart';
-import 'package:smgo/features/auth/presentation/bloc/session/session_event.dart';
-import 'package:smgo/features/auth/presentation/bloc/session/session_state.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
@@ -33,12 +30,7 @@ class SignInPage extends StatelessWidget {
           ),
         ),
         child: MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (context) => di<SignInBloc>()),
-            BlocProvider(
-              create: (context) => di<SessionBloc>()..add(const CheckSession()),
-            ),
-          ],
+          providers: [BlocProvider(create: (context) => di<SignInBloc>())],
           child: _MainContent(),
         ),
       ),
@@ -73,32 +65,22 @@ class _HeaderSection extends StatelessWidget {
     return Column(
       children: [
         Image.asset(AppAssets.logo, width: 128, height: 128, fit: BoxFit.cover),
-        Text(
-          AppStrings.appName,
-          style: TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 3.0,
-            shadows: [
-              Shadow(color: Colors.white.withAlpha(200), blurRadius: 10.0),
-              const Shadow(color: Color(0xFFC8FFEC), blurRadius: 15.0),
-            ],
-          ),
-        ),
+        SizedBox(height: 8),
+        Image.asset(AppAssets.logoText, width: 128),
+        SizedBox(height: 8),
         Text(
           AppStrings.slogan.tr(),
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Color(0xFFEEFBF5),
+            color: AppColors.primary,
             letterSpacing: 0.3,
             shadows: [
               Shadow(
                 color: Colors.black26,
-                offset: Offset(0, 1.5),
-                blurRadius: 3.0,
+                offset: Offset(0, 0),
+                blurRadius: 1.0,
               ),
             ],
           ),
@@ -115,25 +97,10 @@ class _SocialLoginSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<SessionBloc, SessionState>(
-          listener: (context, state) {
-            if (state is Authenticated) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  context.goNamed(AppRouteNames.explore);
-                }
-              });
-            }
-          },
-        ),
         BlocListener<SignInBloc, SignInState>(
           listener: (context, state) {
             if (state is SignInDone) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  context.goNamed(AppRouteNames.explore);
-                }
-              });
+              context.goNamed(AppRouteNames.home);
             } else if (state is SignInError) {
               String message = "";
               if (state.error is DioException) {
@@ -161,14 +128,7 @@ class _SocialLoginBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionState = context.watch<SessionBloc>().state;
     final signInState = context.watch<SignInBloc>().state;
-
-    if (sessionState is CheckSessionLoading) {
-      return _ProgressSection(
-        message: AppStrings.checkAuthenticationLoading.tr(),
-      );
-    }
 
     if (signInState is SignInLoading) {
       return _ProgressSection(message: AppStrings.signInLoading.tr());
@@ -187,20 +147,20 @@ class _ProgressSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircularProgressIndicator(color: Colors.white),
+        CircularProgressIndicator(color: AppColors.primary),
         SizedBox(height: 20),
         if (message != null && message!.isNotEmpty)
           Text(
             message!,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+              color: AppColors.primary,
+              fontSize: 14,
               shadows: [
                 Shadow(
                   color: Colors.black,
                   offset: Offset(0, 0),
-                  blurRadius: 10.0,
+                  blurRadius: 2.0,
                 ),
               ],
             ),

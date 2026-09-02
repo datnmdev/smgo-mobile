@@ -3,7 +3,7 @@ abstract class AppRouteNames {
 
   static final splash = 'splash';
   static final signIn = 'sign-in';
-  static final explore = 'explore';
+  static final home = 'home';
   static final location = 'location';
   static final addLocation = 'add-location';
   static final person = 'person';
@@ -19,4 +19,5 @@ abstract class AppRouteNames {
   static final deliveryOrderDetail = 'delivery-order-detail';
   static final updateDeliveryOrder = 'update-delivery-order';
   static final searchDeliveryOrder = 'search-delivery-order';
+  static final onboarding = 'onboarding';
 }

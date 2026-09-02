@@ -26,7 +26,7 @@ abstract class AppStrings {
   static const String maintenanceAppMessage = 'maintenance_app.message';
   static const String checkAuthenticationLoading =
       'check_authentication.loading';
-  static const String exploreTabLabel = 'explore.tab_label';
+  static const String homeTabLabel = 'home.tab_label';
   static const String locationTabLabel = 'location.tab_label';
   static const String routeTabLabel = 'route.tab_label';
   static const String personTabLabel = 'person.tab_label';

@@ -42,19 +42,19 @@ class AppNavigationBar extends StatelessWidget {
         ),
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.map_outlined),
-            activeIcon: Icon(Icons.map),
-            label: AppStrings.exploreTabLabel.tr(),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: AppStrings.homeTabLabel.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_outlined),
+            activeIcon: Icon(Icons.directions),
+            label: AppStrings.routeTabLabel.tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border),
             activeIcon: Icon(Icons.bookmark),
             label: AppStrings.locationTabLabel.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alt_route),
-            activeIcon: Icon(Icons.map),
-            label: AppStrings.routeTabLabel.tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

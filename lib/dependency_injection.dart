@@ -13,7 +13,7 @@ import 'package:smgo/features/auth/domain/repository/auth_repository.dart';
 import 'package:smgo/features/auth/domain/usecases/check_authentication_usecase.dart';
 import 'package:smgo/features/auth/domain/usecases/sign_in_with_facebook_usecase.dart';
 import 'package:smgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
-import 'package:smgo/features/auth/presentation/bloc/session/session_bloc.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_session/check_session_cubit.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:smgo/features/delivery_route/data/data_sources/ai_api_service.dart';
 import 'package:smgo/features/delivery_route/data/data_sources/location_search_api_service.dart';
@@ -299,8 +299,8 @@ Future<void> initializeDependencies() async {
       checkAppVersionUsecase: di<CheckAppVersionUsecase>(),
     ),
   );
-  di.registerFactory<SessionBloc>(
-    () => SessionBloc(
+  di.registerFactory<CheckSessionCubit>(
+    () => CheckSessionCubit(
       checkAuthenticationUsecase: di<CheckAuthenticationUsecase>(),
     ),
   );

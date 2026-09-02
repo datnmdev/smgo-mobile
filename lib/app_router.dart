@@ -6,12 +6,13 @@ import 'package:smgo/features/delivery_route/presentation/pages/delivery_order_d
 import 'package:smgo/features/delivery_route/presentation/pages/delivery_route_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/search_delivery_order_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/update_delivery_order_page.dart';
-import 'package:smgo/features/explore/presentation/pages/explore_page.dart';
+import 'package:smgo/features/home/presentation/pages/home_page.dart';
 import 'package:smgo/features/location/presentation/pages/add_location_page.dart';
 import 'package:smgo/features/location/presentation/pages/location_detail_page.dart';
 import 'package:smgo/features/location/presentation/pages/location_page.dart';
 import 'package:smgo/features/location/presentation/pages/update_location_page.dart';
 import 'package:smgo/features/main/presentation/pages/main_page.dart';
+import 'package:smgo/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:smgo/features/person/presentation/pages/person_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/add_delivery_route_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/delivery_order_page.dart';
@@ -28,6 +29,11 @@ final appRouter = GoRouter(
       builder: (context, state) => SplashPage(),
     ),
     GoRoute(
+      name: AppRouteNames.onboarding,
+      path: '/onboarding',
+      builder: (context, state) => OnboardingPage(),
+    ),
+    GoRoute(
       name: AppRouteNames.signIn,
       path: '/login',
       builder: (context, state) => SignInPage(),
@@ -40,38 +46,13 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              name: AppRouteNames.explore,
-              path: '/explore',
-              builder: (context, state) => const ExplorePage(),
+              name: AppRouteNames.home,
+              path: '/home',
+              builder: (context, state) => const HomePage(),
             ),
           ],
         ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              name: AppRouteNames.location,
-              path: '/location',
-              builder: (context, state) => const LocationPage(),
-              routes: [
-                GoRoute(
-                  name: AppRouteNames.addLocation,
-                  path: '/add',
-                  builder: (context, state) => const AddLocationPage(),
-                ),
-                GoRoute(
-                  name: AppRouteNames.locationDetail,
-                  path: '/:id/detail-info',
-                  builder: (context, state) => LocationDetailPage(),
-                ),
-                GoRoute(
-                  name: AppRouteNames.updateLocation,
-                  path: '/:id/update',
-                  builder: (context, state) => const UpdateLocationPage(),
-                ),
-              ],
-            ),
-          ],
-        ),
+
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -125,6 +106,34 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              name: AppRouteNames.location,
+              path: '/location',
+              builder: (context, state) => const LocationPage(),
+              routes: [
+                GoRoute(
+                  name: AppRouteNames.addLocation,
+                  path: '/add',
+                  builder: (context, state) => const AddLocationPage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.locationDetail,
+                  path: '/:id/detail-info',
+                  builder: (context, state) => LocationDetailPage(),
+                ),
+                GoRoute(
+                  name: AppRouteNames.updateLocation,
+                  path: '/:id/update',
+                  builder: (context, state) => const UpdateLocationPage(),
+                ),
+              ],
+            ),
+          ],
+        ),
+
         StatefulShellBranch(
           routes: [
             GoRoute(

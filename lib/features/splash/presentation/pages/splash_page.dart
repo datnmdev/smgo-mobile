@@ -8,6 +8,8 @@ import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/core/utils/app_update_util.dart';
 import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_session/check_session_cubit.dart';
+import 'package:smgo/features/splash/presentation/bloc/check_session/check_session_state.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
@@ -17,20 +19,27 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.green,
-          image: DecorationImage(
-            image: AssetImage(AppAssets.bgSplash),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: BlocProvider(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
           create: (context) =>
               di<CheckAppVersionBloc>()..add(CheckAppVersion()),
+        ),
+        BlocProvider<CheckSessionCubit>(
+          create: (context) => di<CheckSessionCubit>(),
+        ),
+      ],
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            image: DecorationImage(
+              image: AssetImage(AppAssets.bgSplash),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: _MainContent(),
         ),
       ),
@@ -43,69 +52,81 @@ class _MainContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CheckAppVersionBloc, CheckAppVersionState>(
+    return BlocListener<CheckSessionCubit, CheckSessionState>(
       listener: (context, state) {
-        if (state is CheckAppVersionMaintenance) {
-          showDialog(
-            context: context,
-            useRootNavigator: true,
-            barrierDismissible: false,
-            barrierColor: Colors.black.withAlpha(70),
-            builder: (context) => _MaintenanceDialog(
-              description: state.messageMap?['message'],
-              estimatedTime: state.messageMap?['estimated_time'],
-            ),
-          );
-        } else if (state is CheckAppVersionUpdateRequired) {
-          late OverlayEntry overlayEntry;
-          overlayEntry = OverlayEntry(
-            builder: (dialogContext) => BlocProvider.value(
-              value: context.read<CheckAppVersionBloc>(),
-              child: Material(
-                color: Colors.transparent,
-                child: Stack(
-                  children: [
-                    ModalBarrier(
-                      color: Colors.black.withAlpha(70),
-                      dismissible: false,
-                    ),
-                    Center(
-                      child: _UpdateAppDialog(
-                        storeAppId: state.storeAppId ?? "",
-                        onDismiss: () {
-                          overlayEntry.remove();
-                        },
+        if (state is CheckSessionDone) {
+          if (state is Authenticated) {
+            context.replaceNamed(AppRouteNames.home);
+          } else {
+            context.replaceNamed(AppRouteNames.onboarding);
+          }
+        }
+      },
+      child: BlocListener<CheckAppVersionBloc, CheckAppVersionState>(
+        listener: (context, state) {
+          final checkSessionCubit = context.read<CheckSessionCubit>();
+          if (state is CheckAppVersionMaintenance) {
+            showDialog(
+              context: context,
+              useRootNavigator: true,
+              barrierDismissible: false,
+              barrierColor: Colors.black.withAlpha(70),
+              builder: (context) => _MaintenanceDialog(
+                description: state.messageMap?['message'],
+                estimatedTime: state.messageMap?['estimated_time'],
+              ),
+            );
+          } else if (state is CheckAppVersionUpdateRequired) {
+            late OverlayEntry overlayEntry;
+            overlayEntry = OverlayEntry(
+              builder: (dialogContext) => BlocProvider.value(
+                value: context.read<CheckAppVersionBloc>(),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: [
+                      ModalBarrier(
+                        color: Colors.black.withAlpha(70),
+                        dismissible: false,
                       ),
-                    ),
+                      Center(
+                        child: _UpdateAppDialog(
+                          storeAppId: state.storeAppId ?? "",
+                          onDismiss: () {
+                            overlayEntry.remove();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+            Overlay.of(context, rootOverlay: true).insert(overlayEntry);
+            if (!state.isForceUpdate) {
+              checkSessionCubit.call();
+            }
+          } else if (state is CheckAppVersionUpToDate) {
+            checkSessionCubit.call();
+          }
+        },
+        child: Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    _HeaderSection(),
+                    SizedBox(height: 24),
+                    _ProgressStateView(),
                   ],
                 ),
               ),
             ),
-          );
-          Overlay.of(context, rootOverlay: true).insert(overlayEntry);
-          if (!state.isForceUpdate) {
-            context.replaceNamed(AppRouteNames.signIn);
-          }
-        } else if (state is CheckAppVersionUpToDate) {
-          context.replaceNamed(AppRouteNames.signIn);
-        }
-      },
-      child: Stack(
-        children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  _HeaderSection(),
-                  SizedBox(height: 16),
-                  _ProgressStateView(),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -396,19 +417,8 @@ class _HeaderSection extends StatelessWidget {
     return Column(
       children: [
         Image.asset(AppAssets.logo, width: 128, height: 128, fit: BoxFit.cover),
-        Text(
-          AppStrings.appName,
-          style: TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 3.0,
-            shadows: [
-              Shadow(color: Colors.white.withAlpha(200), blurRadius: 10.0),
-              const Shadow(color: Color(0xFFC8FFEC), blurRadius: 15.0),
-            ],
-          ),
-        ),
+        SizedBox(height: 8),
+        Image.asset(AppAssets.logoText, width: 128),
       ],
     );
   }
@@ -421,29 +431,34 @@ class _ProgressStateView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircularProgressIndicator(color: Colors.white),
+        CircularProgressIndicator(color: AppColors.primary),
         SizedBox(height: 20),
         BlocBuilder<CheckAppVersionBloc, CheckAppVersionState>(
           builder: (context, state) {
-            String message = AppStrings.checkAppVersionInitial.tr();
+            final checkSessionCubit = context.watch<CheckSessionCubit>();
+
+            String message = '';
             if (state is CheckAppVersionLoading) {
               message = AppStrings.checkAppVersionLoading.tr();
             } else if (state is CheckAppVersionFailed) {
               message = AppStrings.checkAppVersionFailed.tr();
-            } else if (state is CheckAppVersionDone) {
+            } else if (checkSessionCubit.state is CheckSessionLoading) {
+              message = AppStrings.checkAuthenticationLoading.tr();
+            } else {
               return SizedBox.shrink();
             }
+
             return Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.primary,
                 fontSize: 16,
                 shadows: [
                   Shadow(
                     color: Colors.black,
                     offset: Offset(0, 0),
-                    blurRadius: 10.0,
+                    blurRadius: 1.0,
                   ),
                 ],
               ),

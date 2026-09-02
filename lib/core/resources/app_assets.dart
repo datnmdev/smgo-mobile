@@ -8,9 +8,13 @@ abstract class AppAssets {
 
   // --- Images ---
   static const String logo = '$_imagesPath/logo.png';
+  static const String logoText = '$_imagesPath/logo_text.png';
   static const String bgSplash = '$_imagesPath/bg_splash.png';
   static const String locationEmpty =
       '$_imagesPath/map_location_empty_state.png';
+  static const String carousel1 = '$_imagesPath/carousel_1.png';
+  static const String carousel2 = '$_imagesPath/carousel_2.png';
+  static const String carousel3 = '$_imagesPath/carousel_3.png';
 
   // --- Icons ---
   static const String icGoogle = '$_iconsPath/google.png';

@@ -1,6 +1,6 @@
 {
   "app_title": "SmGo",
-  "slogan": "Tối ưu lộ trình & tiết kiệm chi phí",
+  "slogan": "Giao nhanh - Nhẹ việc",
   "sign_in_with_google": "Đăng nhập bằng google",
   "sign_in_with_facebook": "Đăng nhập bằng facebook",
   "sign_in": {
@@ -31,8 +31,8 @@
   "check_authentication": {
     "loading": "Đang xác thực người dùng..."
   },
-  "explore": {
-    "tab_label": "Khám phá"
+  "home": {
+    "tab_label": "Trang chủ"
   },
   "location": {
     "tab_label": "Đã lưu"
