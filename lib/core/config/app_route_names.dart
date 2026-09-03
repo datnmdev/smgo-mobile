@@ -20,4 +20,5 @@ abstract class AppRouteNames {
   static final updateDeliveryOrder = 'update-delivery-order';
   static final searchDeliveryOrder = 'search-delivery-order';
   static final onboarding = 'onboarding';
+  static final subscription = 'subscription';
 }

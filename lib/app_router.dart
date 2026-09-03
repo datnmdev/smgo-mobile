@@ -13,6 +13,7 @@ import 'package:smgo/features/location/presentation/pages/location_page.dart';
 import 'package:smgo/features/location/presentation/pages/update_location_page.dart';
 import 'package:smgo/features/main/presentation/pages/main_page.dart';
 import 'package:smgo/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:smgo/features/payment/presentation/pages/subscription_page.dart';
 import 'package:smgo/features/person/presentation/pages/person_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/add_delivery_route_page.dart';
 import 'package:smgo/features/delivery_route/presentation/pages/delivery_order_page.dart';
@@ -144,6 +145,11 @@ final appRouter = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      name: AppRouteNames.subscription,
+      path: '/subscription',
+      builder: (context, state) => SubscriptionPage(),
     ),
   ],
 );

@@ -436,7 +436,7 @@ class PersonPage extends StatelessWidget {
       {
         'name': MenuItem.plan,
         'icon': Icons.shopping_bag_outlined,
-        'title': 'Mua gói',
+        'title': 'Đăng ký gói',
         'color': const Color(0xFFFEF3C7),
         'iconColor': Colors.orange,
       },
@@ -527,6 +527,7 @@ class PersonPage extends StatelessWidget {
                 onTap: () {
                   switch (item['name']) {
                     case MenuItem.plan:
+                      context.pushNamed(AppRouteNames.subscription);
                       break;
                     case MenuItem.language:
                       break;
