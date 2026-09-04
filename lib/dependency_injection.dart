@@ -44,9 +44,15 @@ import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_o
 import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:smgo/shared/data/data_sources/session_api_service.dart';
+import 'package:smgo/shared/data/data_sources/subscription_api_service.dart';
 import 'package:smgo/shared/data/repository/session_repository_impl.dart';
+import 'package:smgo/shared/data/repository/subscription_repository_impl.dart';
 import 'package:smgo/shared/domain/repository/session_repository.dart';
+import 'package:smgo/shared/domain/repository/subscription_repository.dart';
+import 'package:smgo/shared/domain/usecases/get_current_subscription_usecase.dart';
 import 'package:smgo/shared/domain/usecases/signout_usecase.dart';
+import 'package:smgo/shared/domain/usecases/verify_subscription_usecase.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
@@ -96,6 +102,7 @@ import 'package:smgo/shared/domain/repository/user_repository.dart';
 import 'package:smgo/shared/domain/usecases/get_profile_usecase.dart';
 import 'package:smgo/shared/presentation/bloc/selection/selection_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/signout/signout_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
 
 final di = GetIt.instance;
 
@@ -133,6 +140,9 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<UserApiService>(() => UserApiService(di<Dio>()));
   di.registerLazySingleton<SessionApiService>(
     () => SessionApiService(di<Dio>()),
+  );
+  di.registerLazySingleton<SubscriptionApiService>(
+    () => SubscriptionApiService(di<Dio>()),
   );
 
   // Đăng ký các repository
@@ -174,6 +184,11 @@ Future<void> initializeDependencies() async {
   );
   di.registerLazySingleton<SessionRepository>(
     () => SessionRepositoryImpl(sessionApiService: di<SessionApiService>()),
+  );
+  di.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionRepositoryImpl(
+      subscriptionApiService: di<SubscriptionApiService>(),
+    ),
   );
 
   // Đăng ký các usecase
@@ -296,6 +311,16 @@ Future<void> initializeDependencies() async {
   );
   di.registerLazySingleton<ClearTokenUsecase>(
     () => ClearTokenUsecase(tokenRepository: di<TokenRepository>()),
+  );
+  di.registerLazySingleton<VerifySubscriptionUsecase>(
+    () => VerifySubscriptionUsecase(
+      subscriptionRepository: di<SubscriptionRepository>(),
+    ),
+  );
+  di.registerLazySingleton<GetCurrentSubscriptionUsecase>(
+    () => GetCurrentSubscriptionUsecase(
+      subscriptionRepository: di<SubscriptionRepository>(),
+    ),
   );
 
   // Đăng ký các bloc
@@ -454,5 +479,15 @@ Future<void> initializeDependencies() async {
   );
   di.registerFactory<SignoutCubit>(
     () => SignoutCubit(signoutUsecase: di<SignoutUsecase>()),
+  );
+  di.registerLazySingleton<SubscriptionPurchaseCubit>(
+    () => SubscriptionPurchaseCubit(
+      verifySubscriptionUsecase: di<VerifySubscriptionUsecase>(),
+    ),
+  );
+  di.registerLazySingleton<GetCurrentPlanCubit>(
+    () => GetCurrentPlanCubit(
+      getCurrentSubscriptionUsecase: di<GetCurrentSubscriptionUsecase>(),
+    ),
   );
 }

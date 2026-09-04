@@ -12,6 +12,7 @@ abstract class ApiEndpoints {
       '/delivery-route/{deliveryRouteId}/delivery-order';
   static const aiBaseUrl = '/ai';
   static const locationBaseUrl = '/location';
+  static const subscriptionBaseUrl = '/subscription';
 
   // Authentication
   static const String signInWithGoogle = '$authBaseUrl/oauth/google';
@@ -56,6 +57,10 @@ abstract class ApiEndpoints {
   static const String sortDeliveryOrders = '$deliveryOrderBaseUrl/m/sort';
   static const String confirmSortedDeliveryOrders =
       '$deliveryOrderBaseUrl/m/confirm-sorted';
+
+  // Subscription
+  static const String getCurrentSubscription = '$subscriptionBaseUrl/current';
+  static const String verify = '$subscriptionBaseUrl/verify';
 
   // Ai
   static const String extractOrderInfo = '$aiBaseUrl/extract/order-info';

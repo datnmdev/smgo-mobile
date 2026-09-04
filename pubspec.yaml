@@ -69,6 +69,8 @@ dependencies:
   mobile_scanner: ^7.4.0
   just_audio: ^0.10.6
   flutter_launcher_icons: ^0.14.4
+  in_app_purchase: ^3.3.0
+  flutter_widget_from_html: ^0.17.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
