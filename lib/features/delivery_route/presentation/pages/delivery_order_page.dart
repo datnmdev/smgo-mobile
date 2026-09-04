@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -492,6 +493,31 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                       },
                     );
                   } else if (state is CreateDeliveryRouteWithOrdersFailed) {
+                    if (state.error is DioException &&
+                        (state.error as DioException)
+                                .response
+                                ?.data?['error']?['code'] ==
+                            'ORDER_LIMIT_EXCEEDED') {
+                      AppDialogUtils.showCustomDialog(
+                        context: context,
+                        title: 'Nâng cấp gói sử dụng',
+                        subtitle:
+                            'Số lượng đơn hàng vượt quá giới hạn của gói hiện tại. Vui lòng nâng cấp lên gói cao hơn để tiếp tục.',
+                        iconData: Icons.rocket_launch_outlined,
+                        actions: [
+                          SmgoButton(
+                            onPressed: () {
+                              context.pushNamed(AppRouteNames.subscription);
+                              context.pop();
+                            },
+                            text: 'Nâng cấp ngay',
+                            textColor: Colors.white,
+                            primaryColor: AppColors.primary,
+                          ),
+                        ],
+                      );
+                      return;
+                    }
                     AppDialogUtils.showError(
                       context: context,
                       title: 'Tạo lộ trình thất bại!',

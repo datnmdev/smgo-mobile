@@ -16,7 +16,7 @@ class GetCurrentPlanCubit extends Cubit<GetCurrentPlanState> {
       params: NoParams(),
     );
     if (dataState is DataSuccess) {
-      emit(GetCurrentPlanDone(subscription: dataState.data!));
+      emit(GetCurrentPlanDone(subscription: dataState.data));
     } else if (dataState is DataFailed) {
       emit(GetCurrentPlanFailed(error: dataState.error!));
     }

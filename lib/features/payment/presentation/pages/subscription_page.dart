@@ -7,6 +7,7 @@ import 'package:smgo/core/exceptions/app_exception.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/payment/presentation/widgets/subscription_error.dart';
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
+import 'package:smgo/shared/helpers/plan_ui_helper.dart';
 import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_state.dart';
 import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
@@ -82,43 +83,6 @@ extension ProductIdX on ProductId {
         ''';
     }
   }
-
-  IconData get icon {
-    switch (this) {
-      case ProductId.basic:
-        return Icons.send_rounded;
-      case ProductId.standard:
-        return Icons.star_rounded;
-      case ProductId.plus:
-        return Icons.verified_user_rounded;
-      case ProductId.premium:
-        return Icons.diamond_rounded;
-    }
-  }
-
-  Color get iconBgColor {
-    switch (this) {
-      case ProductId.basic:
-        return const Color(0xFFE3F2FD);
-      case ProductId.premium:
-        return const Color(0xFFFFF3E0);
-      case ProductId.standard:
-      case ProductId.plus:
-        return const Color(0xFFE8F5E9);
-    }
-  }
-
-  Color get iconColor {
-    switch (this) {
-      case ProductId.basic:
-        return const Color(0xFF1E88E5);
-      case ProductId.premium:
-        return const Color(0xFFFFA000);
-      case ProductId.standard:
-      case ProductId.plus:
-        return const Color(0xFF00A651);
-    }
-  }
 }
 
 class SubscriptionPage extends StatefulWidget {
@@ -173,7 +137,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         listener: (context, state) {
           if (state is GetCurrentPlanDone && mounted) {
             setState(() {
-              activePlanId = state.subscription.productId;
+              activePlanId = state.subscription!.productId;
             });
           }
         },
@@ -248,7 +212,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                         ),
                         const SizedBox(height: 16),
                         ..._appPlans.map((productEnum) {
-                          final price = priceMap[productEnum.value] ?? '--';
+                          final price = priceMap[productEnum.value] ?? '---';
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: _buildPlanCard(
@@ -330,7 +294,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     required bool isActive,
     required BuildContext context,
   }) {
-    if (isActive) {
+    if (isActive && productEnum != ProductId.basic) {
       return OutlinedButton(
         onPressed: () {},
         style: OutlinedButton.styleFrom(
@@ -346,7 +310,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       );
     }
 
-    if (productEnum.level > _activePlanLevel) {
+    if (productEnum.level > _activePlanLevel &&
+        productEnum != ProductId.basic) {
       return OutlinedButton(
         onPressed: () {
           final subscriptionPurchaseCubit = _subscriptionPurchaseCubit;
@@ -382,18 +347,22 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       );
     }
 
-    return ElevatedButton(
-      onPressed: null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey.shade200,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: const Text(
-        'Hiện không khả dụng',
-        style: TextStyle(color: Colors.grey),
-      ),
-    );
+    if (productEnum != ProductId.basic) {
+      return ElevatedButton(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey.shade200,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: const Text(
+          'Hiện không khả dụng',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return SizedBox.shrink();
   }
 
   Widget _buildPlanCard({
@@ -431,12 +400,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: productEnum.iconBgColor,
+                      color: PlanUiHelper.getPlanIconBgColor(productEnum.value),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      productEnum.icon,
-                      color: productEnum.iconColor,
+                      PlanUiHelper.getPlanIcon(productEnum.value),
+                      color: PlanUiHelper.getPlanIconColor(productEnum.value),
                       size: 24,
                     ),
                   ),

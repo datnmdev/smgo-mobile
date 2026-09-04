@@ -1,7 +1,8 @@
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
 
 abstract class GetCurrentPlanState {
-  const GetCurrentPlanState();
+  final SubscriptionEntity? subscription;
+  const GetCurrentPlanState({this.subscription});
 }
 
 class GetCurrentPlanInitital extends GetCurrentPlanState {
@@ -13,9 +14,7 @@ class GetCurrentPlanLoading extends GetCurrentPlanState {
 }
 
 class GetCurrentPlanDone extends GetCurrentPlanState {
-  final SubscriptionEntity subscription;
-
-  const GetCurrentPlanDone({required this.subscription});
+  const GetCurrentPlanDone({super.subscription});
 }
 
 class GetCurrentPlanFailed extends GetCurrentPlanState {

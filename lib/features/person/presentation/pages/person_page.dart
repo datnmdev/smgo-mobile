@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,12 @@ import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
+import 'package:smgo/shared/helpers/plan_ui_helper.dart';
+import 'package:smgo/features/person/presentation/widgets/plan_detail_bottom_sheet.dart';
+import 'package:smgo/shared/domain/entities/subscription_entity.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_state.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/shared/domain/entities/user_entity.dart';
@@ -33,6 +40,9 @@ class PersonPage extends StatelessWidget {
           create: (context) => di<GetProfileCubit>()..call(),
         ),
         BlocProvider<SignoutCubit>(create: (context) => di<SignoutCubit>()),
+        BlocProvider<GetCurrentPlanCubit>(
+          create: (context) => di<GetCurrentPlanCubit>()..call(),
+        ),
       ],
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
         builder: (context, state) => Stack(
@@ -57,6 +67,7 @@ class PersonPage extends StatelessWidget {
                   await context.read<GetProfileCubit>().call();
                 },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
                     vertical: 8.0,
@@ -206,7 +217,7 @@ class PersonPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  profile?.name ?? '',
+                  profile?.name ?? '---',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -220,7 +231,7 @@ class PersonPage extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'ID: ${profile?.uuid ?? ''}',
+                        'ID: ${profile?.uuid ?? '---'}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -264,110 +275,142 @@ class PersonPage extends StatelessWidget {
 
   // Widget: Gói hiện tại
   Widget _buildSubscriptionCard(Color primaryColor) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.03 * 255).round()),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Gói hiện tại',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: primaryColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Khung thông tin gói Pro
-          Container(
-            padding: const EdgeInsets.all(12),
+    return BlocBuilder<GetCurrentPlanCubit, GetCurrentPlanState>(
+      builder: (context, state) {
+        if (state is GetCurrentPlanFailed) {
+          return SizedBox();
+        }
+        final currentPlan = state.subscription;
+        return Skeletonizer(
+          enabled: state is GetCurrentPlanLoading,
+          child: Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F9F4),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2F0E6)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha((0.03 * 255).round()),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+                Text(
+                  'Gói hiện tại',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: primaryColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.shield,
-                    color: Colors.white,
-                    size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 12),
+                // Khung thông tin gói Pro
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2F9F4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2F0E6)),
+                  ),
+                  child: Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Gói Pro',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: PlanUiHelper.getPlanIconBgColor(
+                            currentPlan?.productId,
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDCFCE7),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Đang hoạt động',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: primaryColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          PlanUiHelper.getPlanIcon(currentPlan?.productId),
+                          color: PlanUiHelper.getPlanIconColor(
+                            currentPlan?.productId,
                           ),
-                        ],
+                          size: 24,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Hiệu lực đến 20/09/2025',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 4),
-                      InkWell(
-                        onTap: () {},
-                        child: Row(
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  PlanUiHelper.getPlanName(
+                                    currentPlan?.productId,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDCFCE7),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    PlanUiHelper.getStatusName(
+                                      currentPlan?.status,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
                             Text(
-                              'Xem chi tiết',
+                              currentPlan != null
+                                  ? (currentPlan.productId ==
+                                            ProductId.basic.value
+                                        ? 'Không thời hạn'
+                                        : 'Hiệu lực đến ${DateFormat('dd/MM/yyyy').format(currentPlan.expiresAt!).toString()}')
+                                  : '---',
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: primaryColor,
+                                color: Colors.grey,
                               ),
                             ),
-                            Icon(
-                              Icons.chevron_right,
-                              size: 16,
-                              color: primaryColor,
+                            const SizedBox(height: 4),
+                            InkWell(
+                              onTap: () {
+                                _showPackageDetailBottomSheet(
+                                  context: context,
+                                  currentPlan: currentPlan,
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Xem chi tiết',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    size: 16,
+                                    color: primaryColor,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -375,59 +418,87 @@ class PersonPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Khung khuyến mại/Mua gói
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.card_giftcard, color: primaryColor, size: 20),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'Bạn muốn trải nghiệm thêm nhiều tính năng?',
-                    style: TextStyle(fontSize: 12, color: Colors.black87),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                const SizedBox(height: 12),
+
+                if (currentPlan?.productId == ProductId.premium.value)
+                  PremiumBannerCard()
+                else
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Mua gói ngay',
-                    style: TextStyle(
-                      fontSize: 12,
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.card_giftcard,
+                          color: primaryColor,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Bạn muốn tăng hạn mức đơn hàng và trải nghiệm thêm nhiều tính năng cao cấp?',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.pushNamed(AppRouteNames.subscription);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Mua gói ngay',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  // Widget: Danh sách Menu bên dưới
+  // Hiển thị bottom sheet chi tiết gói
+  void _showPackageDetailBottomSheet({
+    required BuildContext context,
+    required SubscriptionEntity? currentPlan,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PlanDetailBottomSheet(currentPlan: currentPlan),
+    );
+  }
+
   Widget _buildMenuList({
     required Color primaryColor,
     required BuildContext context,

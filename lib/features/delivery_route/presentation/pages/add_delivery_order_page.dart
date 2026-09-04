@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mime/mime.dart';
+import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/config/env.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
@@ -188,6 +190,31 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     address: '',
                   );
                 } else if (state is AddDeliveryOrderFormFailed) {
+                  if (state.error is DioException &&
+                      (state.error as DioException)
+                              .response
+                              ?.data?['error']?['code'] ==
+                          'ORDER_LIMIT_EXCEEDED') {
+                    AppDialogUtils.showCustomDialog(
+                      context: context,
+                      title: 'Nâng cấp gói sử dụng',
+                      subtitle:
+                          'Bạn đã đạt giới hạn số lượng đơn hàng của gói hiện tại. Vui lòng nâng cấp lên gói cao hơn để tiếp tục tạo thêm đơn hàng.',
+                      iconData: Icons.rocket_launch_outlined,
+                      actions: [
+                        SmgoButton(
+                          onPressed: () {
+                            context.pushNamed(AppRouteNames.subscription);
+                            context.pop();
+                          },
+                          text: 'Nâng cấp ngay',
+                          textColor: Colors.white,
+                          primaryColor: AppColors.primary,
+                        ),
+                      ],
+                    );
+                    return;
+                  }
                   AppDialogUtils.showSuccess(
                     context: context,
                     title: 'Tạo đơn hàng thất bại!',

@@ -12,8 +12,10 @@ SubscriptionModel _$SubscriptionModelFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String,
       productId: json['productId'] as String,
       startsAt: DateTime.parse(json['startsAt'] as String),
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
-      autoRenew: json['autoRenew'] as bool,
+      expiresAt: json['expiresAt'] == null
+          ? null
+          : DateTime.parse(json['expiresAt'] as String),
+      autoRenew: json['autoRenew'] as bool?,
     );
 
 Map<String, dynamic> _$SubscriptionModelToJson(SubscriptionModel instance) =>
@@ -22,6 +24,6 @@ Map<String, dynamic> _$SubscriptionModelToJson(SubscriptionModel instance) =>
       'status': instance.status,
       'productId': instance.productId,
       'startsAt': instance.startsAt.toIso8601String(),
-      'expiresAt': instance.expiresAt.toIso8601String(),
+      'expiresAt': instance.expiresAt?.toIso8601String(),
       'autoRenew': instance.autoRenew,
     };
