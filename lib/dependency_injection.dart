@@ -480,12 +480,12 @@ Future<void> initializeDependencies() async {
   di.registerFactory<SignoutCubit>(
     () => SignoutCubit(signoutUsecase: di<SignoutUsecase>()),
   );
-  di.registerLazySingleton<SubscriptionPurchaseCubit>(
+  di.registerFactory<SubscriptionPurchaseCubit>(
     () => SubscriptionPurchaseCubit(
       verifySubscriptionUsecase: di<VerifySubscriptionUsecase>(),
     ),
   );
-  di.registerLazySingleton<GetCurrentPlanCubit>(
+  di.registerFactory<GetCurrentPlanCubit>(
     () => GetCurrentPlanCubit(
       getCurrentSubscriptionUsecase: di<GetCurrentSubscriptionUsecase>(),
     ),

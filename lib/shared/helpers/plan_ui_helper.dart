@@ -58,29 +58,30 @@ class PlanUiHelper {
     return Icons.send_rounded;
   }
 
-  static Color getPlanIconBgColor(String? productId) {
-    if (productId == ProductId.basic.value) {
-      return const Color(0xFFE3F2FD);
-    } else if (productId == ProductId.standard.value) {
-      return const Color(0xFFE8F5E9);
-    } else if (productId == ProductId.plus.value) {
-      return const Color(0xFFE8F5E9);
-    } else if (productId == ProductId.premium.value) {
-      return const Color(0xFFFFF3E0);
-    }
-    return const Color(0xFFE3F2FD);
-  }
-
+  /// Màu chủ đạo (Chữ, Icon, Viền) của từng gói
   static Color getPlanIconColor(String? productId) {
     if (productId == ProductId.basic.value) {
       return const Color(0xFF1E88E5);
     } else if (productId == ProductId.standard.value) {
       return const Color(0xFF00A651);
     } else if (productId == ProductId.plus.value) {
-      return const Color(0xFF00A651);
+      return const Color(0xFF1976D2);
     } else if (productId == ProductId.premium.value) {
-      return const Color(0xFFFFA000);
+      return const Color(0xFFE65100);
     }
     return const Color(0xFF1E88E5);
+  }
+
+  static Color getPlanIconBgColor(String? productId) {
+    if (productId == ProductId.basic.value) {
+      return const Color(0xFFE3F2FD);
+    } else if (productId == ProductId.standard.value) {
+      return const Color(0xFFE8F5E9);
+    } else if (productId == ProductId.plus.value) {
+      return const Color(0xFFE3F2FD);
+    } else if (productId == ProductId.premium.value) {
+      return const Color(0xFFFFF3E0);
+    }
+    return const Color(0xFFE3F2FD);
   }
 }
