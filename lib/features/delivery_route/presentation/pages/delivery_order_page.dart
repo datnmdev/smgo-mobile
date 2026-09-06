@@ -171,491 +171,508 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         ),
       ],
       child: BlocBuilder<SelectionCubit<String>, SelectionState<String>>(
-        builder: (_, _) => BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
-          listener: (_, state) {
-            if (state is GetDeliveryRoutesDone) {
-              if (state.routes.isNotEmpty) {
-                setState(() {
-                  deliveryRoute = state.routes.first;
-                });
-              }
-              if (getDeliveryRoutesCubitInDRDP != null &&
-                  getDeliveryRoutesUsecaseParamsInDRDP != null) {
-                getDeliveryRoutesCubitInDRDP.call(
-                  params: getDeliveryRoutesUsecaseParamsInDRDP,
-                );
-              }
-            }
-          },
-          builder: (context, state) => Stack(
-            children: [
-              Scaffold(
-                backgroundColor: Colors.white,
-                body: RefreshIndicator(
-                  onRefresh: () async {
-                    await context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
+        builder: (_, _) =>
+            BlocConsumer<GetDeliveryRoutesCubit, GetDeliveryRoutesState>(
+              listener: (_, state) {
+                if (state is GetDeliveryRoutesDone) {
+                  if (state.routes.isNotEmpty) {
+                    setState(() {
+                      deliveryRoute = state.routes.first;
+                    });
+                  }
+                  if (getDeliveryRoutesCubitInDRDP != null &&
+                      getDeliveryRoutesUsecaseParamsInDRDP != null) {
+                    getDeliveryRoutesCubitInDRDP.call(
+                      params: getDeliveryRoutesUsecaseParamsInDRDP,
                     );
-                  },
-                  child: CustomScrollView(
-                    physics: const RefreshOnlyScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: IntrinsicHeight(
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 100),
-                                child: RouteHeader(
-                                  deliveryRoute: deliveryRoute,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: RouteSummary(
-                                  deliveryRoute: deliveryRoute,
-                                ),
-                              ),
-                            ],
+                  }
+                }
+              },
+              builder: (context, state) => Stack(
+                children: [
+                  Scaffold(
+                    backgroundColor: Colors.white,
+                    body: RefreshIndicator(
+                      onRefresh: () async {
+                        await context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
                           ),
+                        );
+                      },
+                      child: CustomScrollView(
+                        physics: const RefreshOnlyScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
                         ),
-                      ),
-
-                      SliverFillRemaining(
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: RouteProgress(
-                                deliveryRoute: deliveryRoute,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: IntrinsicHeight(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(bottom: 100),
+                                    child: RouteHeader(
+                                      deliveryRoute: deliveryRoute,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: RouteSummary(
+                                      deliveryRoute: deliveryRoute,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            SliverToBoxAdapter(
-                              child: _buildSelectionHeader(context: context),
+                          ),
+
+                          SliverFillRemaining(
+                            child: CustomScrollView(
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: RouteProgress(
+                                    deliveryRoute: deliveryRoute,
+                                  ),
+                                ),
+                                SliverToBoxAdapter(
+                                  child: _buildSelectionHeader(
+                                    context: context,
+                                  ),
+                                ),
+                                SliverFillRemaining(
+                                  hasScrollBody:
+                                      true, // Cho phép TabBarView cuộn bên trong
+                                  child: _buildStatusContent(context: context),
+                                ),
+                              ],
                             ),
-                            SliverFillRemaining(
-                              hasScrollBody:
-                                  true, // Cho phép TabBarView cuộn bên trong
-                              child: _buildStatusContent(context: context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                bottomNavigationBar: _RouteActionBar(
-                  route: deliveryRoute,
-                  context: context,
-                ),
-              ),
-
-              // Loading
-              BlocConsumer<
-                RecheckDeliveryOrdersCubit,
-                RecheckDeliveryOrdersState
-              >(
-                listener: (context, state) {
-                  if (state is RecheckDeliveryOrdersDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                    context.read<SelectionCubit<String>>().closeSelectionMode();
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Yêu cầu kiểm tra lại đơn hàng thành công!',
-                      subtitle:
-                          'Các đơn hàng mà bạn đã yêu cầu đã được đưa vào danh sách đơn hàng chờ kiểm tra.',
-                    );
-                  } else if (state is RecheckDeliveryOrdersFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Yêu cầu kiểm tra lại đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is RecheckDeliveryOrdersLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                ConfirmDeliveryOrdersCubit,
-                ConfirmDeliveryOrdersState
-              >(
-                listener: (context, state) {
-                  final selectionCubit = context.read<SelectionCubit<String>>();
-                  if (state is ConfirmDeliveryOrdersDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thành công!',
-                      subtitle:
-                          '${selectionCubit.state.selectedItems.length} đơn hàng đã chọn đã được xác nhận thành công.',
-                    );
-                    selectionCubit.closeSelectionMode();
-                  } else if (state is ConfirmDeliveryOrdersFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmDeliveryOrdersLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                TransitionRouteToSortingCubit,
-                TransitionRouteToSortingState
-              >(
-                listener: (context, state) {
-                  if (state is TransitionRouteToSortingDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is TransitionRouteToSortingFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is TransitionRouteToSortingLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                TransitionRouteToPendingCubit,
-                TransitionRouteToPendingState
-              >(
-                listener: (context, state) {
-                  if (state is TransitionRouteToPendingDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is TransitionRouteToPendingFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is TransitionRouteToPendingLoading,
-                ),
-              ),
-
-              BlocConsumer<SortDeliveryOrdersCubit, SortDeliveryOrdersState>(
-                listener: (context, state) {
-                  if (state is SortDeliveryOrdersDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is SortDeliveryOrdersFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is SortDeliveryOrdersLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                ConfirmSortedDeliveryOrdersCubit,
-                ConfirmSortedDeliveryOrdersState
-              >(
-                listener: (context, state) {
-                  if (state is ConfirmSortedDeliveryOrdersDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is ConfirmSortedDeliveryOrdersFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmSortedDeliveryOrdersLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                TransitionRouteToDeliveringCubit,
-                TransitionRouteToDeliveringState
-              >(
-                listener: (context, state) {
-                  if (state is TransitionRouteToDeliveringDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is TransitionRouteToDeliveringFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is TransitionRouteToDeliveringLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                TransitionRouteToCompletedCubit,
-                TransitionRouteToCompletedState
-              >(
-                listener: (context, state) {
-                  if (state is TransitionRouteToCompletedDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                  } else if (state is TransitionRouteToCompletedFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Thao tác thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is TransitionRouteToCompletedLoading,
-                ),
-              ),
-
-              BlocConsumer<
-                CreateDeliveryRouteWithOrdersCubit,
-                CreateDeliveryRouteWithOrdersState
-              >(
-                listener: (context, state) {
-                  if (state is CreateDeliveryRouteWithOrdersDone) {
-                    context.pushNamed(
-                      AppRouteNames.deliveryOrder,
-                      pathParameters: {'id': state.newDeliveryRoute.id},
-                      extra: <String, Object>{
-                        'DeliveryRouteData': state.newDeliveryRoute,
-                      },
-                    );
-                  } else if (state is CreateDeliveryRouteWithOrdersFailed) {
-                    if (state.error is DioException &&
-                        (state.error as DioException)
-                                .response
-                                ?.data?['error']?['code'] ==
-                            'ORDER_LIMIT_EXCEEDED') {
-                      AppDialogUtils.showCustomDialog(
-                        context: context,
-                        title: 'Nâng cấp gói sử dụng',
-                        subtitle:
-                            'Số lượng đơn hàng vượt quá giới hạn của gói hiện tại. Vui lòng nâng cấp lên gói cao hơn để tiếp tục.',
-                        iconData: Icons.rocket_launch_outlined,
-                        actions: [
-                          SmgoButton(
-                            onPressed: () {
-                              context.pop();
-                              context.pushNamed(AppRouteNames.subscription);
-                            },
-                            text: 'Nâng cấp ngay',
-                            textColor: Colors.white,
-                            primaryColor: AppColors.primary,
                           ),
                         ],
-                      );
-                      return;
-                    }
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Tạo lộ trình thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is CreateDeliveryRouteWithOrdersLoading,
-                ),
-              ),
-
-              // Loading cho xác nhận đã sắp xếp
-              BlocConsumer<
-                ConfirmSortedDeliveryOrdersCubit,
-                ConfirmSortedDeliveryOrdersState
-              >(
-                listener: (context, state) {
-                  if (state is ConfirmSortedDeliveryOrdersDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
                       ),
-                    );
-                    AppDialogUtils.showSuccess(
+                    ),
+                    bottomNavigationBar: _RouteActionBar(
+                      route: deliveryRoute,
                       context: context,
-                      title: 'Xác nhận đơn hàng thành công!',
-                    );
-                  } else if (state is ConfirmSortedDeliveryOrdersFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmSortedDeliveryOrdersLoading,
-                ),
-              ),
+                    ),
+                  ),
 
-              // Loading cho xác nhận giao thành công
-              BlocConsumer<
-                ConfirmDeliveredOrderCubit,
-                ConfirmDeliveredOrderState
-              >(
-                listener: (context, state) {
-                  if (state is ConfirmDeliveredOrderDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thành công!',
-                    );
-                  } else if (state is ConfirmDeliveredOrderFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmDeliveredOrderLoading,
-                ),
-              ),
+                  // Loading
+                  BlocConsumer<
+                    RecheckDeliveryOrdersCubit,
+                    RecheckDeliveryOrdersState
+                  >(
+                    listener: (context, state) {
+                      if (state is RecheckDeliveryOrdersDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        context
+                            .read<SelectionCubit<String>>()
+                            .closeSelectionMode();
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPRecheckOrdersSuccessTitle.tr(),
+                          subtitle: AppStrings.dOPRecheckOrdersSuccessContent
+                              .tr(),
+                        );
+                      } else if (state is RecheckDeliveryOrdersFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPRecheckOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is RecheckDeliveryOrdersLoading,
+                    ),
+                  ),
 
-              // Loading cho xác nhận giao thất bại
-              BlocConsumer<
-                ConfirmCancelledOrderCubit,
-                ConfirmCancelledOrderState
-              >(
-                listener: (context, state) {
-                  if (state is ConfirmCancelledOrderDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thành công!',
-                    );
-                  } else if (state is ConfirmCancelledOrderFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmCancelledOrderLoading,
-                ),
-              ),
+                  BlocConsumer<
+                    ConfirmDeliveryOrdersCubit,
+                    ConfirmDeliveryOrdersState
+                  >(
+                    listener: (context, state) {
+                      final selectionCubit = context
+                          .read<SelectionCubit<String>>();
+                      if (state is ConfirmDeliveryOrdersDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersSuccessTitle.tr(),
+                          subtitle: AppStrings.dOPConfirmOrdersSuccessContent
+                              .tr(
+                                namedArgs: {
+                                  'quantity': selectionCubit
+                                      .state
+                                      .selectedItems
+                                      .length
+                                      .toString(),
+                                },
+                              ),
+                        );
+                        selectionCubit.closeSelectionMode();
+                      } else if (state is ConfirmDeliveryOrdersFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmDeliveryOrdersLoading,
+                    ),
+                  ),
 
-              // Loading cho xác nhận hẹn giao sau
-              BlocConsumer<
-                ConfirmRescheduledOrderCubit,
-                ConfirmRescheduledOrderState
-              >(
-                listener: (context, state) {
-                  if (state is ConfirmRescheduledOrderDone) {
-                    context.read<GetDeliveryRoutesCubit>().call(
-                      params: GetDeliveryRoutesUsecaseParams(
-                        pageNumber: 1,
-                        pageSize: 1,
-                        id: deliveryRoute.id,
-                      ),
-                    );
-                    AppDialogUtils.showSuccess(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thành công!',
-                    );
-                  } else if (state is ConfirmRescheduledOrderFailed) {
-                    AppDialogUtils.showError(
-                      context: context,
-                      title: 'Xác nhận đơn hàng thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
-                    );
-                  }
-                },
-                builder: (context, state) => SmgoLoadingScreen(
-                  isLoading: state is ConfirmRescheduledOrderLoading,
-                ),
+                  BlocConsumer<
+                    TransitionRouteToSortingCubit,
+                    TransitionRouteToSortingState
+                  >(
+                    listener: (context, state) {
+                      if (state is TransitionRouteToSortingDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is TransitionRouteToSortingFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is TransitionRouteToSortingLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    TransitionRouteToPendingCubit,
+                    TransitionRouteToPendingState
+                  >(
+                    listener: (context, state) {
+                      if (state is TransitionRouteToPendingDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is TransitionRouteToPendingFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is TransitionRouteToPendingLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    SortDeliveryOrdersCubit,
+                    SortDeliveryOrdersState
+                  >(
+                    listener: (context, state) {
+                      if (state is SortDeliveryOrdersDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is SortDeliveryOrdersFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is SortDeliveryOrdersLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    ConfirmSortedDeliveryOrdersCubit,
+                    ConfirmSortedDeliveryOrdersState
+                  >(
+                    listener: (context, state) {
+                      if (state is ConfirmSortedDeliveryOrdersDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is ConfirmSortedDeliveryOrdersFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmSortedDeliveryOrdersLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    TransitionRouteToDeliveringCubit,
+                    TransitionRouteToDeliveringState
+                  >(
+                    listener: (context, state) {
+                      if (state is TransitionRouteToDeliveringDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is TransitionRouteToDeliveringFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is TransitionRouteToDeliveringLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    TransitionRouteToCompletedCubit,
+                    TransitionRouteToCompletedState
+                  >(
+                    listener: (context, state) {
+                      if (state is TransitionRouteToCompletedDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                      } else if (state is TransitionRouteToCompletedFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPActionFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is TransitionRouteToCompletedLoading,
+                    ),
+                  ),
+
+                  BlocConsumer<
+                    CreateDeliveryRouteWithOrdersCubit,
+                    CreateDeliveryRouteWithOrdersState
+                  >(
+                    listener: (context, state) {
+                      if (state is CreateDeliveryRouteWithOrdersDone) {
+                        context.pushNamed(
+                          AppRouteNames.deliveryOrder,
+                          pathParameters: {'id': state.newDeliveryRoute.id},
+                          extra: <String, Object>{
+                            'DeliveryRouteData': state.newDeliveryRoute,
+                          },
+                        );
+                      } else if (state is CreateDeliveryRouteWithOrdersFailed) {
+                        if (state.error is DioException &&
+                            (state.error as DioException)
+                                    .response
+                                    ?.data?['error']?['code'] ==
+                                'ORDER_LIMIT_EXCEEDED') {
+                          AppDialogUtils.showCustomDialog(
+                            context: context,
+                            title: AppStrings.dOPUpgradePackageTitle.tr(),
+                            subtitle: AppStrings.dOPOrderLimitExceededContent
+                                .tr(),
+                            iconData: Icons.rocket_launch_outlined,
+                            actions: [
+                              SmgoButton(
+                                onPressed: () {
+                                  context.pop();
+                                  context.pushNamed(AppRouteNames.subscription);
+                                },
+                                text: AppStrings.dOPUpgradeNowButtonLabel.tr(),
+                                textColor: Colors.white,
+                                primaryColor: AppColors.primary,
+                              ),
+                            ],
+                          );
+                          return;
+                        }
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPCreateRouteFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is CreateDeliveryRouteWithOrdersLoading,
+                    ),
+                  ),
+
+                  // Loading cho xác nhận đã sắp xếp
+                  BlocConsumer<
+                    ConfirmSortedDeliveryOrdersCubit,
+                    ConfirmSortedDeliveryOrdersState
+                  >(
+                    listener: (context, state) {
+                      if (state is ConfirmSortedDeliveryOrdersDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                        );
+                      } else if (state is ConfirmSortedDeliveryOrdersFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmSortedDeliveryOrdersLoading,
+                    ),
+                  ),
+
+                  // Loading cho xác nhận giao thành công
+                  BlocConsumer<
+                    ConfirmDeliveredOrderCubit,
+                    ConfirmDeliveredOrderState
+                  >(
+                    listener: (context, state) {
+                      if (state is ConfirmDeliveredOrderDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                        );
+                      } else if (state is ConfirmDeliveredOrderFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmDeliveredOrderLoading,
+                    ),
+                  ),
+
+                  // Loading cho xác nhận giao thất bại
+                  BlocConsumer<
+                    ConfirmCancelledOrderCubit,
+                    ConfirmCancelledOrderState
+                  >(
+                    listener: (context, state) {
+                      if (state is ConfirmCancelledOrderDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                        );
+                      } else if (state is ConfirmCancelledOrderFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmCancelledOrderLoading,
+                    ),
+                  ),
+
+                  // Loading cho xác nhận hẹn giao sau
+                  BlocConsumer<
+                    ConfirmRescheduledOrderCubit,
+                    ConfirmRescheduledOrderState
+                  >(
+                    listener: (context, state) {
+                      if (state is ConfirmRescheduledOrderDone) {
+                        context.read<GetDeliveryRoutesCubit>().call(
+                          params: GetDeliveryRoutesUsecaseParams(
+                            pageNumber: 1,
+                            pageSize: 1,
+                            id: deliveryRoute.id,
+                          ),
+                        );
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                        );
+                      } else if (state is ConfirmRescheduledOrderFailed) {
+                        AppDialogUtils.showError(
+                          context: context,
+                          title: AppStrings.dOPConfirmOrdersFailedTitle.tr(),
+                          subtitle: AppStrings.dOPCommonErrorContent.tr(),
+                        );
+                      }
+                    },
+                    builder: (context, state) => SmgoLoadingScreen(
+                      isLoading: state is ConfirmRescheduledOrderLoading,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }
@@ -857,9 +874,20 @@ class RouteHeader extends StatelessWidget {
                                             );
                                         AppDialogUtils.showSuccess(
                                           context: parentContext,
-                                          title: 'Xoá đơn hàng thành công!',
-                                          subtitle:
-                                              '${selectionCubit.state.selectedItems.length} đơn hàng đã bị xoá',
+                                          title: AppStrings
+                                              .dOPDeleteOrderSuccessTitle
+                                              .tr(),
+                                          subtitle: AppStrings
+                                              .dOPDeleteOrderSuccessContent
+                                              .tr(
+                                                namedArgs: {
+                                                  'quantity': selectionCubit
+                                                      .state
+                                                      .selectedItems
+                                                      .length
+                                                      .toString(),
+                                                },
+                                              ),
                                         );
 
                                         selectionCubit.closeSelectionMode();
@@ -868,9 +896,12 @@ class RouteHeader extends StatelessWidget {
                                         parentContext.pop();
                                         AppDialogUtils.showError(
                                           context: parentContext,
-                                          title: 'Xoá đơn hàng thất bại!',
-                                          subtitle:
-                                              'Đã có lỗi xảy ra. Vui lòng thử lại',
+                                          title: AppStrings
+                                              .dOPDeleteOrderFailedTitle
+                                              .tr(),
+                                          subtitle: AppStrings
+                                              .dOPDeleteOrderFailedContent
+                                              .tr(),
                                         );
                                       }
                                     },
@@ -989,7 +1020,13 @@ class RouteHeader extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Tạo lúc ${DateFormat('dd/MM/yyyy • HH:mm').format(deliveryRoute.createdAt)}',
+                            AppStrings.dOPCreatedAtContent.tr(
+                              namedArgs: {
+                                'date': DateFormat(
+                                  'dd/MM/yyyy • HH:mm',
+                                ).format(deliveryRoute.createdAt),
+                              },
+                            ),
                             style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
@@ -1041,7 +1078,7 @@ class _SearchBox extends StatelessWidget {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       decoration: InputDecoration(
-        hintText: 'Tìm kiếm đơn hàng...',
+        hintText: AppStrings.dOPSearchOrdersHint.tr(),
         hintStyle: const TextStyle(color: Color(0xFF9AA0B3), fontSize: 16),
         prefixIcon: const Icon(Icons.search, size: 28, color: RouteColors.text),
         suffixIcon: IconButton(
@@ -1074,7 +1111,7 @@ class _SearchBox extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return deliveryRoute.orders
@@ -1106,8 +1143,8 @@ class _SearchBox extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "Không tìm thấy đơn hàng",
+                    Text(
+                      AppStrings.dOPOrderNotFoundTitle.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1115,8 +1152,8 @@ class _SearchBox extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      "Mã này không tồn tại hoặc không phù hợp với hệ thống. Vui lòng thử lại.",
+                    Text(
+                      AppStrings.dOPOrderNotFoundContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
@@ -1135,8 +1172,8 @@ class _SearchBox extends StatelessWidget {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          "Quét mã khác",
+                        child: Text(
+                          AppStrings.dOPScanAnotherCodeButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -1157,7 +1194,7 @@ class _SearchBox extends StatelessWidget {
                     children: [
                       _buildInfoRow(
                         Icons.view_column,
-                        "Mã vận đơn",
+                        AppStrings.dOPOrderCodeLabel.tr(),
                         order.orderCode,
                         showCopy: true,
                         context: context,
@@ -1167,10 +1204,10 @@ class _SearchBox extends StatelessWidget {
 
                       _buildInfoRow(
                         Icons.inventory_2_outlined,
-                        "Tên sản phẩm",
+                        AppStrings.dOPProductNameLabel.tr(),
                         order.orderName?.isNotEmpty == true
                             ? order.orderName!
-                            : 'Không có tên đơn hàng',
+                            : AppStrings.dOPNoOrderName.tr(),
                         showCopy: true,
                         context: context,
                       ),
@@ -1179,7 +1216,7 @@ class _SearchBox extends StatelessWidget {
 
                       _buildInfoRow(
                         Icons.person_outline,
-                        "Tên người nhận",
+                        AppStrings.dOPRecipientNameLabel.tr(),
                         order.contactName,
                         showCopy: true,
                         context: context,
@@ -1188,7 +1225,7 @@ class _SearchBox extends StatelessWidget {
 
                       _buildInfoRow(
                         Icons.phone_outlined,
-                        "Số điện thoại",
+                        AppStrings.dOPPhoneNumberLabel.tr(),
                         order.contactPhone,
                         showCopy: true,
                         context: context,
@@ -1197,14 +1234,17 @@ class _SearchBox extends StatelessWidget {
 
                       _buildInfoRow(
                         Icons.location_on_outlined,
-                        "Địa chỉ nhận",
+                        AppStrings.dOPDeliveryAddressLabel.tr(),
                         order.address,
                         showCopy: true,
                         context: context,
                       ),
                       const Divider(height: 24, color: Colors.black12),
 
-                      _buildImageRow("Ảnh đơn hàng", order.orderMediaUrl ?? ''),
+                      _buildImageRow(
+                        AppStrings.dOPOrderImageLabel.tr(),
+                        order.orderMediaUrl ?? '',
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -1215,10 +1255,8 @@ class _SearchBox extends StatelessWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(
-                        (0.4 * 255).round(),
-                      ), // Màu xanh lá đổ bóng
-                      blurRadius: 4, // Độ loè của bóng
+                      color: Colors.black.withAlpha((0.4 * 255).round()),
+                      blurRadius: 4,
                     ),
                   ],
                 ),
@@ -1232,7 +1270,7 @@ class _SearchBox extends StatelessWidget {
                           onPressed: () {
                             context.pop();
                           },
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
@@ -1242,7 +1280,7 @@ class _SearchBox extends StatelessWidget {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Quét lại",
+                                AppStrings.dOPRescanButtonLabel.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -1289,7 +1327,7 @@ class _SearchBox extends StatelessWidget {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Xem chi tiết",
+                                AppStrings.dOPViewDetailButtonLabel.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -1350,9 +1388,9 @@ class RouteSummary extends StatelessWidget {
         children: [
           Expanded(
             child: _SummaryItem(
-              title: 'Tổng số đơn',
+              title: AppStrings.dOPTotalOrdersTitle.tr(),
               value: '${deliveryRoute.totalOrders}',
-              subtitle: 'đơn',
+              subtitle: AppStrings.dOPOrderUnit.tr(),
             ),
           ),
 
@@ -1364,10 +1402,19 @@ class RouteSummary extends StatelessWidget {
 
           Expanded(
             child: _SummaryItem(
-              title: 'Khách quen',
+              title: AppStrings.dOPFamiliarCustomerTitle.tr(),
               value: '$familarCount',
-              subtitle:
-                  'đơn (${deliveryRoute.totalOrders > 0 ? ((familarCount / deliveryRoute.totalOrders) * 100).round() : 0}%)',
+              subtitle: AppStrings.dOPOrderPercentageContent.tr(
+                namedArgs: {
+                  'percentage':
+                      (deliveryRoute.totalOrders > 0
+                              ? ((familarCount / deliveryRoute.totalOrders) *
+                                        100)
+                                    .round()
+                              : 0)
+                          .toString(),
+                },
+              ),
               badge: true,
             ),
           ),
@@ -1383,7 +1430,7 @@ class RouteSummary extends StatelessWidget {
   Widget _buildProgressSummary() {
     if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
       return _ProgressSummaryItem(
-        title: 'Tiến độ',
+        title: AppStrings.dOPProgressTitle.tr(),
         progress: deliveryRoute.checkProgress,
         value: '${(deliveryRoute.checkProgress * 100).round()}%',
         subtitle:
@@ -1391,7 +1438,7 @@ class RouteSummary extends StatelessWidget {
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
       return _ProgressSummaryItem(
-        title: 'Tiến độ',
+        title: AppStrings.dOPProgressTitle.tr(),
         progress: deliveryRoute.sortingProgress,
         value: '${(deliveryRoute.sortingProgress * 100).round()}%',
         subtitle:
@@ -1399,18 +1446,28 @@ class RouteSummary extends StatelessWidget {
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
       return _ProgressSummaryItem(
-        title: 'Tiến độ',
+        title: AppStrings.dOPProgressTitle.tr(),
         progress: deliveryRoute.deliveryProgress,
         value: '${(deliveryRoute.deliveryProgress * 100).round()}%',
-        subtitle:
-            '${deliveryRoute.totalDeliveredOrders + deliveryRoute.totalCancelledOrders + deliveryRoute.totalRescheduledOrders}/${deliveryRoute.totalOrders} đơn',
+        subtitle: AppStrings.dOPDeliveryProgressContent.tr(
+          namedArgs: {
+            'completed':
+                (deliveryRoute.totalDeliveredOrders +
+                        deliveryRoute.totalCancelledOrders +
+                        deliveryRoute.totalRescheduledOrders)
+                    .toString(),
+            'total': deliveryRoute.totalOrders.toString(),
+          },
+        ),
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
       return _ProgressSummaryItem(
-        title: 'Tiến độ',
+        title: AppStrings.dOPProgressTitle.tr(),
         progress: 1,
         value: '100%',
-        subtitle: '${deliveryRoute.totalOrders} đơn',
+        subtitle: AppStrings.dOPTotalOrdersContent.tr(
+          namedArgs: {'quantity': deliveryRoute.totalOrders.toString()},
+        ),
       );
     } else {
       throw Exception('Delivery route status does not match any valid case');
@@ -1419,28 +1476,28 @@ class RouteSummary extends StatelessWidget {
 
   Widget _buildStatusSummary() {
     if (deliveryRoute.status == DeliveryRouteStatus.pending.value) {
-      return const _StatusSummaryItem(
+      return _StatusSummaryItem(
         icon: Icons.check_circle_outline,
         color: RouteColors.green,
-        text: 'Kiểm tra hàng',
+        text: AppStrings.dOPCheckingStatusLabel.tr(),
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.sorting.value) {
-      return const _StatusSummaryItem(
+      return _StatusSummaryItem(
         icon: Icons.access_time,
         color: RouteColors.green,
-        text: 'Sắp xếp',
+        text: AppStrings.dOPSortingStatusLabel.tr(),
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.delivering.value) {
-      return const _StatusSummaryItem(
+      return _StatusSummaryItem(
         icon: Icons.delivery_dining_rounded,
         color: RouteColors.green,
-        text: 'Đang giao hàng',
+        text: AppStrings.dOPDeliveringStatusLabel.tr(),
       );
     } else if (deliveryRoute.status == DeliveryRouteStatus.completed.value) {
-      return const _StatusSummaryItem(
+      return _StatusSummaryItem(
         icon: Icons.check_circle_outline,
         color: RouteColors.green,
-        text: 'Hoàn thành',
+        text: AppStrings.dOPCompletedStatusLabel.tr(),
       );
     } else {
       throw Exception('Delivery route status does not match any valid case');
@@ -1592,8 +1649,8 @@ class _StatusSummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          'Trạng thái',
+        Text(
+          AppStrings.dOPStatusTitle.tr(),
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -1647,7 +1704,7 @@ class RouteProgress extends StatelessWidget {
           children: [
             _StepItem(
               step: 1,
-              title: 'Kiểm tra đơn hàng',
+              title: AppStrings.dOPCheckOrdersStepTitle.tr(),
               subtitle: '',
               completed: currentStep > 1,
               active: currentStep == 1,
@@ -1657,7 +1714,7 @@ class RouteProgress extends StatelessWidget {
 
             _StepItem(
               step: 2,
-              title: 'Sắp xếp hàng hoá',
+              title: AppStrings.dOPSortGoodsStepTitle.tr(),
               subtitle: '',
               completed: currentStep > 2,
               active: currentStep == 2,
@@ -1667,7 +1724,7 @@ class RouteProgress extends StatelessWidget {
 
             _StepItem(
               step: 3,
-              title: 'Giao hàng',
+              title: AppStrings.dOPDeliverStepTitle.tr(),
               subtitle: '',
               completed: currentStep > 3,
               active: currentStep == 3,
@@ -1677,7 +1734,7 @@ class RouteProgress extends StatelessWidget {
 
             _StepItem(
               step: 4,
-              title: 'Hoàn thành',
+              title: AppStrings.dOPCompleteStepTitle.tr(),
               subtitle: '',
               completed: currentStep >= 4,
               active: currentStep == 4,
@@ -1916,13 +1973,13 @@ class _PendingViewState extends State<PendingView>
             tabs: [
               Tab(
                 child: _TabBadge(
-                  title: 'Chờ kiểm tra',
+                  title: AppStrings.dOPPendingTabTitle.tr(),
                   count: pendingOrders.length,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Đã kiểm tra',
+                  title: AppStrings.dOPCheckedTabTitle.tr(),
                   count: checkedOrders.length,
                 ),
               ),
@@ -1990,7 +2047,7 @@ class _OrderList extends StatelessWidget {
     final selectionCubit = context.read<SelectionCubit<String>>();
 
     if (orders.isEmpty) {
-      return const Center(child: Text('Không có đơn hàng nào'));
+      return Center(child: Text(AppStrings.dOPNoOrdersContent.tr()));
     }
 
     return ListView.builder(
@@ -2196,8 +2253,8 @@ class TotalDistanceCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Tổng quãng đường dự kiến',
+                    Text(
+                      AppStrings.dOPEstimatedTotalDistanceTitle.tr(),
                       style: TextStyle(
                         fontSize: 11, // Giảm từ 13 xuống 11
                         fontWeight: FontWeight.w500,
@@ -2336,12 +2393,12 @@ class _SortingGuideState extends State<_SortingGuide> {
 
           const SizedBox(width: 8),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hướng dẫn sắp xếp hàng hoá',
+                  AppStrings.dOPSortingInstructionsTitle.tr(),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -2352,10 +2409,7 @@ class _SortingGuideState extends State<_SortingGuide> {
                 SizedBox(height: 4),
 
                 Text(
-                  'Số thứ tự càng lớn là đơn hàng giao sau cùng.\n'
-                  'Vui lòng xếp hàng hoá từ dưới lên trên trong thùng '
-                  'để đảm bảo giao đúng thứ tự.\n'
-                  'Dễ dàng phân biệt đơn hàng bằng các ký tự cuối mã đơn được tô màu xanh lá.',
+                  AppStrings.dOPSortingInstructionsContent.tr(),
                   style: TextStyle(
                     fontSize: 11.5,
                     height: 1.35,
@@ -2494,7 +2548,7 @@ class OrderCard extends StatelessWidget {
                                       order.orderName != null &&
                                           order.orderName!.isNotEmpty
                                       ? order.orderName!
-                                      : 'Không có tên đơn hàng',
+                                      : AppStrings.dOPNoOrderName.tr(),
                                 ),
                                 _InfoRow(
                                   icon: Icons.location_on_outlined,
@@ -2787,7 +2841,7 @@ class OrderCardContent extends StatelessWidget {
           icon: Icons.shopping_bag_outlined,
           text: order.orderName != null && order.orderName!.isNotEmpty
               ? order.orderName!
-              : 'Không có tên đơn hàng',
+              : AppStrings.dOPNoOrderName.tr(),
           status: status,
         ),
 
@@ -2809,8 +2863,8 @@ class OrderCardContent extends StatelessWidget {
             color: SortingOrderCardColors.sortedBg,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: const Text(
-            'Đã sắp xếp',
+          child: Text(
+            AppStrings.dOPSortedStatusLabel.tr(),
             style: TextStyle(
               color: SortingOrderCardColors.sortedContent,
               fontSize: 11,
@@ -2825,8 +2879,8 @@ class OrderCardContent extends StatelessWidget {
             color: SortingOrderCardColors.unsortedBg,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: const Text(
-            'Chưa sắp xếp',
+          child: Text(
+            AppStrings.dOPUnsortedStatusLabel.tr(),
             style: TextStyle(
               color: SortingOrderCardColors.unsortedContent,
               fontSize: 11,
@@ -2843,7 +2897,7 @@ class OrderCardContent extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               Icon(
                 Icons.star_outline,
                 size: 12,
@@ -2851,7 +2905,7 @@ class OrderCardContent extends StatelessWidget {
               ),
               SizedBox(width: 4),
               Text(
-                'Cần sắp xếp',
+                AppStrings.dOPNeedSortingStatusLabel.tr(),
                 style: TextStyle(
                   color: SortingOrderCardColors.badgeCurrentText,
                   fontSize: 11,
@@ -2977,25 +3031,25 @@ class _DeliveringViewState extends State<DeliveringView>
             tabs: [
               Tab(
                 child: _TabBadge(
-                  title: 'Lộ trình giao',
+                  title: AppStrings.dOPDeliveryRouteTabTitle.tr(),
                   count: _deliveryRoute.totalOrders,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao thành công',
+                  title: AppStrings.dOPDeliveredTabTitle.tr(),
                   count: deliveredOrders.length,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao thất bại',
+                  title: AppStrings.dOPCancelledTabTitle.tr(),
                   count: cancelledOrders.length,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao sau',
+                  title: AppStrings.dOPRescheduledTabTitle.tr(),
                   count: rescheduledOrders.length,
                 ),
               ),
@@ -3043,7 +3097,7 @@ class _DeliveryInfoBanner extends StatelessWidget {
         color: RouteColors.blueLight,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.info_outline, color: RouteColors.blue),
 
@@ -3051,8 +3105,7 @@ class _DeliveryInfoBanner extends StatelessWidget {
 
           Expanded(
             child: Text(
-              'Bạn đang trên đường giao hàng. '
-              'Hãy giao theo đúng thứ tự để tiết kiệm thời gian và chi phí đi lại.',
+              AppStrings.dOPDeliveringGuideContent.tr(),
               style: TextStyle(
                 color: RouteColors.text,
                 fontSize: 13,
@@ -3081,9 +3134,7 @@ class DeliveringOrderList extends StatelessWidget {
     orders.sort((a, b) => a.sequenceOrder! - b.sequenceOrder!);
 
     if (orders.isEmpty) {
-      return const Center(
-        child: Text('Không có đơn hàng nào trong tuyến đường này'),
-      );
+      return Center(child: Text(AppStrings.dOPNoOrdersInRouteContent.tr()));
     }
 
     final Map<String, String> uniqueOrderCodeSuffixMap =
@@ -3398,7 +3449,7 @@ class DeliveringOrderItem extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      'Giao thành công',
+                                      AppStrings.dOPDeliveredStatus.tr(),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -3419,7 +3470,7 @@ class DeliveringOrderItem extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      'Điểm đến tiếp theo',
+                                      AppStrings.dOPNextDestinationTitle.tr(),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -3440,7 +3491,7 @@ class DeliveringOrderItem extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      'Giao sau',
+                                      AppStrings.dOPRescheduledStatus.tr(),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -3461,7 +3512,7 @@ class DeliveringOrderItem extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      'Giao thất bại',
+                                      AppStrings.dOPCancelledStatus.tr(),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -3561,29 +3612,28 @@ class DeliveringOrderItem extends StatelessWidget {
 
     switch (status) {
       case DeliveryOrderStatus.delivered:
-        text = 'Thành công';
+        text = AppStrings.dOPSuccessStatus.tr();
         break;
 
       case DeliveryOrderStatus.delivering:
-        text = 'Đang giao';
+        text = AppStrings.dOPInDeliveryStatus.tr();
         break;
 
       case DeliveryOrderStatus.sorted:
-        text = 'Chưa giao';
+        text = AppStrings.dOPNotDeliveredStatus.tr();
         break;
 
       case DeliveryOrderStatus.cancelled:
-        text = 'Thất bại';
+        text = AppStrings.dOPFailedStatus.tr();
         break;
 
       case DeliveryOrderStatus.rescheduled:
-        text = 'Giao sau';
+        text = AppStrings.dOPRescheduledStatus.tr();
         break;
 
       default:
         throw Exception(
-          'Delivery order status does not match '
-          'any valid status value.',
+          'Delivery order status does not match any valid status value.',
         );
     }
 
@@ -3674,8 +3724,7 @@ class DeliveringOrderItem extends StatelessWidget {
 
       default:
         throw Exception(
-          'Delivery order status does not match '
-          'any valid status value.',
+          'Delivery order status does not match any valid status value.',
         );
     }
   }
@@ -3801,25 +3850,25 @@ class _CompletedViewState extends State<CompletedView>
             tabs: [
               Tab(
                 child: _TabBadge(
-                  title: 'Tổng quan',
+                  title: AppStrings.dOPOverviewTabTitle.tr(),
                   count: _deliveryRoute.totalOrders,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao thành công',
+                  title: AppStrings.dOPDeliveredTabTitle.tr(),
                   count: deliveredOrders.length,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao thất bại',
+                  title: AppStrings.dOPCancelledTabTitle.tr(),
                   count: cancelledOrders.length,
                 ),
               ),
               Tab(
                 child: _TabBadge(
-                  title: 'Giao sau',
+                  title: AppStrings.dOPRescheduledTabTitle.tr(),
                   count: rescheduledOrders.length,
                 ),
               ),
@@ -3893,7 +3942,7 @@ class _CompletedBanner extends StatelessWidget {
           SizedBox(height: 12),
 
           Text(
-            'LỘ TRÌNH ĐÃ HOÀN THÀNH',
+            AppStrings.dOPCompletedRouteHeader.tr(),
             style: TextStyle(
               color: RouteColors.green,
               fontSize: 22,
@@ -3904,7 +3953,12 @@ class _CompletedBanner extends StatelessWidget {
           SizedBox(height: 6),
 
           Text(
-            '${deliveryRoute.totalDeliveredOrders}/${deliveryRoute.totalOrders} đơn giao thành công',
+            AppStrings.dOPDeliveredOrdersContent.tr(
+              namedArgs: {
+                'delivered': deliveryRoute.totalDeliveredOrders.toString(),
+                'total': deliveryRoute.totalOrders.toString(),
+              },
+            ),
             style: TextStyle(
               color: RouteColors.text,
               fontSize: 17,
@@ -3915,7 +3969,13 @@ class _CompletedBanner extends StatelessWidget {
           SizedBox(height: 8),
 
           Text(
-            'Hoàn thành lúc ${DateFormat('HH:mm, dd/MM/yyyy').format(deliveryRoute.updatedAt.toLocal())}',
+            AppStrings.dOPCompletedAtContent.tr(
+              namedArgs: {
+                'date': DateFormat(
+                  'HH:mm, dd/MM/yyyy',
+                ).format(deliveryRoute.updatedAt.toLocal()),
+              },
+            ),
             style: TextStyle(color: RouteColors.secondaryText),
           ),
         ],
@@ -3942,8 +4002,8 @@ class RouteStatistics extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'TỔNG KẾT LỘ TRÌNH',
+          Text(
+            AppStrings.dOPRouteSummaryHeader.tr(),
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -3958,7 +4018,7 @@ class RouteStatistics extends StatelessWidget {
               Expanded(
                 child: _StatisticItem(
                   icon: Icons.route,
-                  title: 'Tổng quãng đường',
+                  title: AppStrings.dOPTotalDistanceTitle.tr(),
                   value:
                       '${(route.totalDistance! / 1000).toStringAsFixed(2)} km',
                   subtitle: '',
@@ -3968,9 +4028,9 @@ class RouteStatistics extends StatelessWidget {
               Expanded(
                 child: _StatisticItem(
                   icon: Icons.shopping_bag_outlined,
-                  title: 'Tổng số đơn',
+                  title: AppStrings.dOPTotalOrdersTitle.tr(),
                   value: '${route.totalOrders}',
-                  subtitle: 'đơn',
+                  subtitle: AppStrings.dOPOrderUnit.tr(),
                 ),
               ),
             ],
@@ -3983,7 +4043,7 @@ class RouteStatistics extends StatelessWidget {
               Expanded(
                 child: _StatisticItem(
                   icon: Icons.check_circle_outline,
-                  title: 'Thành công',
+                  title: AppStrings.dOPSuccessTitle.tr(),
                   value: route.totalDeliveredOrders.toString(),
                   subtitle:
                       '(${(route.totalDeliveredOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
@@ -3994,7 +4054,7 @@ class RouteStatistics extends StatelessWidget {
               Expanded(
                 child: _StatisticItem(
                   icon: Icons.access_time,
-                  title: 'Giao sau',
+                  title: AppStrings.dOPRescheduledTitle.tr(),
                   value: route.totalRescheduledOrders.toString(),
                   subtitle:
                       '(${(route.totalRescheduledOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
@@ -4005,7 +4065,7 @@ class RouteStatistics extends StatelessWidget {
               Expanded(
                 child: _StatisticItem(
                   icon: Icons.cancel_outlined,
-                  title: 'Thất bại',
+                  title: AppStrings.dOPFailedTitle.tr(),
                   value: route.totalCancelledOrders.toString(),
                   subtitle:
                       '(${(route.totalCancelledOrders / route.totalOrders * 100).toStringAsFixed(1)}%)',
@@ -4044,7 +4104,7 @@ class _StatisticItem extends StatelessWidget {
           height: 42,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.10),
+            color: color.withAlpha((0.10 * 255).round()),
           ),
           child: Icon(icon, color: color, size: 22),
         ),
@@ -4113,7 +4173,6 @@ class _RouteActionBar extends StatefulWidget {
 }
 
 class __RouteActionBarState extends State<_RouteActionBar> {
-  late BuildContext _parentContext;
   late DeliveryRouteEntity _deliveryRoute;
   CheckOrderMethod _checkOrderMethod = CheckOrderMethod.scanQrOrBarcode;
   DirectionToMapMethod _directionToMapMethod = DirectionToMapMethod.googleMap;
@@ -4125,7 +4184,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   @override
   void initState() {
     super.initState();
-    _parentContext = widget.context;
     _deliveryRoute = widget.route;
   }
 
@@ -4133,9 +4191,6 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   void didUpdateWidget(covariant _RouteActionBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     setState(() {
-      if (oldWidget.context != widget.context) {
-        _parentContext = widget.context;
-      }
       if (oldWidget.route != widget.route) {
         _deliveryRoute = widget.route;
       }
@@ -4212,7 +4267,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
           _OutlineButton(
             icon: Icons.add,
-            label: 'Thêm đơn',
+            label: AppStrings.dOPAddOrderActionLabel.tr(),
             onPressed: () {
               context.pushNamed(
                 AppRouteNames.addDeliveryOrder,
@@ -4239,19 +4294,23 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   DeliveryOrderPageTab.checked) ...[
             _OutlineButton(
               icon: Icons.checklist_rtl,
-              label: 'Kiểm tra lại',
-              subtitle: 'Kiểm tra lại các đơn đã chọn',
+              label: AppStrings.dOPRecheckOrdersActionLabel.tr(),
+              subtitle: AppStrings.dOPRecheckOrdersActionSubtitle.tr(),
               onPressed: () {
                 AppDialogUtils.showCustomDialog(
                   primaryColor: AppColors.primary,
                   context: context,
-                  title: 'Bạn có chắc kiểm tra lại các đơn hàng đã chọn chứ?',
-                  subtitle:
-                      '${selectionCubit.state.selectedItems.length} đơn hàng đã chọn sẽ được đưa vào danh sách chờ kiểm tra.',
+                  title: AppStrings.dOPRecheckOrdersDialogTitle.tr(),
+                  subtitle: AppStrings.dOPRecheckOrdersDialogContent.tr(
+                    namedArgs: {
+                      'quantity': selectionCubit.state.selectedItems.length
+                          .toString(),
+                    },
+                  ),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -4259,7 +4318,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<RecheckDeliveryOrdersCubit>().call(
                           deliveryRouteId: _deliveryRoute.id,
@@ -4286,24 +4345,22 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         DeliveryOrderPageTab.pending &&
                     !_deliveryRoute.isAllChecked),
             icon: Icons.touch_app_outlined,
-            label: 'Xác nhận đơn hàng',
+            label: AppStrings.dOPConfirmOrdersActionLabel.tr(),
             subtitle: _checkOrderMethod == CheckOrderMethod.scanQrOrBarcode
-                ? 'Quét QR hoặc Barcode'
-                : 'Thủ công',
+                ? AppStrings.dOPCheckMethodQrOrBarcode.tr()
+                : AppStrings.dOPCheckMethodManual.tr(),
             onPressed: () {
               if (_checkOrderMethod == CheckOrderMethod.scanQrOrBarcode) {
                 _openOrderScanScreenToConfirmCheckedOrder(context: context);
               } else {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title:
-                      'Bạn có chắc đã kiểm tra thông tin của các đơn hàng đã chọn?',
-                  subtitle:
-                      'Lưu ý: Đảm bảo chính xác việc kiểm tra đơn hàng để hệ thống sắp xếp lộ trình chính xác và hiệu quả nhất cho bạn.',
+                  title: AppStrings.dOPConfirmOrdersDialogTitle.tr(),
+                  subtitle: AppStrings.dOPConfirmOrdersDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -4311,7 +4368,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<ConfirmDeliveryOrdersCubit>().call(
                           deliveryRouteId: _deliveryRoute.id,
@@ -4332,18 +4389,17 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           _PrimaryButton(
             disabled: !_deliveryRoute.isAllChecked,
             icon: Icons.local_shipping_outlined,
-            label: 'Sắp xếp hàng hoá',
-            subtitle: 'Cần xác nhận đủ 100% đơn hàng',
+            label: AppStrings.dOPSortGoodsActionLabel.tr(),
+            subtitle: AppStrings.dOPSortGoodsActionSubtitle.tr(),
             onPressed: () {
               AppDialogUtils.showSuccess(
                 context: context,
-                title: 'Bạn đã sẵn sàng sắp xếp hàng hoá hay chưa?',
-                subtitle:
-                    'Lưu ý: Đảm bảo chính xác việc kiểm tra đơn hàng để hệ thống sắp xếp lộ trình chính xác và hiệu quả nhất cho bạn.',
+                title: AppStrings.dOPSortGoodsDialogTitle.tr(),
+                subtitle: AppStrings.dOPSortGoodsDialogContent.tr(),
                 actions: [
                   SmgoButton(
                     isOutlined: true,
-                    text: 'Huỷ',
+                    text: AppStrings.dOPCancelButtonLabel.tr(),
                     primaryColor: AppColors.primary,
                     onPressed: () {
                       context.pop();
@@ -4351,7 +4407,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   ),
                   SmgoButton(
                     primaryColor: AppColors.primary,
-                    text: 'Xác nhận',
+                    text: AppStrings.dOPConfirmButtonLabel.tr(),
                     onPressed: () {
                       context.read<TransitionRouteToSortingCubit>().call(
                         deliveryRouteId: _deliveryRoute.id,
@@ -4374,18 +4430,17 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
           _OutlineButton(
             icon: Icons.fact_check_outlined,
-            label: 'Quay lại kiểm tra đơn hàng',
+            label: AppStrings.dOPBackToCheckingActionLabel.tr(),
             onPressed: () {
               if (_deliveryRoute.totalSortedOrders > 0) {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Bạn có chắc muốn quay lại giai đoạn kiểm tra hàng?',
-                  subtitle:
-                      'Lưu ý: Sau khi thực hiện thao tác này bạn phải thực hiện sắp xếp lại vì việc thêm hoặc bớt đơn ở giai đoạn kiểm tra hàng có thể sẽ xáo trộn thứ tự sắp xếp hàng hoá',
+                  title: AppStrings.dOPBackToCheckingDialogTitle.tr(),
+                  subtitle: AppStrings.dOPBackToCheckingDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -4393,7 +4448,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<TransitionRouteToPendingCubit>().call(
                           deliveryRouteId: _deliveryRoute.id,
@@ -4416,17 +4471,16 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           if (!_deliveryRoute.isAllOrdersRouted) ...[
             _PrimaryButton(
               icon: Icons.local_shipping_outlined,
-              label: 'Tìm lộ trình tối ưu',
+              label: AppStrings.dOPFindOptimalRouteActionLabel.tr(),
               onPressed: () async {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Bạn chắc chắn thực hiện thao tác này không?',
-                  subtitle:
-                      'Lưu ý: Để tìm được lộ trình tối ưu nhất hãy đảm bảo các thông tin trong đơn hàng phải chính xác (nhất là địa chỉ nhận hàng)',
+                  title: AppStrings.dOPFindOptimalRouteDialogTitle.tr(),
+                  subtitle: AppStrings.dOPFindOptimalRouteDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -4434,7 +4488,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () async {
                         context.pop();
                         final position =
@@ -4462,12 +4516,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             _OutlineButton(
               disabled: _deliveryRoute.currentNeedSortOrder == null,
               icon: Icons.done,
-              label: 'Xác nhận đã sắp xếp',
+              label: AppStrings.dOPConfirmSortedActionLabel.tr(),
               subtitle:
                   _confirmSortedOrderMethod ==
                       ConfirmSortedOrderMethod.scanQrOrBarcode
-                  ? 'Quét mã QR hoặc Barcode'
-                  : 'Xác nhận nhanh',
+                  ? AppStrings.dOPConfirmSortedMethodQrOrBarcode.tr()
+                  : AppStrings.dOPConfirmSortedMethodQuick.tr(),
               onPressed: () {
                 if (_confirmSortedOrderMethod ==
                     ConfirmSortedOrderMethod.scanQrOrBarcode) {
@@ -4475,13 +4529,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                 } else {
                   AppDialogUtils.showSuccess(
                     context: context,
-                    title: 'Bạn có chắc đã sắp xếp đơn vào đúng vị trí?',
-                    subtitle:
-                        'Lưu ý: Sắp xếp đúng vị trí mà hệ thống đưa ra sẽ giúp bạn tiết kiệm thời gian và chi phí giao hàng.',
+                    title: AppStrings.dOPConfirmSortedDialogTitle.tr(),
+                    subtitle: AppStrings.dOPConfirmSortedDialogContent.tr(),
                     actions: [
                       SmgoButton(
                         isOutlined: true,
-                        text: 'Huỷ',
+                        text: AppStrings.dOPCancelButtonLabel.tr(),
                         primaryColor: AppColors.primary,
                         onPressed: () {
                           context.pop();
@@ -4489,7 +4542,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       ),
                       SmgoButton(
                         primaryColor: AppColors.primary,
-                        text: 'Xác nhận',
+                        text: AppStrings.dOPConfirmButtonLabel.tr(),
                         onPressed: () {
                           context.read<ConfirmSortedDeliveryOrdersCubit>().call(
                             deliveryRouteId: _deliveryRoute.id,
@@ -4514,18 +4567,17 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           _PrimaryButton(
             disabled: !_deliveryRoute.isAllSorted,
             icon: Icons.play_arrow,
-            label: 'Bắt đầu giao hàng',
-            subtitle: 'Chỉ khả dụng khi sắp xếp 100%',
+            label: AppStrings.dOPStartDeliveryActionLabel.tr(),
+            subtitle: AppStrings.dOPStartDeliveryActionSubtitle.tr(),
             onPressed: () {
               AppDialogUtils.showSuccess(
                 context: context,
-                title: 'Bạn chắc chắn đã sẵn sàng giao hàng chưa?',
-                subtitle:
-                    'Mẹo: Nhớ hãy lưu lại vị trí của người nhận mỗi khi giao hàng thành công nhé. Nó sẽ giúp bạn giao hàng nhanh hơn vào lần sau đấy.',
+                title: AppStrings.dOPStartDeliveryDialogTitle.tr(),
+                subtitle: AppStrings.dOPStartDeliveryDialogContent.tr(),
                 actions: [
                   SmgoButton(
                     isOutlined: true,
-                    text: 'Huỷ',
+                    text: AppStrings.dOPCancelButtonLabel.tr(),
                     primaryColor: AppColors.primary,
                     onPressed: () {
                       context.pop();
@@ -4533,7 +4585,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   ),
                   SmgoButton(
                     primaryColor: AppColors.primary,
-                    text: 'Xác nhận',
+                    text: AppStrings.dOPConfirmButtonLabel.tr(),
                     onPressed: () async {
                       context.read<TransitionRouteToDeliveringCubit>().call(
                         deliveryRouteId: _deliveryRoute.id,
@@ -4557,10 +4609,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           if (_deliveryRoute.currentNeedDeliveringOrder != null) ...[
             _PrimaryButton(
               icon: Icons.navigation,
-              label: 'Điều hướng trên bản đồ',
+              label: AppStrings.dOPNavigateMapActionLabel.tr(),
               subtitle: _directionToMapMethod == DirectionToMapMethod.googleMap
-                  ? 'Sử dụng Google Map'
-                  : 'Sử dụng SmGo Map',
+                  ? AppStrings.dOPNavigationGoogleMap.tr()
+                  : AppStrings.dOPNavigationSmgoMap.tr(),
               onPressed: () async {
                 final googleMapDirectionsUri =
                     ExternalUrlUtil.getGoogleMapsDirectionsUri(
@@ -4582,8 +4634,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           if (_deliveryRoute.currentNeedDeliveringOrder != null) ...[
             _OutlineButton(
               icon: Icons.phone_android_rounded,
-              label: 'Liên hệ',
-              subtitle: 'Liên lạc với người nhận',
+              label: AppStrings.dOPContactActionLabel.tr(),
+              subtitle: AppStrings.dOPContactActionSubtitle.tr(),
               onPressed: () => _showContactMethod(context: context),
             ),
 
@@ -4593,12 +4645,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           if (_deliveryRoute.currentNeedDeliveringOrder != null) ...[
             _OutlineButton(
               icon: Icons.task_alt_rounded,
-              label: 'Xác nhận giao hàng',
+              label: AppStrings.dOPConfirmDeliveryActionLabel.tr(),
               subtitle:
                   _confirmResultDeliveringOrderMethod ==
                       ConfirmResultDeliveringOrderMethod.scanQrOrBarcode
-                  ? 'Quét mã QR hoặc Barcode'
-                  : 'Xác nhận nhanh',
+                  ? AppStrings.dOPConfirmDeliveryMethodQrOrBarcode.tr()
+                  : AppStrings.dOPConfirmDeliveryMethodQuick.tr(),
               onPressed: () =>
                   _showConfirmDeliveryOrderMethod(context: context),
               onLongPress: () =>
@@ -4614,8 +4666,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               child: _PrimaryButton(
                 disabled: false,
                 icon: Icons.check_circle_outline_rounded,
-                label: 'Hoàn thành lộ trình',
-                subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
+                label: AppStrings.dOPCompleteRouteActionLabel.tr(),
+                subtitle: AppStrings.dOPCompleteRouteActionSubtitle.tr(),
                 onPressed: () {
                   context.read<TransitionRouteToCompletedCubit>().call(
                     deliveryRouteId: _deliveryRoute.id,
@@ -4627,8 +4679,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
             _PrimaryButton(
               disabled: true,
               icon: Icons.check_circle_outline_rounded,
-              label: 'Hoàn thành lộ trình',
-              subtitle: 'Chỉ khả dụng khi đã giao hàng xong',
+              label: AppStrings.dOPCompleteRouteActionLabel.tr(),
+              subtitle: AppStrings.dOPCompleteRouteActionSubtitle.tr(),
               onPressed: () {},
             ),
 
@@ -4646,12 +4698,13 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               child: _PrimaryButton(
                 disabled: !selectionCubit.state.isEnabled,
                 icon: Icons.navigation,
-                label: 'Lập lộ trình mới',
-                subtitle: 'Hãy chọn các đơn muốn giao lại',
+                label: AppStrings.dOPCreateNewRouteActionLabel.tr(),
+                subtitle: AppStrings.dOPCreateNewRouteActionSubtitle.tr(),
                 onPressed: () async {
                   context.read<CreateDeliveryRouteWithOrdersCubit>().call(
-                    routeName:
-                        'Giao lại các đơn hẹn giao sau (#${_deliveryRoute.id})',
+                    routeName: AppStrings.dOPRedeliveryRouteName.tr(
+                      namedArgs: {'routeId': _deliveryRoute.id},
+                    ),
                     orders: _deliveryRoute.orders
                         .where(
                           (order) => selectionCubit.state.selectedItems.any(
@@ -4677,8 +4730,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.phone_android_rounded,
-      title: 'Chọn phương thức liên lạc',
-      subtitle: 'Hãy chọn mục tương ứng trong danh sách dưới đây',
+      title: AppStrings.dOPContactMethodTitle.tr(),
+      subtitle: AppStrings.dOPContactMethodSubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
@@ -4686,8 +4739,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               Icons.phone,
               color: const ui.Color.fromRGBO(22, 163, 74, 1),
             ),
-            title: 'Gọi điện trực tiếp',
-            subtitle: 'Gọi thẳng qua số điện thoại người nhận',
+            title: AppStrings.dOPDirectCallTitle.tr(),
+            subtitle: AppStrings.dOPDirectCallSubtitle.tr(),
             onTap: () async {
               final currentNeedDeliveringOrder =
                   _deliveryRoute.currentNeedDeliveringOrder;
@@ -4709,8 +4762,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               Icons.sms,
               color: const ui.Color.fromRGBO(22, 163, 74, 1),
             ),
-            title: 'Nhắn tin qua SMS',
-            subtitle: 'Nhắn tin trực tiếp qua ứng dụng nhắn tin',
+            title: AppStrings.dOPSmsContactTitle.tr(),
+            subtitle: AppStrings.dOPSmsContactSubtitle.tr(),
             onTap: () async {
               final currentNeedDeliveringOrder =
                   _deliveryRoute.currentNeedDeliveringOrder;
@@ -4729,9 +4782,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Image.asset(AppAssets.icZalo, width: 24),
-            title: 'Liên hệ qua ứng dụng Zalo',
-            subtitle:
-                'Liên hệ và trao đổi thông tin với người nhận qua ứng dụng Zalo',
+            title: AppStrings.dOPZaloContactTitle.tr(),
+            subtitle: AppStrings.dOPZaloContactSubtitle.tr(),
             onTap: () async {
               final currentNeedDeliveringOrder =
                   _deliveryRoute.currentNeedDeliveringOrder;
@@ -4762,7 +4814,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
       context,
       MaterialPageRoute(
         builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return _deliveryRoute.currentNeedSortOrder?.orderCode == rawValue
@@ -4799,8 +4851,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Bạn không lấy đúng đơn cần sắp xếp hiện tại',
+                    Text(
+                      AppStrings.dOPWrongSortingOrderTitle.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -4811,8 +4863,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
-                      'Vui lòng kiểm tra lại mã vận đơn và lấy đúng đơn hàng cần sắp xếp hiện tại.',
+                    Text(
+                      AppStrings.dOPWrongSortingOrderContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -4833,8 +4885,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           Icons.qr_code_scanner,
                           color: Colors.white,
                         ),
-                        label: const Text(
-                          'Quét lại',
+                        label: Text(
+                          AppStrings.dOPRescanButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -4905,12 +4957,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                               const SizedBox(width: 12),
 
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Đã lấy đúng hàng',
+                                      AppStrings.dOPCorrectOrderTitle.tr(),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -4919,7 +4971,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                     ),
                                     SizedBox(height: 2),
                                     Text(
-                                      'Đơn hàng này đúng với đơn cần sắp xếp hiện tại',
+                                      AppStrings.dOPCorrectSortingOrderContent
+                                          .tr(),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black54,
@@ -4939,7 +4992,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         // ==================================================
                         _buildInfoRow(
                           Icons.view_column,
-                          "Mã vận đơn",
+                          AppStrings.dOPOrderCodeLabel.tr(),
                           order.orderCode,
                           showCopy: true,
                           context: context,
@@ -4949,10 +5002,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
-                          "Tên sản phẩm",
+                          AppStrings.dODPOrderNameLabel.tr(),
                           order.orderName?.isNotEmpty == true
                               ? order.orderName!
-                              : 'Không có tên đơn hàng',
+                              : AppStrings.dOPNoOrderName.tr(),
                           showCopy: true,
                           context: context,
                         ),
@@ -4961,7 +5014,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.person_outline,
-                          "Tên người nhận",
+                          AppStrings.dOPRecipientNameLabel.tr(),
                           order.contactName,
                           showCopy: true,
                           context: context,
@@ -4971,7 +5024,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.phone_outlined,
-                          "Số điện thoại",
+                          AppStrings.dOPPhoneNumberLabel.tr(),
                           order.contactPhone,
                           showCopy: true,
                           context: context,
@@ -4981,7 +5034,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.location_on_outlined,
-                          "Địa chỉ nhận",
+                          AppStrings.dOPDeliveryAddressLabel.tr(),
                           order.address,
                           showCopy: true,
                           context: context,
@@ -4990,7 +5043,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         const Divider(height: 24, color: Colors.black12),
 
                         _buildImageRow(
-                          "Ảnh đơn hàng",
+                          AppStrings.dOPOrderImageLabel.tr(),
                           order.orderMediaUrl ?? '',
                         ),
 
@@ -5034,16 +5087,19 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                             AppDialogUtils.showSuccess(
                               context: parentContext,
-                              title: 'Xác nhận thành công!',
-                              subtitle:
-                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                              title: AppStrings.dOPScanConfirmSuccessTitle.tr(),
+                              subtitle: AppStrings.dOPScanConfirmSuccessContent
+                                  .tr(
+                                    namedArgs: {'orderCode': order.orderCode},
+                                  ),
                             );
                           } else if (state
                               is ConfirmSortedDeliveryOrdersFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Xác nhận đơn hàng thất bại',
-                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                              title: AppStrings.dOPScanConfirmFailedTitle.tr(),
+                              subtitle: AppStrings.dOPScanConfirmFailedContent
+                                  .tr(),
                             );
                           }
                         },
@@ -5064,7 +5120,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       onPressed: () {
                                         context.pop();
                                       },
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
@@ -5075,7 +5131,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                           ),
                                           SizedBox(width: 8),
                                           Text(
-                                            'Quét lại',
+                                            AppStrings.dOPRescanButtonLabel
+                                                .tr(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
@@ -5130,8 +5187,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                           DeliveryOrderStatus
                                                               .sorted
                                                               .value
-                                                      ? 'Đã xác nhận'
-                                                      : 'Xác nhận',
+                                                      ? AppStrings
+                                                            .dOPConfirmedLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .dOPUnconfirmedLabel
+                                                            .tr(),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w600,
@@ -5163,14 +5224,14 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.check_circle_outline_rounded,
-      title: 'Xác nhận giao hàng',
-      subtitle: 'Hãy chọn mục tương ứng trong danh sách dưới đây',
+      title: AppStrings.dOPConfirmDeliveryTitle.tr(),
+      subtitle: AppStrings.dOPConfirmDeliverySubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
             icon: Icon(Icons.check_circle, color: const Color(0xFF16A34A)),
-            title: 'Giao hàng thành công',
-            subtitle: 'Hàng đã trao tận tay cho người nhận',
+            title: AppStrings.dOPDeliveredOptionTitle.tr(),
+            subtitle: AppStrings.dOPDeliveredOptionSubtitle.tr(),
             onTap: () {
               if (_confirmResultDeliveringOrderMethod ==
                   ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
@@ -5179,13 +5240,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               } else {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Bạn có chắc đã giao đơn này thành công?',
-                  subtitle:
-                      'Chỉ thực hiện thao tác này khi đơn đã được trao tận tay cho khách hàng.',
+                  title: AppStrings.dOPDeliveredDialogTitle.tr(),
+                  subtitle: AppStrings.dOPDeliveredDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -5193,7 +5253,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<ConfirmDeliveredOrderCubit>().call(
                           deliveryRouteId: _deliveryRoute
@@ -5214,8 +5274,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Icon(Icons.cancel, color: const Color(0xFFDC2626)),
-            title: 'Giao hàng thất bại',
-            subtitle: 'Người nhận không nhận hàng',
+            title: AppStrings.dOPCancelledOptionTitle.tr(),
+            subtitle: AppStrings.dOPCancelledOptionSubtitle.tr(),
             onTap: () {
               if (_confirmResultDeliveringOrderMethod ==
                   ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
@@ -5224,13 +5284,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               } else {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Bạn có chắc khách hàng không nhận đơn hàng này?',
-                  subtitle:
-                      'Chỉ thực hiện thao tác này khi khách từ chối nhận hàng hoặc không liên lạc được với khách.',
+                  title: AppStrings.dOPCancelledDialogTitle.tr(),
+                  subtitle: AppStrings.dOPCancelledDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -5238,7 +5297,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<ConfirmCancelledOrderCubit>().call(
                           deliveryRouteId: _deliveryRoute
@@ -5259,8 +5318,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Icon(Icons.schedule, color: const Color(0xFF3B82F6)),
-            title: 'Hẹn giao sau',
-            subtitle: 'Người nhận yêu cầu giao đơn hàng này sau',
+            title: AppStrings.dOPRescheduledOptionTitle.tr(),
+            subtitle: AppStrings.dOPRescheduledOptionSubtitle.tr(),
             onTap: () {
               if (_confirmResultDeliveringOrderMethod ==
                   ConfirmResultDeliveringOrderMethod.scanQrOrBarcode) {
@@ -5269,13 +5328,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
               } else {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Bạn có chắc giao đơn hàng này sau?',
-                  subtitle:
-                      'Chỉ thực hiện thao tác này khi khách hàng hẹn giao sau hoặc bạn muốn giao sau.',
+                  title: AppStrings.dOPRescheduledDialogTitle.tr(),
+                  subtitle: AppStrings.dOPRescheduledDialogContent.tr(),
                   actions: [
                     SmgoButton(
                       isOutlined: true,
-                      text: 'Huỷ',
+                      text: AppStrings.dOPCancelButtonLabel.tr(),
                       primaryColor: AppColors.primary,
                       onPressed: () {
                         context.pop();
@@ -5283,7 +5341,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                     ),
                     SmgoButton(
                       primaryColor: AppColors.primary,
-                      text: 'Xác nhận',
+                      text: AppStrings.dOPConfirmButtonLabel.tr(),
                       onPressed: () {
                         context.read<ConfirmRescheduledOrderCubit>().call(
                           deliveryRouteId: _deliveryRoute
@@ -5310,15 +5368,14 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.rule_folder_outlined,
-      title: 'Tuỳ chọn cách xác nhận sắp xếp đơn hàng',
-      subtitle: 'Hãy chọn một mục mà bạn muốn',
+      title: AppStrings.dOPSortingConfirmationMethodTitle.tr(),
+      subtitle: AppStrings.dOPSortingConfirmationMethodSubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
             icon: Icon(Icons.qr_code_scanner, size: 24, color: Colors.blue),
-            title: 'Quét mã QR hoặc Barcode',
-            subtitle:
-                'Giúp bạn sắp xếp chính xác hơn, không lấy nhầm hàng khi sắp xếp',
+            title: AppStrings.dOPSortingQrGuideTitle.tr(),
+            subtitle: AppStrings.dOPSortingQrGuideSubtitle.tr(),
             onTap: () {
               _changeConfirmSortedOrderMethod(
                 value: ConfirmSortedOrderMethod.scanQrOrBarcode,
@@ -5332,8 +5389,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Icon(Icons.flash_on, size: 24, color: Colors.orange),
-            title: 'Xác nhận nhanh',
-            subtitle: 'Giúp bạn xác nhận nhanh mà không cần phải quét mã',
+            title: AppStrings.dOPQuickConfirmationTitle.tr(),
+            subtitle: AppStrings.dOPQuickConfirmationSubtitle.tr(),
             onTap: () {
               _changeConfirmSortedOrderMethod(
                 value: ConfirmSortedOrderMethod.manual,
@@ -5354,15 +5411,14 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.local_shipping_outlined,
-      title: 'Tuỳ chọn cách xác nhận giao hàng',
-      subtitle: 'Hãy chọn một mục mà bạn muốn',
+      title: AppStrings.dOPDeliveryConfirmationMethodTitle.tr(),
+      subtitle: AppStrings.dOPDeliveryConfirmationMethodSubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
             icon: Icon(Icons.qr_code_scanner, size: 24, color: Colors.blue),
-            title: 'Quét mã QR hoặc Barcode',
-            subtitle:
-                'Giúp bạn lấy đơn hàng chính xác cần giao không bị giao nhầm hàng',
+            title: AppStrings.dOPDeliveryQrGuideTitle.tr(),
+            subtitle: AppStrings.dOPDeliveryQrGuideSubtitle.tr(),
             onTap: () {
               _changeConfirmResultDeliveringOrderMethod(
                 value: ConfirmResultDeliveringOrderMethod.scanQrOrBarcode,
@@ -5376,8 +5432,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Icon(Icons.flash_on, size: 24, color: Colors.orange),
-            title: 'Xác nhận nhanh',
-            subtitle: 'Xác nhận nhanh chóng không cần quét mã',
+            title: AppStrings.dOPDeliveryQuickConfirmationTitle.tr(),
+            subtitle: AppStrings.dOPDeliveryQuickConfirmationSubtitle.tr(),
             onTap: () {
               _changeConfirmResultDeliveringOrderMethod(
                 value: ConfirmResultDeliveringOrderMethod.manual,
@@ -5397,15 +5453,14 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.navigation,
-      title: 'Tuỳ chọn điều hướng',
-      subtitle: 'Hãy chọn một mục mà bạn muốn',
+      title: AppStrings.dOPNavigationOptionTitle.tr(),
+      subtitle: AppStrings.dOPNavigationOptionSubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
             icon: Image.asset(AppAssets.icGoogleMaps, width: 24),
-            title: 'Sử dụng Google Map',
-            subtitle:
-                'Giúp bạn điều hướng đến Google Map và đường đi tới điểm giao hàng',
+            title: AppStrings.dOPGoogleMapNavigationTitle.tr(),
+            subtitle: AppStrings.dOPGoogleMapNavigationSubtitle.tr(),
             onTap: () {
               _changeDirectionToMapMethod(
                 value: DirectionToMapMethod.googleMap,
@@ -5417,14 +5472,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
           SizedBox(height: 8),
           OptionButton(
             icon: Image.asset(AppAssets.logo, width: 24),
-            title: 'Sử dụng SmGo Map',
-            subtitle: 'Điều hướng đến SmGoMap (Đang phát triển)',
+            title: AppStrings.dOPSmgoMapNavigationTitle.tr(),
+            subtitle: AppStrings.dOPSmgoMapNavigationSubtitle.tr(),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Tính năng này đang trong giai đoạn phát triển. Vui lòng chờ đến bản cập nhật tiếp theo.',
-                  ),
+                SnackBar(
+                  content: Text(AppStrings.dOPSmgoMapDevelopingContent.tr()),
                 ),
               );
               context.pop();
@@ -5440,8 +5493,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
     AppDialogUtils.showCustomDialog(
       context: context,
       iconData: Icons.fact_check_outlined,
-      title: 'Chọn phương thước kiểm tra hàng hoá',
-      subtitle: 'Vui lòng chọn một phương thức',
+      title: AppStrings.dOPCheckMethodSelectionTitle.tr(),
+      subtitle: AppStrings.dOPCheckMethodSelectionSubtitle.tr(),
       content: Column(
         children: [
           OptionButton(
@@ -5451,9 +5504,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   ? AppColors.primary
                   : Colors.black,
             ),
-            title: 'Quét mã QR hoặc Barcode',
-            subtitle:
-                'Sử dụng camera để quét nhanh mã QR hoặc Barcode dán trên gói hàng',
+            title: AppStrings.dOPCheckQrMethodTitle.tr(),
+            subtitle: AppStrings.dOPCheckQrMethodSubtitle.tr(),
             onTap: () {
               _changeCheckOrderMethod(value: CheckOrderMethod.scanQrOrBarcode);
               context.pop();
@@ -5468,8 +5520,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                   ? AppColors.primary
                   : Colors.black,
             ),
-            title: 'Kiểm tra thủ công',
-            subtitle: 'Tự xác nhận và đối soát danh sách hàng hóa bằng tay',
+            title: AppStrings.dOPManualCheckMethodTitle.tr(),
+            subtitle: AppStrings.dOPManualCheckMethodSubtitle.tr(),
             onTap: () {
               _changeCheckOrderMethod(value: CheckOrderMethod.manual);
               context.pop();
@@ -5491,7 +5543,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
       context,
       MaterialPageRoute(
         builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return _deliveryRoute.currentNeedDeliveringOrder?.orderCode ==
@@ -5529,8 +5581,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Bạn không lấy đúng đơn giao',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderTitle.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -5541,8 +5593,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
-                      'Vui lòng kiểm tra lại mã vận đơn và lấy đúng đơn hàng đang giao.',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -5563,8 +5615,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           Icons.qr_code_scanner,
                           color: Colors.white,
                         ),
-                        label: const Text(
-                          'Quét lại',
+                        label: Text(
+                          AppStrings.dOPRescanButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -5635,12 +5687,13 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                               const SizedBox(width: 12),
 
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Đã lấy đúng hàng',
+                                      AppStrings.dOPCorrectDeliveryOrderTitle
+                                          .tr(),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -5649,7 +5702,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                     ),
                                     SizedBox(height: 2),
                                     Text(
-                                      'Đơn hàng này đúng với đơn cần giao',
+                                      AppStrings.dOPCorrectDeliveryOrderContent
+                                          .tr(),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black54,
@@ -5669,7 +5723,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         // ==================================================
                         _buildInfoRow(
                           Icons.view_column,
-                          "Mã vận đơn",
+                          AppStrings.dOPOrderCodeLabel.tr(),
                           order.orderCode,
                           showCopy: true,
                           context: context,
@@ -5679,10 +5733,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
-                          "Tên sản phẩm",
+                          AppStrings.dODPOrderNameLabel.tr(),
                           order.orderName?.isNotEmpty == true
                               ? order.orderName!
-                              : 'Không có tên đơn hàng',
+                              : AppStrings.dOPNoOrderName.tr(),
                           showCopy: true,
                           context: context,
                         ),
@@ -5691,7 +5745,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.person_outline,
-                          "Tên người nhận",
+                          AppStrings.dOPRecipientNameLabel.tr(),
                           order.contactName,
                           showCopy: true,
                           context: context,
@@ -5701,7 +5755,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.phone_outlined,
-                          "Số điện thoại",
+                          AppStrings.dOPPhoneNumberLabel.tr(),
                           order.contactPhone,
                           showCopy: true,
                           context: context,
@@ -5711,7 +5765,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.location_on_outlined,
-                          "Địa chỉ nhận",
+                          AppStrings.dOPDeliveryAddressLabel.tr(),
                           order.address,
                           showCopy: true,
                           context: context,
@@ -5720,7 +5774,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         const Divider(height: 24, color: Colors.black12),
 
                         _buildImageRow(
-                          "Ảnh đơn hàng",
+                          AppStrings.dOPOrderImageLabel.tr(),
                           order.orderMediaUrl ?? '',
                         ),
 
@@ -5764,15 +5818,24 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                             AppDialogUtils.showSuccess(
                               context: parentContext,
-                              title: 'Xác nhận thành công!',
-                              subtitle:
-                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                              title: AppStrings
+                                  .dOPConfirmRescheduledOrderSuccessDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmRescheduledOrderSuccessDialogSubtitle
+                                  .tr(
+                                    namedArgs: {'orderCode': order.orderCode},
+                                  ),
                             );
                           } else if (state is ConfirmRescheduledOrderFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Xác nhận đơn hàng thất bại',
-                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                              title: AppStrings
+                                  .dOPConfirmRescheduledOrderFailedDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmRescheduledOrderFailedDialogSubtitle
+                                  .tr(),
                             );
                           }
                         },
@@ -5793,7 +5856,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       onPressed: () {
                                         context.pop();
                                       },
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
@@ -5804,7 +5867,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                           ),
                                           SizedBox(width: 8),
                                           Text(
-                                            'Quét lại',
+                                            AppStrings.dOPRescanButtonLabel
+                                                .tr(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
@@ -5861,8 +5925,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                           DeliveryOrderStatus
                                                               .rescheduled
                                                               .value
-                                                      ? 'Đã xác nhận'
-                                                      : 'Xác nhận',
+                                                      ? AppStrings
+                                                            .dOPConfirmedLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .dOPUnconfirmedLabel
+                                                            .tr(),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w600,
@@ -5895,13 +5963,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
   }) {
     final getDeliveryRoutesCubitInParent = context
         .read<GetDeliveryRoutesCubit>();
-    final parentContext = context;
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return _deliveryRoute.currentNeedDeliveringOrder?.orderCode ==
@@ -5939,8 +6006,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Bạn không lấy đúng đơn giao',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderTitle.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -5951,8 +6018,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
-                      'Vui lòng kiểm tra lại mã vận đơn và lấy đúng đơn hàng đang giao.',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -5973,8 +6040,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           Icons.qr_code_scanner,
                           color: Colors.white,
                         ),
-                        label: const Text(
-                          'Quét lại',
+                        label: Text(
+                          AppStrings.dOPRescanButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -6045,12 +6112,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                               const SizedBox(width: 12),
 
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Đã lấy đúng hàng',
+                                      AppStrings.dOPCorrectOrderTitle.tr(),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -6059,7 +6126,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                     ),
                                     SizedBox(height: 2),
                                     Text(
-                                      'Đơn hàng này đúng với đơn cần giao',
+                                      AppStrings.dOPCorrectDeliveryOrderContent
+                                          .tr(),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black54,
@@ -6079,7 +6147,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         // ==================================================
                         _buildInfoRow(
                           Icons.view_column,
-                          "Mã vận đơn",
+                          AppStrings.dOPOrderCodeLabel.tr(),
                           order.orderCode,
                           showCopy: true,
                           context: context,
@@ -6089,10 +6157,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
-                          "Tên sản phẩm",
+                          AppStrings.dODPOrderNameLabel.tr(),
                           order.orderName?.isNotEmpty == true
                               ? order.orderName!
-                              : 'Không có tên đơn hàng',
+                              : AppStrings.dOPNoOrderName.tr(),
                           showCopy: true,
                           context: context,
                         ),
@@ -6101,7 +6169,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.person_outline,
-                          "Tên người nhận",
+                          AppStrings.dOPRecipientNameLabel.tr(),
                           order.contactName,
                           showCopy: true,
                           context: context,
@@ -6111,7 +6179,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.phone_outlined,
-                          "Số điện thoại",
+                          AppStrings.dOPPhoneNumberLabel.tr(),
                           order.contactPhone,
                           showCopy: true,
                           context: context,
@@ -6121,7 +6189,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.location_on_outlined,
-                          "Địa chỉ nhận",
+                          AppStrings.dOPDeliveryAddressLabel.tr(),
                           order.address,
                           showCopy: true,
                           context: context,
@@ -6130,7 +6198,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         const Divider(height: 24, color: Colors.black12),
 
                         _buildImageRow(
-                          "Ảnh đơn hàng",
+                          AppStrings.dOPOrderImageLabel.tr(),
                           order.orderMediaUrl ?? '',
                         ),
 
@@ -6174,15 +6242,24 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                             AppDialogUtils.showSuccess(
                               context: context,
-                              title: 'Xác nhận thành công!',
-                              subtitle:
-                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                              title: AppStrings
+                                  .dOPConfirmCanceledOrderSuccessDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmCanceledOrderSuccessDialogSubtitle
+                                  .tr(
+                                    namedArgs: {'orderCode': order.orderCode},
+                                  ),
                             );
                           } else if (state is ConfirmCancelledOrderFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Xác nhận đơn hàng thất bại',
-                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                              title: AppStrings
+                                  .dOPConfirmCanceledOrderFailedDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmCanceledOrderFailedDialogSubtitle
+                                  .tr(),
                             );
                           }
                         },
@@ -6203,7 +6280,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       onPressed: () {
                                         context.pop();
                                       },
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
@@ -6214,7 +6291,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                           ),
                                           SizedBox(width: 8),
                                           Text(
-                                            'Quét lại',
+                                            AppStrings.dOPRescanButtonLabel
+                                                .tr(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
@@ -6269,8 +6347,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                           DeliveryOrderStatus
                                                               .cancelled
                                                               .value
-                                                      ? 'Đã xác nhận'
-                                                      : 'Xác nhận',
+                                                      ? AppStrings
+                                                            .dOPConfirmedLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .dOPUnconfirmedLabel
+                                                            .tr(),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w600,
@@ -6309,7 +6391,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
       context,
       MaterialPageRoute(
         builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return _deliveryRoute.currentNeedDeliveringOrder?.orderCode ==
@@ -6347,8 +6429,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Bạn không lấy đúng đơn giao',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderTitle.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -6359,8 +6441,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
-                      'Vui lòng kiểm tra lại mã vận đơn và lấy đúng đơn hàng đang giao.',
+                    Text(
+                      AppStrings.dOPWrongDeliveryOrderContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -6381,8 +6463,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           Icons.qr_code_scanner,
                           color: Colors.white,
                         ),
-                        label: const Text(
-                          'Quét lại',
+                        label: Text(
+                          AppStrings.dOPRescanButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -6453,12 +6535,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                               const SizedBox(width: 12),
 
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Đã lấy đúng hàng',
+                                      AppStrings.dOPCorrectOrderTitle.tr(),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -6467,7 +6549,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                     ),
                                     SizedBox(height: 2),
                                     Text(
-                                      'Đơn hàng này đúng với đơn cần giao',
+                                      AppStrings.dOPCorrectDeliveryOrderContent
+                                          .tr(),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black54,
@@ -6487,7 +6570,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         // ==================================================
                         _buildInfoRow(
                           Icons.view_column,
-                          "Mã vận đơn",
+                          AppStrings.dOPOrderCodeLabel.tr(),
                           order.orderCode,
                           showCopy: true,
                           context: context,
@@ -6497,10 +6580,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
-                          "Tên sản phẩm",
+                          AppStrings.dODPOrderNameLabel.tr(),
                           order.orderName?.isNotEmpty == true
                               ? order.orderName!
-                              : 'Không có tên đơn hàng',
+                              : AppStrings.dOPNoOrderName.tr(),
                           showCopy: true,
                           context: context,
                         ),
@@ -6509,7 +6592,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.person_outline,
-                          "Tên người nhận",
+                          AppStrings.dOPRecipientNameLabel.tr(),
                           order.contactName,
                           showCopy: true,
                           context: context,
@@ -6519,7 +6602,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.phone_outlined,
-                          "Số điện thoại",
+                          AppStrings.dOPPhoneNumberLabel.tr(),
                           order.contactPhone,
                           showCopy: true,
                           context: context,
@@ -6529,7 +6612,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.location_on_outlined,
-                          "Địa chỉ nhận",
+                          AppStrings.dOPDeliveryAddressLabel.tr(),
                           order.address,
                           showCopy: true,
                           context: context,
@@ -6538,7 +6621,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         const Divider(height: 24, color: Colors.black12),
 
                         _buildImageRow(
-                          "Ảnh đơn hàng",
+                          AppStrings.dOPOrderImageLabel.tr(),
                           order.orderMediaUrl ?? '',
                         ),
 
@@ -6582,15 +6665,24 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                             AppDialogUtils.showSuccess(
                               context: parentContext,
-                              title: 'Xác nhận thành công!',
-                              subtitle:
-                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                              title: AppStrings
+                                  .dOPConfirmDeliveredOrderSuccessDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmDeliveredOrderSuccessDialogSubtitle
+                                  .tr(
+                                    namedArgs: {'orderCode': order.orderCode},
+                                  ),
                             );
                           } else if (state is ConfirmDeliveredOrderFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Xác nhận đơn hàng thất bại',
-                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                              title: AppStrings
+                                  .dOPConfirmDeliveredOrderFailedDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmDeliveredOrderFailedDialogSubtitle
+                                  .tr(),
                             );
                           }
                         },
@@ -6611,7 +6703,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       onPressed: () {
                                         context.pop();
                                       },
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
@@ -6622,7 +6714,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                           ),
                                           SizedBox(width: 8),
                                           Text(
-                                            'Quét lại',
+                                            AppStrings.dOPRescanButtonLabel
+                                                .tr(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
@@ -6677,8 +6770,12 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                           DeliveryOrderStatus
                                                               .delivered
                                                               .value
-                                                      ? 'Đã xác nhận'
-                                                      : 'Xác nhận',
+                                                      ? AppStrings
+                                                            .dOPConfirmedLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .dOPUnconfirmedLabel
+                                                            .tr(),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w600,
@@ -6715,7 +6812,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
       context,
       MaterialPageRoute(
         builder: (context) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.dOPScanOrderInformationTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return _deliveryRoute.orders
@@ -6747,8 +6844,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "Không tìm thấy đơn hàng",
+                    Text(
+                      AppStrings.dOPOrderNotFoundTitle.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -6756,8 +6853,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      "Mã này không tồn tại hoặc không phù hợp với hệ thống. Vui lòng thử lại.",
+                    Text(
+                      AppStrings.dOPOrderNotFoundContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
@@ -6776,8 +6873,8 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          "Quét mã khác",
+                        child: Text(
+                          AppStrings.dOPScanAnotherCodeButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -6800,7 +6897,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                       children: [
                         _buildInfoRow(
                           Icons.view_column,
-                          "Mã vận đơn",
+                          AppStrings.dOPOrderCodeLabel.tr(),
                           order.orderCode,
                           showCopy: true,
                           context: context,
@@ -6810,10 +6907,10 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.inventory_2_outlined,
-                          "Tên sản phẩm",
+                          AppStrings.dODPOrderNameLabel.tr(),
                           order.orderName?.isNotEmpty == true
                               ? order.orderName!
-                              : 'Không có tên đơn hàng',
+                              : AppStrings.dOPNoOrderName.tr(),
                           showCopy: true,
                           context: context,
                         ),
@@ -6822,7 +6919,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.person_outline,
-                          "Tên người nhận",
+                          AppStrings.dOPRecipientNameLabel.tr(),
                           order.contactName,
                           showCopy: true,
                           context: context,
@@ -6831,7 +6928,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.phone_outlined,
-                          "Số điện thoại",
+                          AppStrings.dOPPhoneNumberLabel.tr(),
                           order.contactPhone,
                           showCopy: true,
                           context: context,
@@ -6840,7 +6937,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
 
                         _buildInfoRow(
                           Icons.location_on_outlined,
-                          "Địa chỉ nhận",
+                          AppStrings.dOPDeliveryAddressLabel.tr(),
                           order.address,
                           showCopy: true,
                           context: context,
@@ -6848,7 +6945,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                         const Divider(height: 24, color: Colors.black12),
 
                         _buildImageRow(
-                          "Ảnh đơn hàng",
+                          AppStrings.dOPOrderImageLabel.tr(),
                           order.orderMediaUrl ?? '',
                         ),
                         const SizedBox(height: 24),
@@ -6885,15 +6982,24 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                             context.pop();
                             AppDialogUtils.showSuccess(
                               context: context,
-                              title: 'Xác nhận thành công!',
-                              subtitle:
-                                  'Đơn hàng có mã vận đơn ${order.orderCode} đã được xác nhận.',
+                              title: AppStrings
+                                  .dOPConfirmCheckedOrderSuccessDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmCheckedOrderSuccessDialogSubtitle
+                                  .tr(
+                                    namedArgs: {'orderCode': order.orderCode},
+                                  ),
                             );
                           } else if (state is ConfirmDeliveryOrdersFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Xác nhận đơn hàng thất bại',
-                              subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                              title: AppStrings
+                                  .dOPConfirmCheckedOrderFailedDialogTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .dOPConfirmCheckedOrderFailedDialogSubtitle
+                                  .tr(),
                             );
                           }
                         },
@@ -6912,7 +7018,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                   onPressed: () {
                                     context.pop();
                                   },
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
@@ -6922,7 +7028,7 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                       ),
                                       SizedBox(width: 8),
                                       Text(
-                                        "Quét lại",
+                                        AppStrings.dOPRescanButtonLabel.tr(),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
@@ -6972,8 +7078,11 @@ class __RouteActionBarState extends State<_RouteActionBar> {
                                                       DeliveryOrderStatus
                                                           .checked
                                                           .value
-                                                  ? 'Đã xác nhận'
-                                                  : "Xác nhận",
+                                                  ? AppStrings.dOPConfirmedLabel
+                                                        .tr()
+                                                  : AppStrings
+                                                        .dOPUnconfirmedLabel
+                                                        .tr(),
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.w600,
@@ -7232,7 +7341,9 @@ class _CustomerBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        familiar ? 'Khách quen' : 'Khách lạ',
+        familiar
+            ? AppStrings.dOPFamiliarCustomerLabel.tr()
+            : AppStrings.dOPNewCustomerLabel.tr(),
         style: TextStyle(
           color: familiar ? RouteColors.green : RouteColors.blue,
           fontSize: 11,
@@ -7362,8 +7473,8 @@ void _copyToClipboard({
     return;
   }
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Đã sao chép vào bộ nhớ tạm!'),
+    SnackBar(
+      content: Text(AppStrings.dOPCopiedToClipboardContent.tr()),
       duration: Duration(seconds: 2),
     ),
   );
@@ -7401,9 +7512,9 @@ Widget _buildImageRow(String label, String imageUrl) {
           child: Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Center(
+            errorBuilder: (_, _, _) => Center(
               child: Text(
-                "Không có ảnh",
+                AppStrings.dOPNoImageContent.tr(),
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),
