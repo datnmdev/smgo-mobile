@@ -16,18 +16,19 @@ class LocationSearchRepositoryImpl implements LocationSearchRepository {
     required GetLocationSuggestionsParams params,
   }) async {
     try {
-      final dataState = await locationSearchApiService.getLocationSuggestions(
-        query: GetLocationSuggestionsQuery(
-          pageNumber: params.pageNumber,
-          pageSize: params.pageSize,
-          contactPhone: params.contactPhone,
-          address: params.address,
-        ),
-      );
+      final httpResponse = await locationSearchApiService
+          .getLocationSuggestions(
+            query: GetLocationSuggestionsQuery(
+              pageNumber: params.pageNumber,
+              pageSize: params.pageSize,
+              contactPhone: params.contactPhone,
+              address: params.address,
+            ),
+          );
       return DataSuccess(
         Pagination(
-          meta: dataState.data.data!.meta,
-          data: dataState.data.data!.data
+          meta: httpResponse.data.data!.meta,
+          data: httpResponse.data.data!.data
               .map(
                 (locationModel) => LocationEntity(
                   id: locationModel.id,

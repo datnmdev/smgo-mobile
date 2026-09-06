@@ -1,21 +1,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_api_service.dart';
+part of 'share_location_api_service.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-UpdateProfileBodyRequest _$UpdateProfileBodyRequestFromJson(
+GetShareLocationUrlQueryRequest _$GetShareLocationUrlQueryRequestFromJson(
   Map<String, dynamic> json,
-) => UpdateProfileBodyRequest(
-  name: json['name'] as String?,
-  avatar: json['avatar'] as String?,
+) => GetShareLocationUrlQueryRequest(
+  deliveryRouteId: json['deliveryRouteId'] as String,
+  deliveryOrderId: json['deliveryOrderId'] as String,
 );
 
-Map<String, dynamic> _$UpdateProfileBodyRequestToJson(
-  UpdateProfileBodyRequest instance,
-) => <String, dynamic>{'name': ?instance.name, 'avatar': ?instance.avatar};
+Map<String, dynamic> _$GetShareLocationUrlQueryRequestToJson(
+  GetShareLocationUrlQueryRequest instance,
+) => <String, dynamic>{
+  'deliveryRouteId': instance.deliveryRouteId,
+  'deliveryOrderId': instance.deliveryOrderId,
+};
 
 // dart format off
 
@@ -25,8 +28,8 @@ Map<String, dynamic> _$UpdateProfileBodyRequestToJson(
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
 
-class _UserApiService implements UserApiService {
-  _UserApiService(this._dio, {this.baseUrl, this.errorLogger});
+class _ShareLocationApiService implements ShareLocationApiService {
+  _ShareLocationApiService(this._dio, {this.baseUrl, this.errorLogger});
 
   final Dio _dio;
 
@@ -35,61 +38,30 @@ class _UserApiService implements UserApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HttpResponse<ApiResponse<UserModel>>> getProfile() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<ApiResponse<UserModel>>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/user/profile',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<UserModel> _value;
-    try {
-      _value = ApiResponse<UserModel>.fromJson(
-        _result.data!,
-        (json) => UserModel.fromJson(json as Map<String, dynamic>),
-      );
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
-  }
-
-  @override
-  Future<HttpResponse<ApiResponse<dynamic>>> updateProfile({
-    required UpdateProfileBodyRequest body,
+  Future<HttpResponse<ApiResponse<String>>> getShareLocationUrl({
+    required GetShareLocationUrlQueryRequest query,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(query.toJson());
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
-    final _options = _setStreamType<HttpResponse<ApiResponse<dynamic>>>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<ApiResponse<String>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/user/profile',
+            '/location/share-url',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<dynamic> _value;
+    late ApiResponse<String> _value;
     try {
-      _value = ApiResponse<dynamic>.fromJson(
+      _value = ApiResponse<String>.fromJson(
         _result.data!,
-        (json) => json as dynamic,
+        (json) => json as String,
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,9 @@ import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_o
 import 'package:smgo/features/delivery_route/presentation/bloc/delete_delivery_orders/delete_delivery_orders_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_share_location_url/get_share_location_url_cubit.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_share_location_url/get_share_location_url_state.dart';
+import 'package:smgo/features/delivery_route/presentation/widgets/location_request_card.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
@@ -72,6 +76,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
         ),
         BlocProvider<GetProfileCubit>(
           create: (_) => di<GetProfileCubit>()..call(),
+        ),
+        BlocProvider<GetShareLocationUrlCubit>(
+          create: (_) => di<GetShareLocationUrlCubit>(),
         ),
       ],
       child: Scaffold(
@@ -565,6 +572,70 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+
+                  BlocConsumer<
+                    GetShareLocationUrlCubit,
+                    GetShareLocationUrlState
+                  >(
+                    listener: (_, state) async {
+                      if (state is GetShareLocationUrlDone) {
+                        await Clipboard.setData(
+                          ClipboardData(text: state.shareLocationUrl),
+                        );
+                        if (!context.mounted) {
+                          return;
+                        }
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: 'Lấy đường dẫn thành công',
+                          subtitle:
+                              'Bây giờ bạn hãy dán và gửi đường dẫn này cho người nhận để họ cấp vị trí chính xác cho bạn.',
+                        );
+                      } else if (state is GetShareLocationUrlFailed) {
+                        if (state.error is DioException &&
+                            (state.error as DioException)
+                                    .response
+                                    ?.data?['error']?['code'] ==
+                                'LOCATION_SHARING_NOT_ALLOWED') {
+                          AppDialogUtils.showCustomDialog(
+                            context: context,
+                            title: 'Nâng cấp gói sử dụng',
+                            subtitle:
+                                'Tính năng này chưa được hỗ trợ trong gói hiện tại của bạn. Hãy nâng cấp gói để trải nghiệm đầy đủ tính năng này.',
+                            iconData: Icons.rocket_launch_outlined,
+                            actions: [
+                              SmgoButton(
+                                onPressed: () {
+                                  context.pop();
+                                  context.pushNamed(AppRouteNames.subscription);
+                                },
+                                text: 'Nâng cấp ngay',
+                                textColor: Colors.white,
+                                primaryColor: AppColors.primary,
+                              ),
+                            ],
+                          );
+                          return;
+                        }
+                        AppDialogUtils.showSuccess(
+                          context: context,
+                          title: 'Lấy đường dẫn thất bại!',
+                          subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                        );
+                      }
+                    },
+                    builder: (_, state) => LocationRequestCard(
+                      isLoading: state is GetShareLocationUrlLoading,
+                      onRequestLocation: () {
+                        context.read<GetShareLocationUrlCubit>().call(
+                          deliveryRouteId: deliveryRoute!.id,
+                          deliveryOrderId: deliveryOrder!.id,
+                        );
+                      },
+                    ),
+                  ),
+
                   const SizedBox(height: 12),
 
                   // 5. Vị trí & Điều hướng

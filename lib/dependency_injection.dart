@@ -14,6 +14,11 @@ import 'package:smgo/features/auth/domain/repository/auth_repository.dart';
 import 'package:smgo/features/auth/domain/usecases/check_authentication_usecase.dart';
 import 'package:smgo/features/auth/domain/usecases/sign_in_with_facebook_usecase.dart';
 import 'package:smgo/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
+import 'package:smgo/features/delivery_route/data/data_sources/share_location_api_service.dart';
+import 'package:smgo/features/delivery_route/data/repository/share_location_repository_impl.dart';
+import 'package:smgo/features/delivery_route/domain/repository/share_location_repository.dart';
+import 'package:smgo/features/delivery_route/domain/usecases/get_share_location_url_usecase.dart';
+import 'package:smgo/features/delivery_route/presentation/bloc/get_share_location_url/get_share_location_url_cubit.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_session/check_session_cubit.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:smgo/features/delivery_route/data/data_sources/ai_api_service.dart';
@@ -51,6 +56,7 @@ import 'package:smgo/shared/domain/repository/session_repository.dart';
 import 'package:smgo/shared/domain/repository/subscription_repository.dart';
 import 'package:smgo/shared/domain/usecases/get_current_subscription_usecase.dart';
 import 'package:smgo/shared/domain/usecases/signout_usecase.dart';
+import 'package:smgo/shared/domain/usecases/update_profile_usecase.dart';
 import 'package:smgo/shared/domain/usecases/verify_subscription_usecase.dart';
 import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
@@ -103,6 +109,7 @@ import 'package:smgo/shared/domain/usecases/get_profile_usecase.dart';
 import 'package:smgo/shared/presentation/bloc/selection/selection_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/signout/signout_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
+import 'package:smgo/features/person/presentation/bloc/update_profile_form/update_profile_form_cubit.dart';
 
 final di = GetIt.instance;
 
@@ -143,6 +150,9 @@ Future<void> initializeDependencies() async {
   );
   di.registerLazySingleton<SubscriptionApiService>(
     () => SubscriptionApiService(di<Dio>()),
+  );
+  di.registerLazySingleton<ShareLocationApiService>(
+    () => ShareLocationApiService(di<Dio>()),
   );
 
   // Đăng ký các repository
@@ -188,6 +198,11 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<SubscriptionRepository>(
     () => SubscriptionRepositoryImpl(
       subscriptionApiService: di<SubscriptionApiService>(),
+    ),
+  );
+  di.registerLazySingleton<ShareLocationRepository>(
+    () => ShareLocationRepositoryImpl(
+      shareLocationApiService: di<ShareLocationApiService>(),
     ),
   );
 
@@ -320,6 +335,14 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<GetCurrentSubscriptionUsecase>(
     () => GetCurrentSubscriptionUsecase(
       subscriptionRepository: di<SubscriptionRepository>(),
+    ),
+  );
+  di.registerLazySingleton<UpdateProfileUsecase>(
+    () => UpdateProfileUsecase(userRepository: di<UserRepository>()),
+  );
+  di.registerLazySingleton<GetShareLocationUrlUsecase>(
+    () => GetShareLocationUrlUsecase(
+      shareLocationRepository: di<ShareLocationRepository>(),
     ),
   );
 
@@ -488,6 +511,16 @@ Future<void> initializeDependencies() async {
   di.registerFactory<GetCurrentPlanCubit>(
     () => GetCurrentPlanCubit(
       getCurrentSubscriptionUsecase: di<GetCurrentSubscriptionUsecase>(),
+    ),
+  );
+  di.registerFactory<UpdateProfileFormCubit>(
+    () => UpdateProfileFormCubit(
+      updateProfileUsecase: di<UpdateProfileUsecase>(),
+    ),
+  );
+  di.registerFactory<GetShareLocationUrlCubit>(
+    () => GetShareLocationUrlCubit(
+      getShareLocationUrlUsecase: di<GetShareLocationUrlUsecase>(),
     ),
   );
 }

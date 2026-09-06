@@ -22,6 +22,7 @@ abstract class ApiEndpoints {
 
   // User
   static const String getProfile = '$userBaseUrl/profile';
+  static const String updateProfile = '$userBaseUrl/profile';
 
   // App version
   static const String getLatestAppVersion = '$appVersionBaseUrl/latest';
@@ -32,6 +33,7 @@ abstract class ApiEndpoints {
   static const String updateLocation = '$myLocationBaseUrl/{locationId}';
   static const String deleteLocations = '$myLocationBaseUrl/m';
   static const String getLocationSuggestions = '$locationBaseUrl/suggestions';
+  static const String getShareLocationUrl = '$locationBaseUrl/share-url';
 
   // Storage
   static const String getUploadUrl = '$storageBaseUrl/file/upload';

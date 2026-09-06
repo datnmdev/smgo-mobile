@@ -19,10 +19,26 @@ class UserRepositoryImpl implements UserRepository {
           name: userModel.name,
           provider: userModel.provider,
           uuid: userModel.uuid,
+          avatar: userModel.avatar,
           avatarUrl: userModel.avatarUrl,
           createdAt: userModel.createdAt,
         ),
       );
+    } catch (e) {
+      return DataFailed(e);
+    }
+  }
+
+  @override
+  Future<DataState<dynamic>> updateProfile({
+    String? name,
+    String? avatar,
+  }) async {
+    try {
+      final httpResponse = await userApiService.updateProfile(
+        body: UpdateProfileBodyRequest(name: name, avatar: avatar),
+      );
+      return DataSuccess(httpResponse.data.data);
     } catch (e) {
       return DataFailed(e);
     }

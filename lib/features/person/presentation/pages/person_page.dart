@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,7 @@ import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
+import 'package:smgo/features/person/presentation/widgets/update_profile_bottom_sheet.dart';
 import 'package:smgo/shared/helpers/plan_ui_helper.dart';
 import 'package:smgo/features/person/presentation/widgets/plan_detail_bottom_sheet.dart';
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
@@ -156,59 +158,12 @@ class PersonPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Stack(
-            children: [
-              ClipOval(
-                child: SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: profile?.avatarUrl != null
-                      ? Image.network(
-                          profile!.avatarUrl!,
-                          fit: BoxFit.cover,
-                          // Xử lý khi đường dẫn hỏng hoặc lỗi kết nối
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              AppAssets.defaultAvatar,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                          // Khung hiển thị tạm trong lúc đang tải ảnh
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Image.asset(
-                              AppAssets.defaultAvatar,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        )
-                      : Image.asset(AppAssets.defaultAvatar, fit: BoxFit.cover),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          buildAvatarWidget(
+            avatarUrl: profile?.avatarUrl,
+            defaultAvatarAsset: AppAssets.defaultAvatar,
+            primaryColor: primaryColor,
+            EditTap: () => _showUpdateProfileBottomSheet(context),
+            size: 80,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -266,6 +221,82 @@ class PersonPage extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAvatarWidget({
+    required String? avatarUrl,
+    required String defaultAvatarAsset,
+    required Color primaryColor,
+    required VoidCallback EditTap,
+    double size = 80,
+  }) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        children: [
+          // 1. Khung hiển thị ảnh Avatar
+          ClipOval(
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: avatarUrl != null && avatarUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: avatarUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
+                      // Trạng thái bị lỗi (mạng hỏng, link chết, 404)
+                      errorWidget: (context, url, error) =>
+                          Image.asset(defaultAvatarAsset, fit: BoxFit.cover),
+                    )
+                  : Image.asset(defaultAvatarAsset, fit: BoxFit.cover),
+            ),
+          ),
+
+          // 2. Nút chỉnh sửa (Edit Button)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              child: InkWell(
+                onTap: EditTap,
+                customBorder: const CircleBorder(),
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -648,6 +679,21 @@ class PersonPage extends StatelessWidget {
             ],
           );
         }),
+      ),
+    );
+  }
+
+  Future<void> _showUpdateProfileBottomSheet(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FractionallySizedBox(
+        heightFactor: 0.68,
+        child: UpdateProfileBottomSheet(
+          profile: context.read<GetProfileCubit>().state.profile,
+          context: context,
+        ),
       ),
     );
   }

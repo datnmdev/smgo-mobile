@@ -114,7 +114,7 @@ extension ProductIdX on ProductId {
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
             title: 'Lưu vị trí người nhận',
-            subtitle: 'Tự động lưu tọa độ chính xác cho các lần giao sau',
+            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
@@ -146,7 +146,7 @@ extension ProductIdX on ProductId {
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
             title: 'Lưu vị trí người nhận',
-            subtitle: 'Tự động lưu tọa độ chính xác cho các lần giao sau',
+            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
@@ -192,7 +192,7 @@ extension ProductIdX on ProductId {
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
             title: 'Lưu vị trí người nhận',
-            subtitle: 'Tự động lưu tọa độ chính xác cho các lần giao sau',
+            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
@@ -238,7 +238,7 @@ extension ProductIdX on ProductId {
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
             title: 'Lưu vị trí người nhận',
-            subtitle: 'Tự động lưu tọa độ chính xác cho các lần giao sau',
+            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),

@@ -204,8 +204,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                       actions: [
                         SmgoButton(
                           onPressed: () {
-                            context.pushNamed(AppRouteNames.subscription);
                             context.pop();
+                            context.pushNamed(AppRouteNames.subscription);
                           },
                           text: 'Nâng cấp ngay',
                           textColor: Colors.white,
