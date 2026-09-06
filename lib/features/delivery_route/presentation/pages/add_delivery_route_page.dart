@@ -13,7 +13,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_rout
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 class AddDeliveryRoutePage extends StatefulWidget {
-  const AddDeliveryRoutePage({Key? key}) : super(key: key);
+  const AddDeliveryRoutePage({super.key});
 
   @override
   State<AddDeliveryRoutePage> createState() => _AddDeliveryRoutePageState();
@@ -66,13 +66,13 @@ class _AddDeliveryRoutePageState extends State<AddDeliveryRoutePage> {
             _resetAddDeliveryRouteForm();
             AppDialogUtils.showSuccess(
               context: context,
-              title: 'Thêm lộ trình thành công!',
+              title: AppStrings.aRPAddDeliveryRouteSuccessDialogTitle.tr(),
             );
           } else if (state is AddDeliveryRouteFormFailed) {
             AppDialogUtils.showError(
               context: context,
-              title: 'Thêm lộ trình thất bại!',
-              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+              title: AppStrings.aRPAddDeliveryRouteFailedDialogTitle.tr(),
+              subtitle: AppStrings.aRPAddDeliveryRouteFailedDialogSubtitle.tr(),
             );
           }
         },

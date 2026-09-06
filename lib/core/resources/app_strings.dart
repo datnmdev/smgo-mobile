@@ -190,6 +190,7 @@ abstract class AppStrings {
   static const String uLPAttachedImageLabel =
       'update_location_page.attached_image_label';
 
+  // Thêm lộ trình
   static const String aRPTitle = 'add_route_page.title';
   static const String aRPSubmitButtonLabel =
       'add_route_page.submit_button_label';
@@ -200,7 +201,14 @@ abstract class AppStrings {
       'add_route_page.route_name_field_hint_text';
   static const String aRPRouteNameFieldEmptyError =
       'add_route_page.route_name_field_empty_error';
+  static const String aRPAddDeliveryRouteSuccessDialogTitle =
+      'add_route_page.add_delivery_route_success_dialog_title';
+  static const String aRPAddDeliveryRouteFailedDialogTitle =
+      'add_route_page.add_delivery_route_failed_dialog_title';
+  static const String aRPAddDeliveryRouteFailedDialogSubtitle =
+      'add_route_page.add_delivery_route_failed_dialog_subtitle';
 
+  // Cập nhật lộ trình
   static const String uRPTitle = 'update_route_page.title';
   static const String uRPSubmitButtonLabel =
       'update_route_page.submit_button_label';
@@ -324,4 +332,214 @@ abstract class AppStrings {
       'delivery_order_page.delete_selected_orders_dialog_delete_btn_title';
   static const String dOPDeleteSelectedOrdersDialogCancelBtnTitle =
       'delivery_order_page.delete_selected_orders_dialog_cancel_btn_title';
+
+  // Trang thêm đơn hàng
+  static const String aDOPCreateOrderSuccessDialogTitle =
+      'add_delivery_order_page.create_order_success_dialog_title';
+  static const String aDOPCreateOrderSuccessDialogSubtitle =
+      'add_delivery_order_page.create_order_success_dialog_subtitle';
+  static const String aDOPOrderCodeInfoLabel =
+      'add_delivery_order_page.order_code_info_label';
+  static const String aDOPProductNameInfoLabel =
+      'add_delivery_order_page.product_name_info_label';
+  static const String aDOPNoOrderName = 'add_delivery_order_page.no_order_name';
+  static const String aDOPRecipientNameInfoLabel =
+      'add_delivery_order_page.recipient_name_info_label';
+  static const String aDOPUpgradePlanDialogTitle =
+      'add_delivery_order_page.upgrade_plan_dialog_title';
+  static const String aDOPUpgradePlanDialogSubtitle =
+      'add_delivery_order_page.upgrade_plan_dialog_subtitle';
+  static const String aDOPUpgradeNowButtonLabel =
+      'add_delivery_order_page.upgrade_now_button_label';
+  static const String aDOPCreateOrderFailedDialogTitle =
+      'add_delivery_order_page.create_order_failed_dialog_title';
+  static const String aDOPCreateOrderFailedDialogSubtitle =
+      'add_delivery_order_page.create_order_failed_dialog_subtitle';
+  static const String aDOPPageTitle = 'add_delivery_order_page.page_title';
+  static const String aDOPQuickAddButtonLabel =
+      'add_delivery_order_page.quick_add_button_label';
+  static const String aDOPSaveButtonLabel =
+      'add_delivery_order_page.save_button_label';
+  static const String aDOPScanOrderImageTitle =
+      'add_delivery_order_page.scan_order_image_title';
+  static const String aDOPScanOrderImageSubtitle =
+      'add_delivery_order_page.scan_order_image_subtitle';
+  static const String aDOPImportJsonTitle =
+      'add_delivery_order_page.import_json_title';
+  static const String aDOPImportJsonSubtitle =
+      'add_delivery_order_page.import_json_subtitle';
+  static const String aDOPAIProcessingPreviousRequestError =
+      'add_delivery_order_page.ai_processing_previous_request_error';
+  static const String aDOPOcrContentNotDetectedError =
+      'add_delivery_order_page.ocr_content_not_detected_error';
+  static const String aDOPCloseImportedOrdersDialogTitle =
+      'add_delivery_order_page.close_imported_orders_dialog_title';
+  static const String aDOPCloseImportedOrdersDialogSubtitle =
+      'add_delivery_order_page.close_imported_orders_dialog_subtitle';
+  static const String aDOPCancelButtonLabel =
+      'add_delivery_order_page.cancel_button_label';
+  static const String aDOPConfirmButtonLabel =
+      'add_delivery_order_page.confirm_button_label';
+  static const String aDOPOrderInfoSectionTitle =
+      'add_delivery_order_page.order_info_section_title';
+  static const String aDOPOrderCodeFieldLabel =
+      'add_delivery_order_page.order_code_field_label';
+  static const String aDOPOrderCodePlaceholder =
+      'add_delivery_order_page.order_code_placeholder';
+  static const String aDOPOrderCodeRequiredError =
+      'add_delivery_order_page.order_code_required_error';
+  static const String aDOPOrderCodeAlreadyExistsError =
+      'add_delivery_order_page.order_code_already_exists_error';
+  static const String aDOPProductNameFieldLabel =
+      'add_delivery_order_page.product_name_field_label';
+  static const String aDOPProductNamePlaceholder =
+      'add_delivery_order_page.product_name_placeholder';
+  static const String aDOPOrderImageLabel =
+      'add_delivery_order_page.order_image_label';
+  static const String aDOPRecipientInfoSectionTitle =
+      'add_delivery_order_page.recipient_info_section_title';
+  static const String aDOPRecipientNameFieldLabel =
+      'add_delivery_order_page.recipient_name_field_label';
+  static const String aDOPRecipientNamePlaceholder =
+      'add_delivery_order_page.recipient_name_placeholder';
+  static const String aDOPRecipientNameRequiredError =
+      'add_delivery_order_page.recipient_name_required_error';
+  static const String aDOPPhoneNumberFieldLabel =
+      'add_delivery_order_page.phone_number_field_label';
+  static const String aDOPPhoneNumberPlaceholder =
+      'add_delivery_order_page.phone_number_placeholder';
+  static const String aDOPPhoneNumberRequiredError =
+      'add_delivery_order_page.phone_number_required_error';
+  static const String aDOPInvalidPhoneNumberError =
+      'add_delivery_order_page.invalid_phone_number_error';
+  static const String aDOPRecipientAddressFieldLabel =
+      'add_delivery_order_page.recipient_address_field_label';
+  static const String aDOPRecipientAddressPlaceholder =
+      'add_delivery_order_page.recipient_address_placeholder';
+  static const String aDOPRecipientAddressRequiredError =
+      'add_delivery_order_page.recipient_address_required_error';
+  static const String aDOPRecipientLocationLabel =
+      'add_delivery_order_page.recipient_location_label';
+  static const String aDOPSelectRecipientLocationError =
+      'add_delivery_order_page.select_recipient_location_error';
+  static const String aDOPLocationSuggestionTitle =
+      'add_delivery_order_page.location_suggestion_title';
+  static const String aDOPLocationSuggestionSubtitle =
+      'add_delivery_order_page.location_suggestion_subtitle';
+  static const String aDOPNoLocationSuggestion =
+      'add_delivery_order_page.no_location_suggestion';
+  static const String aDOPBestChoiceLabel =
+      'add_delivery_order_page.best_choice_label';
+  static const String aDOPSavedByMeLabel =
+      'add_delivery_order_page.saved_by_me_label';
+  static const String aDOPCommunityLabel =
+      'add_delivery_order_page.community_label';
+
+  // Trang chi tiết đơn hàng
+  static const String dODPTitle = 'delivery_order_detail_page.title';
+  static const String dODPRegularCustomerLabel =
+      'delivery_order_detail_page.regular_customer_label';
+  static const String dODPNewCustomerLabel =
+      'delivery_order_detail_page.new_customer_label';
+  static const String dODPOrderCodeLabel =
+      'delivery_order_detail_page.order_code_label';
+  static const String dODPSortedSequenceLabel =
+      'delivery_order_detail_page.sorted_sequence_label';
+  static const String dODPOrderNameLabel =
+      'delivery_order_detail_page.order_name_label';
+  static const String dODPNoOrderName =
+      'delivery_order_detail_page.no_order_name';
+  static const String dODPOrderImageLabel =
+      'delivery_order_detail_page.order_image_label';
+  static const String dODPNoOrderImage =
+      'delivery_order_detail_page.no_order_image';
+  static const String dODPOrderImagePlaceholder =
+      'delivery_order_detail_page.order_image_placeholder';
+  static const String dODPRecipientInfoLabel =
+      'delivery_order_detail_page.recipient_info_label';
+  static const String dODPSaveRecipientLabel =
+      'delivery_order_detail_page.save_recipient_label';
+  static const String dODPRecipientLocationName =
+      'delivery_order_detail_page.recipient_location_name';
+  static const String dODPRecipientNameLabel =
+      'delivery_order_detail_page.recipient_name_label';
+  static const String dODPPhoneNumberLabel =
+      'delivery_order_detail_page.phone_number_label';
+  static const String dODPAddressLabel =
+      'delivery_order_detail_page.address_label';
+  static const String dODPContactRecipientLabel =
+      'delivery_order_detail_page.contact_recipient_label';
+  static const String dODPCallDirectlyLabel =
+      'delivery_order_detail_page.call_directly_label';
+  static const String dODPSendSmsLabel =
+      'delivery_order_detail_page.send_sms_label';
+  static const String dODPSendZaloLabel =
+      'delivery_order_detail_page.send_zalo_label';
+  static const String dODPGetShareLocationSuccessTitle =
+      'delivery_order_detail_page.get_share_location_success_title';
+  static const String dODPGetShareLocationSuccessSubtitle =
+      'delivery_order_detail_page.get_share_location_success_subtitle';
+  static const String dODPUpgradePlanTitle =
+      'delivery_order_detail_page.upgrade_plan_title';
+  static const String dODPUpgradePlanSubtitle =
+      'delivery_order_detail_page.upgrade_plan_subtitle';
+  static const String dODPUpgradeNowButtonLabel =
+      'delivery_order_detail_page.upgrade_now_button_label';
+  static const String dODPGetShareLocationFailedTitle =
+      'delivery_order_detail_page.get_share_location_failed_title';
+  static const String dODPGetShareLocationFailedSubtitle =
+      'delivery_order_detail_page.get_share_location_failed_subtitle';
+  static const String dODPRecipientLocationLabel =
+      'delivery_order_detail_page.recipient_location_label';
+  static const String dODPRecipientLocationMapTitle =
+      'delivery_order_detail_page.recipient_location_map_title';
+  static const String dODPViewOnMapLabel =
+      'delivery_order_detail_page.view_on_map_label';
+  static const String dODPNavigationLabel =
+      'delivery_order_detail_page.navigation_label';
+  static const String dODPGoogleMapsLabel =
+      'delivery_order_detail_page.google_maps_label';
+  static const String dODPOpenWithGoogleMaps =
+      'delivery_order_detail_page.open_with_google_maps';
+  static const String dODPSmgoMapLabel =
+      'delivery_order_detail_page.smgo_map_label';
+  static const String dODPOpenWithSmgoMap =
+      'delivery_order_detail_page.open_with_smgo_map';
+  static const String dODPSmgoMapInDevelopmentMessage =
+      'delivery_order_detail_page.smgo_map_in_development_message';
+  static const String dODPOrderStatusLabel =
+      'delivery_order_detail_page.order_status_label';
+  static const String dODPOrderCreatedStatus =
+      'delivery_order_detail_page.order_created_status';
+  static const String dODPOrderCheckedStatus =
+      'delivery_order_detail_page.order_checked_status';
+  static const String dODPOrderSortedStatus =
+      'delivery_order_detail_page.order_sorted_status';
+  static const String dODPDeliveryResultStatus =
+      'delivery_order_detail_page.delivery_result_status';
+  static const String dODPDeliveredSuccessfullyStatus =
+      'delivery_order_detail_page.delivered_successfully_status';
+  static const String dODPDeliveredFailedStatus =
+      'delivery_order_detail_page.delivered_failed_status';
+  static const String dODPRescheduledDeliveryStatus =
+      'delivery_order_detail_page.rescheduled_delivery_status';
+  static const String dODPEditLabel = 'delivery_order_detail_page.edit_label';
+  static const String dODPDeleteOrderLabel =
+      'delivery_order_detail_page.delete_order_label';
+  static const String dODPDeleteOrderDialogTitle =
+      'delivery_order_detail_page.delete_order_dialog_title';
+  static const String dODPDeleteOrderDialogSubtitle =
+      'delivery_order_detail_page.delete_order_dialog_subtitle';
+  static const String dODPDeleteOrderSuccessTitle =
+      'delivery_order_detail_page.delete_order_success_title';
+  static const String dODPDeleteOrderFailedTitle =
+      'delivery_order_detail_page.delete_order_failed_title';
+  static const String dODPDeleteOrderFailedSubtitle =
+      'delivery_order_detail_page.delete_order_failed_subtitle';
+  static const String dODPCancelButtonLabel =
+      'delivery_order_detail_page.cancel_button_label';
+  static const String dODPDeleteButtonLabel =
+      'delivery_order_detail_page.delete_button_label';
+  static const String dODPCopiedToClipboardMessage =
+      'delivery_order_detail_page.copied_to_clipboard_message';
 }

@@ -140,8 +140,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   // Hiển thị thông báo tạo đơn hàng thành công
                   AppDialogUtils.showSuccess(
                     context: context,
-                    title: 'Tạo đơn hàng thành công!',
-                    subtitle: 'Đơn hàng của bạn đã được lưu thành công.',
+                    title: AppStrings.aDOPCreateOrderSuccessDialogTitle.tr(),
+                    subtitle: AppStrings.aDOPCreateOrderSuccessDialogSubtitle
+                        .tr(),
                     content: Container(
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
@@ -151,7 +152,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                       child: Column(
                         children: [
                           _buildInfoRow(
-                            'Mã vận đơn:',
+                            AppStrings.aDOPOrderCodeInfoLabel.tr(),
                             addDeliveryOrderFormCubit
                                 .state
                                 .orderCodeInput
@@ -159,13 +160,13 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                           ),
                           const SizedBox(height: 8),
                           _buildInfoRow(
-                            'Tên sản phẩm:',
+                            AppStrings.aDOPProductNameInfoLabel.tr(),
                             addDeliveryOrderFormCubit.state.orderName ??
-                                'Không có tên đơn hàng',
+                                AppStrings.aDOPNoOrderName.tr(),
                           ),
                           const SizedBox(height: 8),
                           _buildInfoRow(
-                            'Tên người nhận:',
+                            AppStrings.aDOPRecipientNameInfoLabel.tr(),
                             addDeliveryOrderFormCubit
                                 .state
                                 .contactNameInput
@@ -197,9 +198,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                           'ORDER_LIMIT_EXCEEDED') {
                     AppDialogUtils.showCustomDialog(
                       context: context,
-                      title: 'Nâng cấp gói sử dụng',
-                      subtitle:
-                          'Bạn đã đạt giới hạn số lượng đơn hàng của gói hiện tại. Vui lòng nâng cấp lên gói cao hơn để tiếp tục tạo thêm đơn hàng.',
+                      title: AppStrings.aDOPUpgradePlanDialogTitle.tr(),
+                      subtitle: AppStrings.aDOPUpgradePlanDialogSubtitle.tr(),
                       iconData: Icons.rocket_launch_outlined,
                       actions: [
                         SmgoButton(
@@ -207,7 +207,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                             context.pop();
                             context.pushNamed(AppRouteNames.subscription);
                           },
-                          text: 'Nâng cấp ngay',
+                          text: AppStrings.aDOPUpgradeNowButtonLabel.tr(),
                           textColor: Colors.white,
                           primaryColor: AppColors.primary,
                         ),
@@ -217,8 +217,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   }
                   AppDialogUtils.showSuccess(
                     context: context,
-                    title: 'Tạo đơn hàng thất bại!',
-                    subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',
+                    title: AppStrings.aDOPCreateOrderFailedDialogTitle.tr(),
+                    subtitle: AppStrings.aDOPCreateOrderFailedDialogSubtitle
+                        .tr(),
                   );
                 }
               },
@@ -237,7 +238,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Thêm đơn hàng',
+                        AppStrings.aDOPPageTitle.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -254,7 +255,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   actions: [
                     _buildHeaderAction(
                       icon: Icons.document_scanner,
-                      label: 'Thêm nhanh',
+                      label: AppStrings.aDOPQuickAddButtonLabel.tr(),
                       onTap: () {
                         _showOptionsBottomSheet(context: context);
                       },
@@ -262,7 +263,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
                     _buildHeaderAction(
                       icon: Icons.save_outlined,
-                      label: 'Lưu',
+                      label: AppStrings.aDOPSaveButtonLabel.tr(),
                       isLoading: state is AddDeliveryOrderFormLoading,
                       onTap: () {
                         context.read<AddDeliveryOrderFormCubit>().submit(
@@ -387,9 +388,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                 builder: (context, onPressed) {
                   return _buildOptionTile(
                     icon: Icons.qr_code_scanner_rounded,
-                    title: 'Quét ảnh đơn hàng',
-                    subtitle:
-                        'Đưa camera vào vùng có chứa thông tin đơn hàng để hệ thống tự động nhận diện',
+                    title: AppStrings.aDOPScanOrderImageTitle.tr(),
+                    subtitle: AppStrings.aDOPScanOrderImageSubtitle.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onPressed();
@@ -435,8 +435,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
               _buildOptionTile(
                 icon: Icons.insert_drive_file_outlined,
-                title: 'Nhập dữ liệu JSON',
-                subtitle: 'Dán dữ liệu JSON vào form để trích xuất dữ liệu',
+                title: AppStrings.aDOPImportJsonTitle.tr(),
+                subtitle: AppStrings.aDOPImportJsonSubtitle.tr(),
                 onTap: () {
                   Navigator.pop(context);
                   _showJsonImportBottomSheet(context: context);
@@ -578,7 +578,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
   Future<String> _runInference(String ocrText) async {
     if (_isGenerating) {
-      throw Exception('AI đang xử lý yêu cầu trước đó');
+      throw Exception(AppStrings.aDOPAIProcessingPreviousRequestError.tr());
     }
     try {
       _isGenerating = true;
@@ -589,7 +589,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           .join('\n');
 
       if (cleanOcrText.isEmpty) {
-        throw Exception('OCR không nhận diện được nội dung');
+        throw Exception(AppStrings.aDOPOcrContentNotDetectedError.tr());
       }
 
       final dataState = await di<ExtractOrderInfoUsecase>().call(
@@ -662,12 +662,12 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
   void _closeImportedOrdersSection() {
     AppDialogUtils.showSuccess(
       context: context,
-      title: 'Đóng danh sách đơn hàng đã nhập?',
-      subtitle: 'Lưu ý: Sau khi đóng, toàn bộ dữ liệu đã nhập sẽ bị xóa.',
+      title: AppStrings.aDOPCloseImportedOrdersDialogTitle.tr(),
+      subtitle: AppStrings.aDOPCloseImportedOrdersDialogSubtitle.tr(),
       actions: [
         SmgoButton(
           isOutlined: true,
-          text: 'Huỷ',
+          text: AppStrings.aDOPCancelButtonLabel.tr(),
           primaryColor: AppColors.primary,
           onPressed: () {
             context.pop();
@@ -675,7 +675,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
         ),
         SmgoButton(
           primaryColor: AppColors.primary,
-          text: 'Xác nhận',
+          text: AppStrings.aDOPConfirmButtonLabel.tr(),
           onPressed: () {
             setState(() {
               _importedOrderInfos.clear();
@@ -700,13 +700,16 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(Icons.qr_code, 'Thông tin đơn hàng'),
+          _buildSectionHeader(
+            Icons.qr_code,
+            AppStrings.aDOPOrderInfoSectionTitle.tr(),
+          ),
           const SizedBox(height: 16),
           Column(
             children: [
               _buildInputField(
-                label: 'Mã vận đơn *',
-                placeholder: 'Nhập mã vận đơn',
+                label: AppStrings.aDOPOrderCodeFieldLabel.tr(),
+                placeholder: AppStrings.aDOPOrderCodePlaceholder.tr(),
                 onChanged: addDeliveryOrderFormCubit.orderCodeInputChanged,
                 controller: _orderCodeInputController,
                 isLocked: _lockedFields.contains(LockableField.orderCode),
@@ -723,20 +726,24 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               if (addDeliveryOrderFormCubit.state.orderCodeInput.displayError !=
                   null) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Mã vận đơn không được bỏ trống'),
+                M3ErrorText(
+                  errorText: AppStrings.aDOPOrderCodeRequiredError.tr(),
+                ),
               ],
               if (addDeliveryOrderFormCubit.isOrderCodeDuplicated(
                 existingDeliveryOrders: _deliveryRoute!.orders,
               )) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Mã vận đơn đã tồn tại'),
+                M3ErrorText(
+                  errorText: AppStrings.aDOPOrderCodeAlreadyExistsError.tr(),
+                ),
               ],
             ],
           ),
           const SizedBox(height: 12),
           _buildInputField(
-            label: 'Tên sản phẩm',
-            placeholder: 'Nhập tên sản phẩm',
+            label: AppStrings.aDOPProductNameFieldLabel.tr(),
+            placeholder: AppStrings.aDOPProductNamePlaceholder.tr(),
             onChanged: addDeliveryOrderFormCubit.orderNameInputChanged,
             controller: _orderNameInputController,
             isLocked: _lockedFields.contains(LockableField.orderName),
@@ -751,8 +758,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
             },
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Ảnh chụp của đơn hàng',
+          Text(
+            AppStrings.aDOPOrderImageLabel.tr(),
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -782,13 +789,16 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(Icons.person_outline, 'Thông tin người nhận'),
+          _buildSectionHeader(
+            Icons.person_outline,
+            AppStrings.aDOPRecipientInfoSectionTitle.tr(),
+          ),
           const SizedBox(height: 16),
           Column(
             children: [
               _buildInputField(
-                label: 'Tên người nhận *',
-                placeholder: 'Nhập tên người nhận',
+                label: AppStrings.aDOPRecipientNameFieldLabel.tr(),
+                placeholder: AppStrings.aDOPRecipientNamePlaceholder.tr(),
                 onChanged: addDeliveryOrderFormCubit.contactNameInputChanged,
                 controller: _contactNameInputController,
                 isLocked: _lockedFields.contains(LockableField.contactName),
@@ -808,7 +818,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                       .displayError !=
                   null) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Tên người nhận không được bỏ trống'),
+                M3ErrorText(
+                  errorText: AppStrings.aDOPRecipientNameRequiredError.tr(),
+                ),
               ],
             ],
           ),
@@ -816,8 +828,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           Column(
             children: [
               _buildInputField(
-                label: 'Số điện thoại *',
-                placeholder: 'Nhập số điện thoại',
+                label: AppStrings.aDOPPhoneNumberFieldLabel.tr(),
+                placeholder: AppStrings.aDOPPhoneNumberPlaceholder.tr(),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
@@ -850,13 +862,17 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                         .contactPhoneInput
                         .displayError ==
                     ContactPhoneInputValidationError.empty)
-                  M3ErrorText(errorText: 'Số điện thoại không được bỏ trống'),
+                  M3ErrorText(
+                    errorText: AppStrings.aDOPPhoneNumberRequiredError.tr(),
+                  ),
                 if (addDeliveryOrderFormCubit
                         .state
                         .contactPhoneInput
                         .displayError ==
                     ContactPhoneInputValidationError.invalid)
-                  M3ErrorText(errorText: 'Số điện thoại không hợp lệ'),
+                  M3ErrorText(
+                    errorText: AppStrings.aDOPInvalidPhoneNumberError.tr(),
+                  ),
               ],
             ],
           ),
@@ -864,8 +880,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
           Column(
             children: [
               _buildInputField(
-                label: 'Địa chỉ người nhận *',
-                placeholder: 'Nhập địa chỉ',
+                label: AppStrings.aDOPRecipientAddressFieldLabel.tr(),
+                placeholder: AppStrings.aDOPRecipientAddressPlaceholder.tr(),
                 onChanged: (value) {
                   addDeliveryOrderFormCubit.addressInputChanged(value);
                   context.read<GetLocationSuggestionsCubit>().call(
@@ -890,7 +906,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   null) ...[
                 SizedBox(height: 4),
                 M3ErrorText(
-                  errorText: 'Địa chỉ người nhận không được bỏ trống',
+                  errorText: AppStrings.aDOPRecipientAddressRequiredError.tr(),
                 ),
               ],
             ],
@@ -935,8 +951,8 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
 
           const SizedBox(height: 12),
 
-          const Text(
-            'Vị trí người nhận *',
+          Text(
+            AppStrings.aDOPRecipientLocationLabel.tr(),
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -970,7 +986,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     null) ...[
                   SizedBox(height: 4),
                   M3ErrorText(
-                    errorText: 'Vui lòng chọn vị trí người dùng trên bản đồ',
+                    errorText: AppStrings.aDOPSelectRecipientLocationError.tr(),
                   ),
                 ],
               ],
@@ -1128,7 +1144,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
               children: [
                 // Phần Tiêu đề
                 Row(
-                  children: const [
+                  children: [
                     Icon(
                       Icons.lightbulb_outline,
                       color: primaryGreen,
@@ -1140,7 +1156,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Gợi ý vị trí chính xác',
+                            AppStrings.aDOPLocationSuggestionTitle.tr(),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: primaryGreen,
@@ -1148,7 +1164,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                             ),
                           ),
                           Text(
-                            'Vị trí này được lưu lại bởi bạn hoặc được chia sẻ bởi cộng đồng',
+                            AppStrings.aDOPLocationSuggestionSubtitle.tr(),
                             style: TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
@@ -1171,11 +1187,11 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                   )
                 else if (suggestions.isEmpty)
                   // (Tùy chọn) Hiển thị thông báo khi không có dữ liệu
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     child: Center(
                       child: Text(
-                        'Không tìm thấy gợi ý nào',
+                        AppStrings.aDOPNoLocationSuggestion.tr(),
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ),
@@ -1265,8 +1281,9 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                                   borderRadius:
                                                       BorderRadius.circular(4),
                                                 ),
-                                                child: const Text(
-                                                  'Tốt nhất',
+                                                child: Text(
+                                                  AppStrings.aDOPBestChoiceLabel
+                                                      .tr(),
                                                   style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.bold,
@@ -1296,8 +1313,12 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                                                 child: Text(
                                                   suggestions[index].userId ==
                                                           state.profile?.id
-                                                      ? 'Lưu bởi tôi'
-                                                      : 'Cộng đồng',
+                                                      ? AppStrings
+                                                            .aDOPSavedByMeLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .aDOPCommunityLabel
+                                                            .tr(),
                                                   style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w500,

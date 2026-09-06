@@ -96,8 +96,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
               context.pop();
             },
           ),
-          title: const Text(
-            'Chi tiết đơn hàng',
+          title: Text(
+            AppStrings.dODPTitle.tr(),
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -130,8 +130,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           deliveryOrder!.appliedLocation != null &&
                                   deliveryOrder!.appliedLocation!.userId ==
                                       state.profile?.id
-                              ? 'Khách quen'
-                              : 'Khách lạ',
+                              ? AppStrings.dODPRegularCustomerLabel.tr()
+                              : AppStrings.dODPNewCustomerLabel.tr(),
                           style: TextStyle(color: Colors.white, fontSize: 13),
                         ),
                       ],
@@ -193,8 +193,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Mã vận đơn',
+                              Text(
+                                AppStrings.dODPOrderCodeLabel.tr(),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -240,8 +240,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (deliveryRoute!.isAllOrdersRouted) ...[
-                          const Text(
-                            'Số thứ tự sắp xếp hàng hoá',
+                          Text(
+                            AppStrings.dODPSortedSequenceLabel.tr(),
                             style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                           const SizedBox(height: 4),
@@ -268,8 +268,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           const Divider(height: 24),
                         ],
 
-                        const Text(
-                          'Tên đơn hàng',
+                        Text(
+                          AppStrings.dODPOrderNameLabel.tr(),
                           style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                         const SizedBox(height: 4),
@@ -281,7 +281,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 deliveryOrder!.orderName != null &&
                                         deliveryOrder!.orderName!.isNotEmpty
                                     ? deliveryOrder!.orderName!
-                                    : 'Không có tên đơn hàng',
+                                    : AppStrings.dODPNoOrderName.tr(),
                                 style: TextStyle(
                                   fontWeight:
                                       deliveryOrder!.orderName != null &&
@@ -313,8 +313,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           ],
                         ),
                         const Divider(height: 24),
-                        const Text(
-                          'Ảnh đơn hàng',
+                        Text(
+                          AppStrings.dODPOrderImageLabel.tr(),
                           style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                         const SizedBox(height: 8),
@@ -343,8 +343,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                   size: 24,
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  'Chưa có ảnh đơn hàng',
+                                Text(
+                                  AppStrings.dODPNoOrderImage.tr(),
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 14,
@@ -353,7 +353,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Ảnh đơn hàng sẽ hiển thị tại đây',
+                                  AppStrings.dODPOrderImagePlaceholder.tr(),
                                   style: TextStyle(
                                     color: Colors.grey.shade500,
                                     fontSize: 12,
@@ -398,8 +398,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                   size: 18,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'Thông tin người nhận',
+                                Text(
+                                  AppStrings.dODPRecipientInfoLabel.tr(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -425,8 +425,15 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                       extra: <String, Object>{
                                         'InitialAddLocationFormData':
                                             InititalAddLocationFormEntity(
-                                              locationName:
-                                                  'Vị trí của ${deliveryOrder!.contactName}',
+                                              locationName: AppStrings
+                                                  .dODPRecipientLocationName
+                                                  .tr(
+                                                    namedArgs: {
+                                                      'recipientName':
+                                                          deliveryOrder!
+                                                              .contactName,
+                                                    },
+                                                  ),
                                               contactName:
                                                   deliveryOrder!.contactName,
                                               contactPhone:
@@ -445,8 +452,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                     color: Color(0xFF10A142),
                                     size: 16,
                                   ),
-                                  label: const Text(
-                                    'Lưu người nhận',
+                                  label: Text(
+                                    AppStrings.dODPSaveRecipientLabel.tr(),
                                     style: TextStyle(
                                       color: Color(0xFF10A142),
                                       fontSize: 12,
@@ -477,21 +484,21 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.person,
-                          'Tên người nhận',
+                          AppStrings.dODPRecipientNameLabel.tr(),
                           deliveryOrder!.contactName,
                           showCopy: true,
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow(
                           Icons.phone,
-                          'Số điện thoại',
+                          AppStrings.dODPPhoneNumberLabel.tr(),
                           deliveryOrder!.contactPhone,
                           showCopy: true,
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow(
                           Icons.location_on,
-                          'Địa chỉ',
+                          AppStrings.dODPAddressLabel.tr(),
                           deliveryOrder!.address,
                           showCopy: true,
                         ),
@@ -507,8 +514,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Liên hệ người nhận',
+                        Text(
+                          AppStrings.dODPContactRecipientLabel.tr(),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -519,7 +526,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           children: [
                             Expanded(
                               child: _buildContactButton(
-                                title: 'Gọi trực tiếp',
+                                title: AppStrings.dODPCallDirectlyLabel.tr(),
                                 icon: Icons.phone,
                                 color: primaryColor,
                                 onPressed: () async {
@@ -535,7 +542,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: _buildContactButton(
-                                title: 'Nhắn tin SMS',
+                                title: AppStrings.dODPSendSmsLabel.tr(),
                                 icon: Icons.sms,
                                 color: primaryColor,
                                 onPressed: () async {
@@ -551,7 +558,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: _buildContactButton(
-                                title: 'Nhắn Zalo',
+                                title: AppStrings.dODPSendZaloLabel.tr(),
                                 icon: Icons.chat,
                                 color: primaryColor,
                                 onPressed: () async {
@@ -588,9 +595,11 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                         }
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: 'Lấy đường dẫn thành công',
-                          subtitle:
-                              'Bây giờ bạn hãy dán và gửi đường dẫn này cho người nhận để họ cấp vị trí chính xác cho bạn.',
+                          title: AppStrings.dODPGetShareLocationSuccessTitle
+                              .tr(),
+                          subtitle: AppStrings
+                              .dODPGetShareLocationSuccessSubtitle
+                              .tr(),
                         );
                       } else if (state is GetShareLocationUrlFailed) {
                         if (state.error is DioException &&
@@ -600,9 +609,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 'LOCATION_SHARING_NOT_ALLOWED') {
                           AppDialogUtils.showCustomDialog(
                             context: context,
-                            title: 'Nâng cấp gói sử dụng',
-                            subtitle:
-                                'Tính năng này chưa được hỗ trợ trong gói hiện tại của bạn. Hãy nâng cấp gói để trải nghiệm đầy đủ tính năng này.',
+                            title: AppStrings.dODPUpgradePlanTitle.tr(),
+                            subtitle: AppStrings.dODPUpgradePlanSubtitle.tr(),
                             iconData: Icons.rocket_launch_outlined,
                             actions: [
                               SmgoButton(
@@ -610,7 +618,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                   context.pop();
                                   context.pushNamed(AppRouteNames.subscription);
                                 },
-                                text: 'Nâng cấp ngay',
+                                text: AppStrings.dODPUpgradeNowButtonLabel.tr(),
                                 textColor: Colors.white,
                                 primaryColor: AppColors.primary,
                               ),
@@ -620,8 +628,11 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                         }
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: 'Lấy đường dẫn thất bại!',
-                          subtitle: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+                          title: AppStrings.dODPGetShareLocationFailedTitle
+                              .tr(),
+                          subtitle: AppStrings
+                              .dODPGetShareLocationFailedSubtitle
+                              .tr(),
                         );
                       }
                     },
@@ -659,8 +670,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                       size: 16,
                                     ),
                                     const SizedBox(width: 4),
-                                    const Text(
-                                      'Vị trí người nhận',
+                                    Text(
+                                      AppStrings.dODPRecipientLocationLabel
+                                          .tr(),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
@@ -721,16 +733,16 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                       await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              GoogleMapsScreen(
-                                                googleMapMode:
-                                                    GoogleMapMode.view,
-                                                title: 'Vị trí của người nhận',
-                                                pinnedLocation: LatLng(
-                                                  deliveryOrder!.location.y,
-                                                  deliveryOrder!.location.x,
-                                                ),
-                                              ),
+                                          builder: (context) => GoogleMapsScreen(
+                                            googleMapMode: GoogleMapMode.view,
+                                            title: AppStrings
+                                                .dODPRecipientLocationMapTitle
+                                                .tr(),
+                                            pinnedLocation: LatLng(
+                                              deliveryOrder!.location.y,
+                                              deliveryOrder!.location.x,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     },
@@ -738,8 +750,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                       Icons.navigation,
                                       size: 14,
                                     ),
-                                    label: const Text(
-                                      'Xem trên bản đồ',
+                                    label: Text(
+                                      AppStrings.dODPViewOnMapLabel.tr(),
                                       style: TextStyle(fontSize: 12),
                                     ),
                                   ),
@@ -759,8 +771,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Điều hướng',
+                                Text(
+                                  AppStrings.dODPNavigationLabel.tr(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
@@ -768,8 +780,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 ),
                                 const SizedBox(height: 12),
                                 _buildNavigationItem(
-                                  title: 'Google Maps',
-                                  subtitle: 'Mở bằng Google Maps',
+                                  title: AppStrings.dODPGoogleMapsLabel.tr(),
+                                  subtitle: AppStrings.dODPOpenWithGoogleMaps
+                                      .tr(),
                                   icon: Image.asset(AppAssets.icGoogleMaps),
                                   onTap: () async {
                                     final googleMapDirectionsUri =
@@ -788,14 +801,16 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 _buildNavigationItem(
-                                  title: 'SmGo Map',
-                                  subtitle: 'Mở bằng SmGo Map',
+                                  title: AppStrings.dODPSmgoMapLabel.tr(),
+                                  subtitle: AppStrings.dODPOpenWithSmgoMap.tr(),
                                   icon: Image.asset(AppAssets.logo),
                                   onTap: () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Tính năng này đang trong giai đoạn phát triển. Vui lòng chờ đến bản cập nhật tiếp theo.',
+                                          AppStrings
+                                              .dODPSmgoMapInDevelopmentMessage
+                                              .tr(),
                                         ),
                                       ),
                                     );
@@ -818,8 +833,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Trạng thái đơn hàng',
+                        Text(
+                          AppStrings.dODPOrderStatusLabel.tr(),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -827,7 +842,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                         ),
                         const SizedBox(height: 12),
                         _buildTimelineItem(
-                          'Khởi tạo',
+                          AppStrings.dODPOrderCreatedStatus.tr(),
                           DateFormat(
                             'dd/MM/yyyy • HH:mm',
                           ).format(deliveryOrder!.createdAt.toLocal()),
@@ -836,7 +851,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           deliveryOrder: deliveryOrder!,
                         ),
                         _buildTimelineItem(
-                          'Đã kiểm tra',
+                          AppStrings.dODPOrderCheckedStatus.tr(),
                           deliveryOrder!.checkedAt != null
                               ? DateFormat(
                                   'dd/MM/yyyy • HH:mm',
@@ -846,7 +861,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           deliveryOrder: deliveryOrder!,
                         ),
                         _buildTimelineItem(
-                          'Đã sắp xếp',
+                          AppStrings.dODPOrderSortedStatus.tr(),
                           deliveryOrder!.sortedAt != null
                               ? DateFormat(
                                   'dd/MM/yyyy • HH:mm',
@@ -856,7 +871,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           deliveryOrder: deliveryOrder!,
                         ),
                         _buildTimelineItem(
-                          'Kết quả giao hàng',
+                          AppStrings.dODPDeliveryResultStatus.tr(),
                           '',
                           isDone:
                               deliveryOrder!.deliveredAt != null ||
@@ -919,7 +934,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 Icon(Icons.edit, color: primaryColor, size: 16),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'Chỉnh sửa',
+                                  AppStrings.dODPEditLabel.tr(),
                                   style: TextStyle(
                                     color: primaryColor,
                                     fontWeight: FontWeight.bold,
@@ -943,9 +958,11 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                               final parentContext = context;
                               AppDialogUtils.showCustomDialog(
                                 context: context,
-                                title: 'Bạn chắc chắn xoá đơn hàng này chứ?',
-                                subtitle:
-                                    'Thông tin bị xoá không thể phục hồi.',
+                                title: AppStrings.dODPDeleteOrderDialogTitle
+                                    .tr(),
+                                subtitle: AppStrings
+                                    .dODPDeleteOrderDialogSubtitle
+                                    .tr(),
                                 barrierDismissible: false,
                                 actions: [
                                   BlocProvider<DeleteDeliveryOrdersCubit>(
@@ -980,16 +997,20 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                               parentContext.pop();
                                               AppDialogUtils.showSuccess(
                                                 context: context,
-                                                title:
-                                                    'Xoá đơn hàng thành công!',
+                                                title: AppStrings
+                                                    .dODPDeleteOrderSuccessTitle
+                                                    .tr(),
                                               );
                                             } else if (state
                                                 is DeleteDeliveryOrdersFailed) {
                                               AppDialogUtils.showError(
                                                 context: context,
-                                                title: 'Xoá đơn hàng thất bại!',
-                                                subtitle:
-                                                    'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                                title: AppStrings
+                                                    .dODPDeleteOrderFailedTitle
+                                                    .tr(),
+                                                subtitle: AppStrings
+                                                    .dODPDeleteOrderFailedSubtitle
+                                                    .tr(),
                                               );
                                             }
                                           },
@@ -1005,7 +1026,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                                             is DeleteDeliveryOrdersLoading,
                                                     primaryColor:
                                                         AppColors.primary,
-                                                    text: 'Huỷ',
+                                                    text: AppStrings
+                                                        .dODPCancelButtonLabel
+                                                        .tr(),
                                                     isOutlined: true,
                                                     onPressed: () {
                                                       context.pop();
@@ -1049,7 +1072,9 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                                                 ),
                                                           )
                                                         : Text(
-                                                            'Xoá',
+                                                            AppStrings
+                                                                .dODPDeleteButtonLabel
+                                                                .tr(),
                                                             style: TextStyle(
                                                               fontSize: 16,
                                                               color:
@@ -1076,7 +1101,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                                 ),
                                 SizedBox(width: 6),
                                 Text(
-                                  'Xóa đơn hàng',
+                                  AppStrings.dODPDeleteOrderLabel.tr(),
                                   style: TextStyle(
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold,
@@ -1156,8 +1181,8 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
   void _copyToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã sao chép vào bộ nhớ tạm!'),
+      SnackBar(
+        content: Text(AppStrings.dODPCopiedToClipboardMessage.tr()),
         duration: Duration(seconds: 2),
       ),
     );
@@ -1370,7 +1395,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
         /// =========================
         if (hasSubItems) ...[
           _buildConnectedSubTimelineItem(
-            'Đã giao thành công',
+            AppStrings.dODPDeliveredSuccessfullyStatus.tr(),
             deliveryOrder.deliveredAt != null
                 ? DateFormat(
                     'dd/MM/yyyy • HH:mm',
@@ -1385,7 +1410,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
           ),
 
           _buildConnectedSubTimelineItem(
-            'Đã giao thất bại',
+            AppStrings.dODPDeliveredFailedStatus.tr(),
             deliveryOrder.cancelledAt != null
                 ? DateFormat(
                     'dd/MM/yyyy • HH:mm',
@@ -1400,7 +1425,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
           ),
 
           _buildConnectedSubTimelineItem(
-            'Hẹn giao sau',
+            AppStrings.dODPRescheduledDeliveryStatus.tr(),
             deliveryOrder.rescheduledAt != null
                 ? DateFormat(
                     'dd/MM/yyyy • HH:mm',
