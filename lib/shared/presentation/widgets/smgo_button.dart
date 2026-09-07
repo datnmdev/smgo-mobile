@@ -13,7 +13,7 @@ class SmgoButton extends StatelessWidget {
   final bool isDisabled; // Thuộc tính mới bổ sung để vô hiệu hóa nút
 
   const SmgoButton({
-    Key? key,
+    super.key,
     this.child,
     this.text,
     this.icon,
@@ -24,7 +24,7 @@ class SmgoButton extends StatelessWidget {
     this.borderRadius = 12.0,
     this.padding = const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
     this.isDisabled = false, // Mặc định là không disable
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

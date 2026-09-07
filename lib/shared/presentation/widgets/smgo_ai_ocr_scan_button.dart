@@ -1,8 +1,10 @@
 import 'package:camera/camera.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 // Tông màu chủ đạo theo UI mẫu
 const Color kPrimaryGreen = AppColors.primary;
@@ -49,8 +51,8 @@ class _SmgoAiOcrScanButtonState<T> extends State<SmgoAiOcrScanButton<T>> {
     if (!cameraStatus.isGranted) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cần cấp quyền truy cập máy ảnh.'),
+          SnackBar(
+            content: Text(AppStrings.ocrScanCameraPermissionDeniedMessage.tr()),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -173,25 +175,23 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
 
     try {
       // 1. Chụp ảnh từ CameraController
-      _updateStatus('Đang chụp ảnh...');
+      _updateStatus(AppStrings.ocrScanCapturingImageStatus.tr());
       final photo = await _cameraController.takePicture();
 
       // 2. OCR ML Kit
-      _updateStatus('Đang bóc tách chữ từ ảnh...');
+      _updateStatus(AppStrings.ocrScanRecognizingTextStatus.tr());
       final inputImage = InputImage.fromFilePath(photo.path);
       final recognizedText = await _textRecognizer.processImage(inputImage);
 
       if (recognizedText.text.trim().isEmpty) {
-        throw 'Không tìm thấy văn bản nào trong ảnh!';
+        throw AppStrings.ocrScanNoTextFoundError.tr();
       }
 
       // 3. Phân tích qua LLM
-      _updateStatus('Mô hình AI đang xử lý...');
+      _updateStatus(AppStrings.ocrScanAiProcessingStatus.tr());
       final prompt = widget.promptBuilder(recognizedText.text);
       final rawResponse = await widget.llmProcessor(prompt);
       final T parsedResult = widget.parser(rawResponse);
-
-      print(parsedResult);
 
       // 4. Hiển thị Ngăn kéo (BottomSheet) ngay tại màn hình Camera
       if (mounted) {
@@ -201,7 +201,11 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi xử lý: $e'),
+            content: Text(
+              AppStrings.ocrScanProcessingErrorMessage.tr(
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -247,11 +251,11 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
               ),
 
               Row(
-                children: const [
+                children: [
                   Icon(Icons.auto_awesome, color: kPrimaryGreen, size: 22),
                   SizedBox(width: 8),
                   Text(
-                    'Kết quả phân tích',
+                    AppStrings.ocrScanAnalysisResultTitle.tr(),
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -288,8 +292,8 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Quét lại',
+                      child: Text(
+                        AppStrings.ocrScanRescanButtonLabel.tr(),
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -311,8 +315,8 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Xác nhận',
+                      child: Text(
+                        AppStrings.ocrScanConfirmButtonLabel.tr(),
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -331,11 +335,27 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
     if (data is Map) {
       return Column(
         children: [
-          _buildInfoRow('Mã vận đơn', data['orderCode'] ?? '---'),
-          _buildInfoRow('Tên sản phẩm', data['orderName'] ?? '---'),
-          _buildInfoRow('Tên người nhận', data['contactName'] ?? '---'),
-          _buildInfoRow('Số điện thoại', data['contactPhone'] ?? '---'),
-          _buildInfoRow('Địa chỉ nhận', data['address'] ?? '---', isLast: true),
+          _buildInfoRow(
+            AppStrings.ocrScanOrderCodeLabel.tr(),
+            data['orderCode'] ?? '---',
+          ),
+          _buildInfoRow(
+            AppStrings.ocrScanOrderNameLabel.tr(),
+            data['orderName'] ?? '---',
+          ),
+          _buildInfoRow(
+            AppStrings.ocrScanRecipientNameLabel.tr(),
+            data['contactName'] ?? '---',
+          ),
+          _buildInfoRow(
+            AppStrings.ocrScanPhoneNumberLabel.tr(),
+            data['contactPhone'] ?? '---',
+          ),
+          _buildInfoRow(
+            AppStrings.ocrScanDeliveryAddressLabel.tr(),
+            data['address'] ?? '---',
+            isLast: true,
+          ),
         ],
       );
     }
@@ -399,8 +419,8 @@ class _OcrCameraScannerViewState<T> extends State<OcrCameraScannerView<T>> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Quét thông tin đơn hàng',
+        title: Text(
+          AppStrings.ocrScanOrderInformationTitle.tr(),
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
       ),

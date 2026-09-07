@@ -38,6 +38,8 @@ abstract class AppStrings {
       'google_map_picker_screen.pick_location_error';
   static const String gMPScceptButtonTitle =
       'google_map_picker_screen.accept_button_title';
+
+  // M3 image picker
   static const String m3Map = 'maintenance_app.title';
   static const String m3MSelectLocationError = 'm3_map.select_location_error';
   static const String m3MCannotGetLocationError =
@@ -59,6 +61,12 @@ abstract class AppStrings {
       'm3_image_picker_grid.request_permission_content_text';
   static const String m3IPGAddImageButtonTitle =
       'm3_image_picker_grid.add_image_button_title';
+  static const String m3IPGUploadRequestTimeoutErrorMessage =
+      'm3_image_picker_grid.upload_request_timeout_error_message';
+  static const String m3IPGUploadImageFailedErrorMessage =
+      'm3_image_picker_grid.upload_image_failed_error_message';
+
+  // Trang địa điểm
   static const String lPPageTitle = 'location_page.page_title';
   static const String lPSearchLocationHintText =
       'location_page.search_location_hint_text';
@@ -78,7 +86,23 @@ abstract class AppStrings {
       'location_page.delete_selected_locations_dialog_delete_btn_title';
   static const String lPDeleteSelectedLocationsDialogCancelBtnTitle =
       'location_page.delete_selected_locations_dialog_cancel_btn_title';
+  static const String lPDeleteLocationSuccessTitle =
+      'location_page.delete_location_success_title';
+  static const String lPDeleteLocationSuccessContent =
+      'location_page.delete_location_success_content';
+  static const String lPDeleteLocationFailedTitle =
+      'location_page.delete_location_failed_title';
+  static const String lPDeleteLocationFailedContent =
+      'location_page.delete_location_failed_content';
+  static const String lPHeaderSelectedLocationsCountContent =
+      'location_page.header_selected_locations_count_content';
+  static const String lPHeaderDeleteSelectedLocationsButtonLabel =
+      'location_page.header_delete_selected_locations_button_label';
+  static const String lPRetryButtonLabel = 'location_page.retry_button_label';
+  static const String lPSelectedLocationsCountContent =
+      'location_page.selected_locations_count_content';
 
+  // Trang thêm địa điểm
   static const String aLPPageTitle = 'add_location_page.page_title';
   static const String aLPSaveButtonTitle =
       'add_location_page.save_button_title';
@@ -119,7 +143,17 @@ abstract class AppStrings {
       'add_location_page.note_field_hint_text';
   static const String aLPAttachedImageLabel =
       'add_location_page.attached_image_label';
+  static const String aLPCreateLocationSuccessTitle =
+      'add_location_page.create_location_success_title';
+  static const String aLPCreateLocationSuccessSubtitle =
+      'add_location_page.create_location_success_subtitle';
+  static const String aLPCreateLocationFailedTitle =
+      'add_location_page.create_location_failed_title';
+  static const String aLPCreateLocationFailedSubtitle =
+      'add_location_page.create_location_failed_subtitle';
+  static const String aLPLocationLabel = 'add_location_page.location_label';
 
+  // Trang chi tiết địa điểm
   static const String lDPTitle = 'location_detail_page.title';
   static const String lDPContactInfoLabel =
       'location_detail_page.contact_info_label';
@@ -147,7 +181,24 @@ abstract class AppStrings {
       'location_detail_page.delete_location_dialog_cancel_btn_title';
   static const String lDPDeleteLocationDialogDeleteBtnTitle =
       'location_detail_page.delete_location_dialog_delete_btn_title';
+  static const String lDPGoogleMapsNavigationTitle =
+      'location_detail_page.google_maps_navigation_title';
+  static const String lDPGoogleMapsNavigationSubtitle =
+      'location_detail_page.google_maps_navigation_subtitle';
+  static const String lDPAppMapNavigationTitle =
+      'location_detail_page.app_map_navigation_title';
+  static const String lDPAppMapNavigationSubtitle =
+      'location_detail_page.app_map_navigation_subtitle';
+  static const String lDPAppMapDevelopingMessage =
+      'location_detail_page.app_map_developing_message';
+  static const String lDPDeleteLocationSuccessTitle =
+      'location_detail_page.delete_location_success_title';
+  static const String lDPDeleteLocationFailedTitle =
+      'location_detail_page.delete_location_failed_title';
+  static const String lDPDeleteLocationFailedContent =
+      'location_detail_page.delete_location_failed_content';
 
+  // Trang cập nhật địa điểm
   static const String uLPPageTitle = 'update_location_page.page_title';
   static const String uLPSaveButtonTitle =
       'update_location_page.save_button_title';
@@ -189,6 +240,8 @@ abstract class AppStrings {
       'update_location_page.note_field_hint_text';
   static const String uLPAttachedImageLabel =
       'update_location_page.attached_image_label';
+  static const String uLPPrimaryLocationLabel =
+      'update_location_page.primary_location_label';
 
   // Thêm lộ trình
   static const String aRPTitle = 'add_route_page.title';
@@ -219,6 +272,12 @@ abstract class AppStrings {
       'update_route_page.route_name_field_hint_text';
   static const String uRPRouteNameFieldEmptyError =
       'update_route_page.route_name_field_empty_error';
+  static const String uRPUpdateSuccessTitle =
+      'update_route_page.update_success_title';
+  static const String uRPUpdateFailedTitle =
+      'update_route_page.update_failed_title';
+  static const String uRPUpdateFailedSubtitle =
+      'update_route_page.update_failed_subtitle';
 
   // Route detail page
   static const String rDPDeleteRouteDialogTitle =
@@ -266,6 +325,14 @@ abstract class AppStrings {
       'route_detail_page.total_total_orders_label';
   static const String rDPDeliveryRouteIdLabel =
       'route_detail_page.delivery_route_id_label';
+  static const String rDPDeleteRouteSuccessMessage =
+      'route_detail_page.delete_route_success_message';
+  static const String rDPDeleteRouteFailedMessage =
+      'route_detail_page.delete_route_failed_message';
+  static const String rDPDeleteRouteErrorMessage =
+      'route_detail_page.delete_route_error_message';
+  static const String rDPCopiedToClipboardMessage =
+      'route_detail_page.copied_to_clipboard_message';
 
   // Route page
   static const String rPDeleteSelectedRoutesDialogTitle =
@@ -314,6 +381,14 @@ abstract class AppStrings {
   static const String rPSortedStatusOrderLabel =
       'route_page.sorted_status_order_label';
   static const String rPTotalOrdersLabel = 'route_page.total_orders_label';
+  static const String rPDeleteRoutesSuccessMessage =
+      'route_page.delete_routes_success_message';
+  static const String rPDeletedRoutesCountMessage =
+      'route_page.deleted_routes_count_message';
+  static const String rPDeleteRoutesFailedMessage =
+      'route_page.delete_routes_failed_message';
+  static const String rPDeleteRoutesErrorMessage =
+      'route_page.delete_routes_error_message';
 
   // Trang thêm đơn hàng
   static const String aDOPCreateOrderSuccessDialogTitle =
@@ -542,24 +617,18 @@ abstract class AppStrings {
       'delivery_order_page.delete_selected_orders_dialog_delete_btn_title';
   static const String dOPDeleteSelectedOrdersDialogCancelBtnTitle =
       'delivery_order_page.delete_selected_orders_dialog_cancel_btn_title';
-
-  ////
-  ///
   static const String dOPRecheckOrdersSuccessTitle =
       'delivery_order_page.recheck_orders_success_title';
   static const String dOPRecheckOrdersSuccessContent =
       'delivery_order_page.recheck_orders_success_content';
   static const String dOPRecheckOrdersFailedTitle =
       'delivery_order_page.recheck_orders_failed_title';
-  // *******
   static const String dOPCommonErrorContent =
       'delivery_order_page.common_error_content';
   static const String dOPConfirmOrdersSuccessTitle =
       'delivery_order_page.confirm_orders_success_title';
-  // *******
   static const String dOPConfirmOrdersSuccessContent =
       'delivery_order_page.confirm_orders_success_content';
-  // *******
   static const String dOPConfirmOrdersFailedTitle =
       'delivery_order_page.confirm_orders_failed_title';
   static const String dOPActionFailedTitle =
@@ -596,7 +665,6 @@ abstract class AppStrings {
       'delivery_order_page.order_code_label';
   static const String dOPProductNameLabel =
       'delivery_order_page.product_name_label';
-  // ********
   static const String dOPNoOrderName = 'delivery_order_page.no_order_name';
   static const String dOPRecipientNameLabel =
       'delivery_order_page.recipient_name_label';
@@ -617,7 +685,6 @@ abstract class AppStrings {
       'delivery_order_page.familiar_customer_title';
   static const String dOPOrderPercentageContent =
       'delivery_order_page.order_percentage_content';
-  // *******
   static const String dOPProgressTitle = 'delivery_order_page.progress_title';
   static const String dOPDeliveryProgressContent =
       'delivery_order_page.delivery_progress_content';
@@ -644,7 +711,6 @@ abstract class AppStrings {
       'delivery_order_page.pending_tab_title';
   static const String dOPCheckedTabTitle =
       'delivery_order_page.checked_tab_title';
-  // *******
   static const String dOPNoOrdersContent =
       'delivery_order_page.no_orders_content';
   static const String dOPEstimatedTotalDistanceTitle =
@@ -950,4 +1016,488 @@ abstract class AppStrings {
       'delivery_order_page.copied_to_clipboard_content';
   static const String dOPNoImageContent =
       'delivery_order_page.no_image_content';
+
+  // Trang tìm kiếm đơn hàng
+  static const String sDOPTitle = 'search_delivery_order_page.title';
+  static const String sDOPSearchHintText =
+      'search_delivery_order_page.search_hint_text';
+  static const String sDOPSearchResultCountContent =
+      'search_delivery_order_page.search_result_count_content';
+  static const String sDOPSearchResultLoadingContent =
+      'search_delivery_order_page.search_result_loading_content';
+  static const String sDOPOrderNotFoundQuestion =
+      'search_delivery_order_page.order_not_found_question';
+  static const String sDOPScanOrderButtonLabel =
+      'search_delivery_order_page.scan_order_button_label';
+  static const String sDOPScanOrderTitle =
+      'search_delivery_order_page.scan_order_title';
+  static const String sDOPOrderNotFoundTitle =
+      'search_delivery_order_page.order_not_found_title';
+  static const String sDOPOrderNotFoundContent =
+      'search_delivery_order_page.order_not_found_content';
+  static const String sDOPScanAnotherOrderButtonLabel =
+      'search_delivery_order_page.scan_another_order_button_label';
+  static const String sDOPOrderCodeLabel =
+      'search_delivery_order_page.order_code_label';
+  static const String sDOPProductNameLabel =
+      'search_delivery_order_page.product_name_label';
+  static const String sDOPNoOrderName =
+      'search_delivery_order_page.no_order_name';
+  static const String sDOPRecipientNameLabel =
+      'search_delivery_order_page.recipient_name_label';
+  static const String sDOPPhoneNumberLabel =
+      'search_delivery_order_page.phone_number_label';
+  static const String sDOPDeliveryAddressLabel =
+      'search_delivery_order_page.delivery_address_label';
+  static const String sDOPOrderImageLabel =
+      'search_delivery_order_page.order_image_label';
+  static const String sDOPScanAgainButtonLabel =
+      'search_delivery_order_page.scan_again_button_label';
+  static const String sDOPViewDetailButtonLabel =
+      'search_delivery_order_page.view_detail_button_label';
+  static const String sDOPPendingStatusLabel =
+      'search_delivery_order_page.pending_status_label';
+  static const String sDOPCheckedStatusLabel =
+      'search_delivery_order_page.checked_status_label';
+  static const String sDOPSortingStatusLabel =
+      'search_delivery_order_page.sorting_status_label';
+  static const String sDOPSortedStatusLabel =
+      'search_delivery_order_page.sorted_status_label';
+  static const String sDOPDeliveringStatusLabel =
+      'search_delivery_order_page.delivering_status_label';
+  static const String sDOPDeliveredStatusLabel =
+      'search_delivery_order_page.delivered_status_label';
+  static const String sDOPCancelledStatusLabel =
+      'search_delivery_order_page.cancelled_status_label';
+  static const String sDOPRescheduledStatusLabel =
+      'search_delivery_order_page.rescheduled_status_label';
+  static const String sDOPCopiedToClipboardMessage =
+      'search_delivery_order_page.copied_to_clipboard_message';
+  static const String sDOPNoImage = 'search_delivery_order_page.no_image';
+
+  // Trang cập nhật đơn hàng
+  static const String uDOPUpdateSuccessTitle =
+      'update_delivery_order_page.update_success_title';
+  static const String uDOPUpdateSuccessSubtitle =
+      'update_delivery_order_page.update_success_subtitle';
+  static const String uDOPUpdateFailedTitle =
+      'update_delivery_order_page.update_failed_title';
+  static const String uDOPUpdateFailedSubtitle =
+      'update_delivery_order_page.update_failed_subtitle';
+  static const String uDOPPageTitle = 'update_delivery_order_page.page_title';
+  static const String uDOPQuickScanLabel =
+      'update_delivery_order_page.quick_scan_label';
+  static const String uDOPSaveLabel = 'update_delivery_order_page.save_label';
+  static const String uDOPAiProcessingPreviousRequestError =
+      'update_delivery_order_page.ai_processing_previous_request_error';
+  static const String uDOPOcrNoContentError =
+      'update_delivery_order_page.ocr_no_content_error';
+  static const String uDOPOrderInfoSectionTitle =
+      'update_delivery_order_page.order_info_section_title';
+  static const String uDOPOrderCodeLabel =
+      'update_delivery_order_page.order_code_label';
+  static const String uDOPOrderCodePlaceholder =
+      'update_delivery_order_page.order_code_placeholder';
+  static const String uDOPOrderCodeRequiredError =
+      'update_delivery_order_page.order_code_required_error';
+  static const String uDOPOrderCodeDuplicatedError =
+      'update_delivery_order_page.order_code_duplicated_error';
+  static const String uDOPOrderNameLabel =
+      'update_delivery_order_page.order_name_label';
+  static const String uDOPOrderNamePlaceholder =
+      'update_delivery_order_page.order_name_placeholder';
+  static const String uDOPOrderImageLabel =
+      'update_delivery_order_page.order_image_label';
+  static const String uDOPRecipientInfoSectionTitle =
+      'update_delivery_order_page.recipient_info_section_title';
+  static const String uDOPRecipientNameLabel =
+      'update_delivery_order_page.recipient_name_label';
+  static const String uDOPRecipientNamePlaceholder =
+      'update_delivery_order_page.recipient_name_placeholder';
+  static const String uDOPRecipientNameRequiredError =
+      'update_delivery_order_page.recipient_name_required_error';
+  static const String uDOPPhoneNumberLabel =
+      'update_delivery_order_page.phone_number_label';
+  static const String uDOPPhoneNumberPlaceholder =
+      'update_delivery_order_page.phone_number_placeholder';
+  static const String uDOPPhoneNumberRequiredError =
+      'update_delivery_order_page.phone_number_required_error';
+  static const String uDOPPhoneNumberInvalidError =
+      'update_delivery_order_page.phone_number_invalid_error';
+  static const String uDOPRecipientAddressLabel =
+      'update_delivery_order_page.recipient_address_label';
+  static const String uDOPRecipientAddressPlaceholder =
+      'update_delivery_order_page.recipient_address_placeholder';
+  static const String uDOPRecipientAddressRequiredError =
+      'update_delivery_order_page.recipient_address_required_error';
+  static const String uDOPLocationSuggestionsTitle =
+      'update_delivery_order_page.location_suggestions_title';
+  static const String uDOPLocationSuggestionsSubtitle =
+      'update_delivery_order_page.location_suggestions_subtitle';
+  static const String uDOPNoLocationSuggestions =
+      'update_delivery_order_page.no_location_suggestions';
+  static const String uDOPBestChoiceLabel =
+      'update_delivery_order_page.best_choice_label';
+  static const String uDOPSavedByMeLabel =
+      'update_delivery_order_page.saved_by_me_label';
+  static const String uDOPCommunityLabel =
+      'update_delivery_order_page.community_label';
+  static const String uDOPRecipientLocationLabel =
+      'update_delivery_order_page.recipient_location_label';
+  static const String uDOPSelectUserLocationOnMapError =
+      'update_delivery_order_page.select_user_location_on_map_error';
+
+  // Imported orders
+  static const String importedOrdersAppliedToFormSnackBarContent =
+      'imported_orders.applied_to_form_snack_bar_content';
+  static const String importedOrdersImportedOrdersFromJsonContent =
+      'imported_orders.imported_orders_from_json_content';
+  static const String importedOrdersSelectOrderToApplyContent =
+      'imported_orders.select_order_to_apply_content';
+  static const String importedOrdersApplyButtonLabel =
+      'imported_orders.apply_button_label';
+  static const String importedOrdersCloseButtonLabel =
+      'imported_orders.close_button_label';
+  static const String importedOrdersUsedStatusLabel =
+      'imported_orders.used_status_label';
+  static const String importedOrdersUnusedStatusLabel =
+      'imported_orders.unused_status_label';
+
+  // JSON import bottom sheet
+  static const String jIBSInvalidListItemFormatContent =
+      'json_import_bottom_sheet.invalid_list_item_format_content';
+  static const String jIBSMissingRequiredFieldsContent =
+      'json_import_bottom_sheet.missing_required_fields_content';
+  static const String jIBSInvalidDataTypeContent =
+      'json_import_bottom_sheet.invalid_data_type_content';
+  static const String jIBSInvalidJsonStructureContent =
+      'json_import_bottom_sheet.invalid_json_structure_content';
+  static const String jIBSTitle = 'json_import_bottom_sheet.title';
+  static const String jIBSGetPromptButtonLabel =
+      'json_import_bottom_sheet.get_prompt_button_label';
+  static const String jIBSDescription = 'json_import_bottom_sheet.description';
+  static const String jIBSJsonDataLabel =
+      'json_import_bottom_sheet.json_data_label';
+  static const String jIBSValidJsonTitle =
+      'json_import_bottom_sheet.valid_json_title';
+  static const String jIBSFoundOrdersContent =
+      'json_import_bottom_sheet.found_orders_content';
+  static const String jIBSInvalidJsonTitle =
+      'json_import_bottom_sheet.invalid_json_title';
+  static const String jIBSCancelButtonLabel =
+      'json_import_bottom_sheet.cancel_button_label';
+  static const String jIBSConfirmButtonLabel =
+      'json_import_bottom_sheet.confirm_button_label';
+  static const String jIBSPromptCopiedMessage =
+      'json_import_bottom_sheet.prompt_copied_message';
+
+  // Location Request Card
+  static const String lRCLocationRequestTitle =
+      'location_request_card.location_request_title';
+  static const String lRCRequestLocationButtonLabel =
+      'location_request_card.request_location_button_label';
+  static const String lRCStep1Content = 'location_request_card.step_1_content';
+  static const String lRCStep2Content = 'location_request_card.step_2_content';
+  static const String lRCStep3Content = 'location_request_card.step_3_content';
+
+  // Trang onboarding
+  static const String oPStartNowBtnLabel =
+      'onboarding_page.start_now_btn_label';
+
+  // Trang đăng ký gói
+  static const String sPPBasicDisplayTitle =
+      'subscription_page.basic_display_title';
+  static const String sPPStandardDisplayTitle =
+      'subscription_page.standard_display_title';
+  static const String sPPPlusDisplayTitle =
+      'subscription_page.plus_display_title';
+  static const String sPPPremiumDisplayTitle =
+      'subscription_page.premium_display_title';
+  static const String sPPBasicSubtitle = 'subscription_page.basic_subtitle';
+  static const String sPPStandardSubtitle =
+      'subscription_page.standard_subtitle';
+  static const String sPPPlusSubtitle = 'subscription_page.plus_subtitle';
+  static const String sPPPremiumSubtitle = 'subscription_page.premium_subtitle';
+  static const String sPPBasicLimitTitle =
+      'subscription_page.basic_limit_title';
+  static const String sPPStandardLimitTitle =
+      'subscription_page.standard_limit_title';
+  static const String sPPPlusLimitTitle = 'subscription_page.plus_limit_title';
+  static const String sPPPremiumLimitTitle =
+      'subscription_page.premium_limit_title';
+  static const String sPPBasicLimitSubtitle =
+      'subscription_page.basic_limit_subtitle';
+  static const String sPPStandardLimitSubtitle =
+      'subscription_page.standard_limit_subtitle';
+  static const String sPPPlusLimitSubtitle =
+      'subscription_page.plus_limit_subtitle';
+  static const String sPPPremiumLimitSubtitle =
+      'subscription_page.premium_limit_subtitle';
+  static const String sPPBasicAiScanFeatureTitle =
+      'subscription_page.basic_ai_scan_feature_title';
+  static const String sPPBasicAiScanFeatureSubtitle =
+      'subscription_page.basic_ai_scan_feature_subtitle';
+  static const String sPPBasicJsonInputFeatureTitle =
+      'subscription_page.basic_json_input_feature_title';
+  static const String sPPBasicJsonInputFeatureSubtitle =
+      'subscription_page.basic_json_input_feature_subtitle';
+  static const String sPPBasicSaveLocationFeatureTitle =
+      'subscription_page.basic_save_location_feature_title';
+  static const String sPPBasicSaveLocationFeatureSubtitle =
+      'subscription_page.basic_save_location_feature_subtitle';
+  static const String sPPBasicSmartLocationFeatureTitle =
+      'subscription_page.basic_smart_location_feature_title';
+  static const String sPPBasicSmartLocationFeatureSubtitle =
+      'subscription_page.basic_smart_location_feature_subtitle';
+  static const String sPPStandardAiScanFeatureTitle =
+      'subscription_page.standard_ai_scan_feature_title';
+  static const String sPPStandardAiScanFeatureSubtitle =
+      'subscription_page.standard_ai_scan_feature_subtitle';
+  static const String sPPStandardJsonInputFeatureTitle =
+      'subscription_page.standard_json_input_feature_title';
+  static const String sPPStandardJsonInputFeatureSubtitle =
+      'subscription_page.standard_json_input_feature_subtitle';
+  static const String sPPStandardSaveLocationFeatureTitle =
+      'subscription_page.standard_save_location_feature_title';
+  static const String sPPStandardSaveLocationFeatureSubtitle =
+      'subscription_page.standard_save_location_feature_subtitle';
+  static const String sPPStandardSmartLocationFeatureTitle =
+      'subscription_page.standard_smart_location_feature_title';
+  static const String sPPStandardSmartLocationFeatureSubtitle =
+      'subscription_page.standard_smart_location_feature_subtitle';
+  static const String sPPStandardBasicSupportFeatureTitle =
+      'subscription_page.standard_basic_support_feature_title';
+  static const String sPPStandardBasicSupportFeatureSubtitle =
+      'subscription_page.standard_basic_support_feature_subtitle';
+  static const String sPPPlusAiScanFeatureTitle =
+      'subscription_page.plus_ai_scan_feature_title';
+  static const String sPPPlusAiScanFeatureSubtitle =
+      'subscription_page.plus_ai_scan_feature_subtitle';
+  static const String sPPPlusJsonInputFeatureTitle =
+      'subscription_page.plus_json_input_feature_title';
+  static const String sPPPlusJsonInputFeatureSubtitle =
+      'subscription_page.plus_json_input_feature_subtitle';
+  static const String sPPPlusPreciseLocationFeatureTitle =
+      'subscription_page.plus_precise_location_feature_title';
+  static const String sPPPlusPreciseLocationFeatureSubtitle =
+      'subscription_page.plus_precise_location_feature_subtitle';
+  static const String sPPPlusSaveLocationFeatureTitle =
+      'subscription_page.plus_save_location_feature_title';
+  static const String sPPPlusSaveLocationFeatureSubtitle =
+      'subscription_page.plus_save_location_feature_subtitle';
+  static const String sPPPlusSmartLocationFeatureTitle =
+      'subscription_page.plus_smart_location_feature_title';
+  static const String sPPPlusSmartLocationFeatureSubtitle =
+      'subscription_page.plus_smart_location_feature_subtitle';
+  static const String sPPPlusPrioritySupportFeatureTitle =
+      'subscription_page.plus_priority_support_feature_title';
+  static const String sPPPlusPrioritySupportFeatureSubtitle =
+      'subscription_page.plus_priority_support_feature_subtitle';
+  static const String sPPPremiumAiScanFeatureTitle =
+      'subscription_page.premium_ai_scan_feature_title';
+  static const String sPPPremiumAiScanFeatureSubtitle =
+      'subscription_page.premium_ai_scan_feature_subtitle';
+  static const String sPPPremiumJsonInputFeatureTitle =
+      'subscription_page.premium_json_input_feature_title';
+  static const String sPPPremiumJsonInputFeatureSubtitle =
+      'subscription_page.premium_json_input_feature_subtitle';
+  static const String sPPPremiumPreciseLocationFeatureTitle =
+      'subscription_page.premium_precise_location_feature_title';
+  static const String sPPPremiumPreciseLocationFeatureSubtitle =
+      'subscription_page.premium_precise_location_feature_subtitle';
+  static const String sPPPremiumSaveLocationFeatureTitle =
+      'subscription_page.premium_save_location_feature_title';
+  static const String sPPPremiumSaveLocationFeatureSubtitle =
+      'subscription_page.premium_save_location_feature_subtitle';
+  static const String sPPPremiumSmartLocationFeatureTitle =
+      'subscription_page.premium_smart_location_feature_title';
+  static const String sPPPremiumSmartLocationFeatureSubtitle =
+      'subscription_page.premium_smart_location_feature_subtitle';
+  static const String sPPPremiumPrioritySupportFeatureTitle =
+      'subscription_page.premium_priority_support_feature_title';
+  static const String sPPPremiumPrioritySupportFeatureSubtitle =
+      'subscription_page.premium_priority_support_feature_subtitle';
+  static const String sPPPaymentSuccessTitle =
+      'subscription_page.payment_success_title';
+  static const String sPPPaymentFailedTitle =
+      'subscription_page.payment_failed_title';
+  static const String sPPBasicPriceContent =
+      'subscription_page.basic_price_content';
+  static const String sPPPriceContent = 'subscription_page.price_content';
+  static const String sPPUpgradePlanContent =
+      'subscription_page.upgrade_plan_content';
+  static const String sPPUpgradePlanTitle =
+      'subscription_page.upgrade_plan_title';
+  static const String sPPCancelRenewalButtonLabel =
+      'subscription_page.cancel_renewal_button_label';
+  static const String sPPProductNotFoundContent =
+      'subscription_page.product_not_found_content';
+  static const String sPPSubscribeNowButtonLabel =
+      'subscription_page.subscribe_now_button_label';
+  static const String sPPUnavailableButtonLabel =
+      'subscription_page.unavailable_button_label';
+  static const String sPPFeaturedFeaturesTitle =
+      'subscription_page.featured_features_title';
+  static const String sPPActivePlanBadgeLabel =
+      'subscription_page.active_plan_badge_label';
+
+  // Subscription error
+  static const String subscriptionErrorTitle = 'subscription_error.title';
+  static const String subscriptionErrorContent = 'subscription_error.content';
+  static const String subscriptionErrorRetryBtnLabel =
+      'subscription_error.retry_btn_label';
+
+  // Trang cá nhân
+  static const String pPAppBarTitle = 'person_page.app_bar_title';
+  static const String pPSignoutFailedTitle = 'person_page.signout_failed_title';
+  static const String pPSignoutFailedSubtitle =
+      'person_page.signout_failed_subtitle';
+  static const String pPSignoutLoadingTitle =
+      'person_page.signout_loading_title';
+  static const String pPSignoutLoadingSubtitle =
+      'person_page.signout_loading_subtitle';
+  static const String pPUserIdLabel = 'person_page.user_id_label';
+  static const String pPCopyUserIdSuccessMessage =
+      'person_page.copy_user_id_success_message';
+  static const String pPCurrentPlanTitle = 'person_page.current_plan_title';
+  static const String pPUnlimitedDuration = 'person_page.unlimited_duration';
+  static const String pPPlanExpiresAtContent =
+      'person_page.plan_expires_at_content';
+  static const String pPViewDetailLabel = 'person_page.view_detail_label';
+  static const String pPUpgradePlanSuggestionContent =
+      'person_page.upgrade_plan_suggestion_content';
+  static const String pPBuyPlanNowButtonLabel =
+      'person_page.buy_plan_now_button_label';
+  static const String pPMenuPlanTitle = 'person_page.menu_plan_title';
+  static const String pPMenuLanguageTitle = 'person_page.menu_language_title';
+  static const String pPMenuVietnameseTrailingText =
+      'person_page.menu_vietnamese_trailing_text';
+  static const String pPMenuGroupTitle = 'person_page.menu_group_title';
+  static const String pPMenuGuideTitle = 'person_page.menu_guide_title';
+  static const String pPMenuSignoutTitle = 'person_page.menu_signout_title';
+  static const String pPSignoutConfirmDialogTitle =
+      'person_page.signout_confirm_dialog_title';
+  static const String pPSignoutCancelButtonLabel =
+      'person_page.signout_cancel_button_label';
+  static const String pPSignoutConfirmButtonLabel =
+      'person_page.signout_confirm_button_label';
+
+  // Avatar uploader
+  static const String aUErrorPickImageContent =
+      'avatar_uploader.error_pick_image_content';
+  static const String aUTakeNewPhotoLabel =
+      'avatar_uploader.take_new_photo_label';
+  static const String aUSelectFromGalleryLabel =
+      'avatar_uploader.select_from_gallery_label';
+
+  // Plan detail bottom sheet
+  static const String pDBSTitle = 'plan_detail_bottom_sheet.title';
+  static const String pDBSCurrentPlanLabel =
+      'plan_detail_bottom_sheet.current_plan_label';
+  static const String pDBSRegistrationDateLabel =
+      'plan_detail_bottom_sheet.registration_date_label';
+  static const String pDBSNoExpirationLabel =
+      'plan_detail_bottom_sheet.no_expiration_label';
+  static const String pDBSExpirationDateLabel =
+      'plan_detail_bottom_sheet.expiration_date_label';
+  static const String pDBSAutoRenewLabel =
+      'plan_detail_bottom_sheet.auto_renew_label';
+  static const String pDBSAutoRenewDescription =
+      'plan_detail_bottom_sheet.auto_renew_description';
+  static const String pDBSPaymentDueWarningTitle =
+      'plan_detail_bottom_sheet.payment_due_warning_title';
+  static const String pDBSPaymentDueWarningContent =
+      'plan_detail_bottom_sheet.payment_due_warning_content';
+
+  // Premium banner card
+  static const String pBCUsingHighestPackageTitle =
+      'premium_banner_card.using_highest_package_title';
+  static const String pBCPackageBenefitsDescription =
+      'premium_banner_card.package_benefits_description';
+
+  // Cập nhật hồ sơ
+  static const String uPUpdateProfileSuccessTitle =
+      'update_profile.update_profile_success_title';
+  static const String uPUpdateProfileFailedTitle =
+      'update_profile.update_profile_failed_title';
+  static const String uPUpdateProfileFailedSubtitle =
+      'update_profile.update_profile_failed_subtitle';
+  static const String uPTitle = 'update_profile.title';
+  static const String uPDescription = 'update_profile.description';
+  static const String uPAvatarLabel = 'update_profile.avatar_label';
+  static const String uPChangeAvatarHint = 'update_profile.change_avatar_hint';
+  static const String uPFullNameLabel = 'update_profile.full_name_label';
+  static const String uPDisplayNameHint = 'update_profile.display_name_hint';
+  static const String uPNameRequiredError =
+      'update_profile.name_required_error';
+  static const String uPCancelButtonLabel =
+      'update_profile.cancel_button_label';
+  static const String uPSaveChangesButtonLabel =
+      'update_profile.save_changes_button_label';
+
+  // Image Slider
+  static const String iSErrorLoadImageText =
+      'image_slider.error_load_image_text';
+
+  // OCR scan
+  static const String ocrScanCameraPermissionDeniedMessage =
+      'ocr_scan.camera_permission_denied_message';
+  static const String ocrScanCapturingImageStatus =
+      'ocr_scan.capturing_image_status';
+  static const String ocrScanRecognizingTextStatus =
+      'ocr_scan.recognizing_text_status';
+  static const String ocrScanNoTextFoundError = 'ocr_scan.no_text_found_error';
+  static const String ocrScanAiProcessingStatus =
+      'ocr_scan.ai_processing_status';
+  static const String ocrScanProcessingErrorMessage =
+      'ocr_scan.processing_error_message';
+  static const String ocrScanAnalysisResultTitle =
+      'ocr_scan.analysis_result_title';
+  static const String ocrScanRescanButtonLabel = 'ocr_scan.rescan_button_label';
+  static const String ocrScanConfirmButtonLabel =
+      'ocr_scan.confirm_button_label';
+  static const String ocrScanOrderCodeLabel = 'ocr_scan.order_code_label';
+  static const String ocrScanOrderNameLabel = 'ocr_scan.order_name_label';
+  static const String ocrScanRecipientNameLabel =
+      'ocr_scan.recipient_name_label';
+  static const String ocrScanPhoneNumberLabel = 'ocr_scan.phone_number_label';
+  static const String ocrScanDeliveryAddressLabel =
+      'ocr_scan.delivery_address_label';
+  static const String ocrScanOrderInformationTitle =
+      'ocr_scan.order_information_title';
+
+  // Màn hình quét mã
+  static const String gSSAnalysisResultTitle =
+      'generic_scan_screen.analysis_result_title';
+  static const String gSSScanInstruction =
+      'generic_scan_screen.scan_instruction';
+
+  // Smgo Loading Screen
+  static const String sLSDefaultTitle = 'smgo_loading_screen.default_title';
+  static const String sLSDefaultSubtitle =
+      'smgo_loading_screen.default_subtitle';
+
+  // App location utils
+  static const String aLUEnableGpsSnackbarContent =
+      'app_location_utils.enable_gps_snackbar_content';
+  static const String aLULocationPermissionDeniedSnackbarContent =
+      'app_location_utils.location_permission_denied_snackbar_content';
+  static const String aLULocationPermissionDeniedForeverSnackbarContent =
+      'app_location_utils.location_permission_denied_forever_snackbar_content';
+  static const String aLUGetCurrentLocationFailedSnackbarContent =
+      'app_location_utils.get_current_location_failed_snackbar_content';
+
+  // Plan UI Helper
+  static const String pUHBasicPlanName = 'plan_ui_helper.basic_plan_name';
+  static const String pUHStandardPlanName = 'plan_ui_helper.standard_plan_name';
+  static const String pUHPlusPlanName = 'plan_ui_helper.plus_plan_name';
+  static const String pUHPremiumPlanName = 'plan_ui_helper.premium_plan_name';
+  static const String pUHUnknownPlanName = 'plan_ui_helper.unknown_plan_name';
+  static const String pUHActiveStatusName = 'plan_ui_helper.active_status_name';
+  static const String pUHPaymentPendingStatusName =
+      'plan_ui_helper.payment_pending_status_name';
+  static const String pUHExpiredStatusName =
+      'plan_ui_helper.expired_status_name';
+  static const String pUHUnknownStatusName =
+      'plan_ui_helper.unknown_status_name';
 }

@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class AvatarUploader extends StatefulWidget {
   final String? previewUrl;
@@ -57,9 +59,15 @@ class _AvatarUploaderState extends State<AvatarUploader> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Không thể chọn ảnh: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppStrings.aUErrorPickImageContent.tr(
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
+          ),
+        );
       }
     }
   }
@@ -105,8 +113,8 @@ class _AvatarUploaderState extends State<AvatarUploader> {
                 // Danh sách lựa chọn
                 ListTile(
                   leading: const Icon(Icons.camera_alt, color: Colors.black87),
-                  title: const Text(
-                    'Chụp ảnh mới',
+                  title: Text(
+                    AppStrings.aUTakeNewPhotoLabel.tr(),
                     style: TextStyle(color: Colors.black87),
                   ),
                   onTap: () => _handlePickImage(ImageSource.camera),
@@ -116,8 +124,8 @@ class _AvatarUploaderState extends State<AvatarUploader> {
                     Icons.photo_library,
                     color: Colors.black87,
                   ),
-                  title: const Text(
-                    'Chọn từ thư viện',
+                  title: Text(
+                    AppStrings.aUSelectFromGalleryLabel.tr(),
                     style: TextStyle(color: Colors.black87),
                   ),
                   onTap: () => _handlePickImage(ImageSource.gallery),

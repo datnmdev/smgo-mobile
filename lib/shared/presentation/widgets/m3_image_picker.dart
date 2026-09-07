@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 /// Model đại diện cho mỗi item ảnh trong lưới
 class GridImageItem {
@@ -234,7 +236,7 @@ class _M3ImagePickerGridState extends State<M3ImagePickerGrid> {
         onTimeout: () {
           throw AppException(
             code: 'TIMEOUT_ERROR',
-            message: 'Upload request timed out!',
+            message: AppStrings.m3IPGUploadRequestTimeoutErrorMessage.tr(),
           );
         },
       );
@@ -242,7 +244,7 @@ class _M3ImagePickerGridState extends State<M3ImagePickerGrid> {
       if (result == null) {
         throw AppException(
           code: 'UPLOAD_ERROR',
-          message: 'Upload image to server failed!',
+          message: AppStrings.m3IPGUploadImageFailedErrorMessage.tr(),
         );
       }
 

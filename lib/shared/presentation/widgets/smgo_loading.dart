@@ -6,7 +6,7 @@ class SmgoLoading extends StatefulWidget {
   final Widget icon;
 
   const SmgoLoading({
-    Key? key,
+    super.key,
     this.title = "Đang xử lý...",
     this.subtitle = "Vui lòng chờ trong giây lát",
     this.icon = const Icon(
@@ -14,7 +14,7 @@ class SmgoLoading extends StatefulWidget {
       size: 12,
       color: Colors.green,
     ),
-  }) : super(key: key);
+  });
 
   @override
   State<SmgoLoading> createState() => _SmgoLoadingState();
@@ -61,17 +61,17 @@ class _SmgoLoadingState extends State<SmgoLoading>
                   RotationTransition(
                     turns: _controller,
                     child: CircularProgressIndicator(
-                      value:
-                          0.75, // Độ dài của thanh progress (tạo hiệu ứng đứt đoạn)
+                      value: 0.75,
                       strokeWidth: 2,
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Colors.green,
                       ),
-                      backgroundColor: Colors.green.withOpacity(0.15),
+                      backgroundColor: Colors.green.withAlpha(
+                        (0.15 * 255).round(),
+                      ),
                       strokeCap: StrokeCap.round,
                     ),
                   ),
-                  // Icon tùy chỉnh ở giữa (đứng yên không bị xoay theo)
                   widget.icon,
                 ],
               ),

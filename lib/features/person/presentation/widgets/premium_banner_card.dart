@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class PremiumBannerCard extends StatelessWidget {
   const PremiumBannerCard({super.key});
@@ -35,13 +37,13 @@ class PremiumBannerCard extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Bạn đang sử dụng gói cao nhất',
+                  AppStrings.pBCUsingHighestPackageTitle.tr(),
                   style: TextStyle(
                     fontSize: 14, // Giảm từ 16 xuống 14
                     fontWeight: FontWeight.bold,
@@ -50,7 +52,7 @@ class PremiumBannerCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Tận hưởng đầy đủ tính năng và hạn mức đơn hàng của gói hiện tại.',
+                  AppStrings.pBCPackageBenefitsDescription.tr(),
                   style: TextStyle(
                     fontSize: 12.5,
                     color: Color(0xFF555555),

@@ -6,11 +6,11 @@ class SmgoCheckbox extends StatelessWidget {
   final Color primaryColor;
 
   const SmgoCheckbox({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.primaryColor = const Color.fromARGB(255, 37, 141, 70),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

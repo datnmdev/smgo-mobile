@@ -114,8 +114,10 @@ class _LocationPageState extends State<LocationPage> {
                 // Hiển thị thông báo thành công
                 AppDialogUtils.showSuccess(
                   context: parentContext,
-                  title: 'Xoá địa điểm thành công',
-                  subtitle: '${selectedIds.length} địa điểm đã bị xoá',
+                  title: AppStrings.lPDeleteLocationSuccessTitle.tr(),
+                  subtitle: AppStrings.lPDeleteLocationSuccessContent.tr(
+                    namedArgs: {'quantity': selectedIds.length.toString()},
+                  ),
                 );
 
                 selectionCubit.closeSelectionMode();
@@ -126,8 +128,8 @@ class _LocationPageState extends State<LocationPage> {
               else if (state is DeleteLocationsFailed) {
                 AppDialogUtils.showError(
                   context: parentContext,
-                  title: 'Xoá địa điểm thất bại!',
-                  subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                  title: AppStrings.lPDeleteLocationFailedTitle.tr(),
+                  subtitle: AppStrings.lPDeleteLocationFailedContent.tr(),
                 );
               }
             },
@@ -308,7 +310,11 @@ class _LocationHeader extends StatelessWidget {
                     Expanded(
                       child: Center(
                         child: Text(
-                          '$selectedCount địa điểm đã chọn',
+                          AppStrings.lPHeaderSelectedLocationsCountContent.tr(
+                            namedArgs: {
+                              'selectedCount': selectedCount.toString(),
+                            },
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -329,7 +335,12 @@ class _LocationHeader extends StatelessWidget {
                         size: 20,
                       ),
                       label: Text(
-                        selectedCount > 0 ? 'Xoá ($selectedCount)' : 'Xoá',
+                        AppStrings.lPHeaderDeleteSelectedLocationsButtonLabel
+                            .tr(
+                              namedArgs: {
+                                'selectedCount': selectedCount.toString(),
+                              },
+                            ),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -545,7 +556,7 @@ class _LocationBody extends StatelessWidget {
                             );
                           },
                           icon: const Icon(Icons.refresh, size: 18),
-                          label: const Text('Thử lại'),
+                          label: Text(AppStrings.lPRetryButtonLabel.tr()),
                         ),
                       ],
                     ),
@@ -758,7 +769,11 @@ class _SelectionToolbar extends StatelessWidget {
 
               /// COUNT
               Text(
-                'Đã chọn ${state.selectedItems.length}',
+                AppStrings.lPSelectedLocationsCountContent.tr(
+                  namedArgs: {
+                    'selectedCount': state.selectedItems.length.toString(),
+                  },
+                ),
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 14,

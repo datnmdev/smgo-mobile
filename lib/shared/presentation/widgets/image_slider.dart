@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class ImageSlider extends StatefulWidget {
   final List<String> imageUrls;
@@ -98,102 +100,102 @@ class _ImageSliderState extends State<ImageSlider> {
       child: widget.isLoading
           ? const _ShimmerSkeleton(height: 200, borderRadius: 16)
           : displayImages.isEmpty
-              ? const SizedBox.shrink()
-              : Stack(
-                  children: [
-                    // Swipeable Image View
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        color: Colors.grey[100],
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: displayImages.length,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                            // Restarts timer when user manually swipes
-                            _startAutoPlay();
-                          },
-                          itemBuilder: (context, index) {
-                            return Image.network(
-                              displayImages[index],
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return const Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[300],
-                                  child: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.broken_image,
-                                        color: Colors.grey,
-                                        size: 40,
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Không thể tải ảnh',
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+          ? const SizedBox.shrink()
+          : Stack(
+              children: [
+                // Swipeable Image View
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    color: Colors.grey[100],
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: displayImages.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        // Restarts timer when user manually swipes
+                        _startAutoPlay();
+                      },
+                      itemBuilder: (context, index) {
+                        return Image.network(
+                          displayImages[index],
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                              ),
                             );
                           },
-                        ),
-                      ),
-                    ),
-
-                    // Dynamic Page Counter Badge
-                    Positioned(
-                      right: 12,
-                      bottom: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${_currentIndex + 1}/${displayImages.length}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                    size: 40,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    AppStrings.iSErrorLoadImageText.tr(),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
+                            );
+                          },
+                        );
+                      },
                     ),
-                  ],
+                  ),
                 ),
+
+                // Dynamic Page Counter Badge
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha((0.6 * 255).round()),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.camera_alt_outlined,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${_currentIndex + 1}/${displayImages.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

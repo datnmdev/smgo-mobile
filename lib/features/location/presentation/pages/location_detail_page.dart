@@ -370,8 +370,11 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 _buildNavigationItem(
-                                  title: 'Google Maps',
-                                  subtitle: 'Mở bằng Google Maps',
+                                  title: AppStrings.lDPGoogleMapsNavigationTitle
+                                      .tr(),
+                                  subtitle: AppStrings
+                                      .lDPGoogleMapsNavigationSubtitle
+                                      .tr(),
                                   icon: Image.asset(
                                     AppAssets.icGoogleMaps,
                                     width: 32,
@@ -398,8 +401,11 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                                 const SizedBox(height: 8),
 
                                 _buildNavigationItem(
-                                  title: 'Bản đồ của app',
-                                  subtitle: 'Mở bản đồ nội bộ',
+                                  title: AppStrings.lDPAppMapNavigationTitle
+                                      .tr(),
+                                  subtitle: AppStrings
+                                      .lDPAppMapNavigationSubtitle
+                                      .tr(),
                                   icon: Image.asset(
                                     AppAssets.logo,
                                     width: 32,
@@ -407,10 +413,10 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                                   ),
                                   onTap: () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Tính năng này đang trong giai đoạn phát triển. '
-                                          'Vui lòng chờ đến bản cập nhật tiếp theo.',
+                                          AppStrings.lDPAppMapDevelopingMessage
+                                              .tr(),
                                         ),
                                       ),
                                     );
@@ -525,15 +531,20 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                                   // Thông báo thành công
                                   AppDialogUtils.showSuccess(
                                     context: context,
-                                    title: 'Xoá địa điểm thành công!',
+                                    title: AppStrings
+                                        .lDPDeleteLocationSuccessTitle
+                                        .tr(),
                                   );
                                 } else if (dialogState
                                     is DeleteLocationsFailed) {
                                   AppDialogUtils.showError(
                                     context: context,
-                                    title: 'Xoá địa điểm thất bại!',
-                                    subtitle:
-                                        'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                    title: AppStrings
+                                        .lDPDeleteLocationFailedTitle
+                                        .tr(),
+                                    subtitle: AppStrings
+                                        .lDPDeleteLocationFailedContent
+                                        .tr(),
                                   );
                                 }
                               },

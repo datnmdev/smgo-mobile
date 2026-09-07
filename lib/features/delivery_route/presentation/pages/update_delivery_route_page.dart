@@ -14,7 +14,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/update_delivery_r
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 class UpdateDeliveryRoutePage extends StatefulWidget {
-  const UpdateDeliveryRoutePage({Key? key}) : super(key: key);
+  const UpdateDeliveryRoutePage({super.key});
 
   @override
   State<UpdateDeliveryRoutePage> createState() =>
@@ -67,13 +67,13 @@ class _UpdateDeliveryRoutePageState extends State<UpdateDeliveryRoutePage> {
                 );
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Cập nhật thông tin lộ trình thành công!',
+                  title: AppStrings.uRPUpdateSuccessTitle.tr(),
                 );
               } else if (state is UpdateDeliveryRouteFormFailed) {
                 AppDialogUtils.showError(
                   context: context,
-                  title: 'Cập nhật thông tin lộ trình thất bại!',
-                  subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                  title: AppStrings.uRPUpdateFailedTitle.tr(),
+                  subtitle: AppStrings.uRPUpdateFailedSubtitle.tr(),
                 );
               }
             },

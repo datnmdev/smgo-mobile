@@ -389,7 +389,7 @@ class _UpdateLocationPageState extends State<UpdateLocationPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Vị trí',
+                              AppStrings.uLPPrimaryLocationLabel.tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

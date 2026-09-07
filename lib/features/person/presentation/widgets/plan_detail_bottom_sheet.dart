@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/shared/helpers/plan_ui_helper.dart';
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
 
@@ -58,8 +59,8 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Chi tiết gói',
+              Text(
+                AppStrings.pDBSTitle.tr(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -95,7 +96,7 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gói hiện tại',
+                      AppStrings.pDBSCurrentPlanLabel.tr(),
                       style: TextStyle(color: Colors.grey, fontSize: 13),
                     ),
                     SizedBox(height: 4),
@@ -137,7 +138,7 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
           // Dòng: Ngày đăng ký
           _buildInfoRow(
             icon: Icons.calendar_today_outlined,
-            title: 'Ngày đăng ký',
+            title: AppStrings.pDBSRegistrationDateLabel.tr(),
             value: _currentPlan?.startsAt != null
                 ? DateFormat(
                     'dd/MM/yyyy',
@@ -149,9 +150,9 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
           // Dòng: Ngày hết hạn
           _buildInfoRow(
             icon: Icons.calendar_month_outlined,
-            title: 'Ngày hết hạn',
+            title: AppStrings.pDBSExpirationDateLabel.tr(),
             value: _currentPlan?.productId == ProductId.basic.value
-                ? 'Không thời hạn'
+                ? AppStrings.pDBSNoExpirationLabel.tr()
                 : _currentPlan?.expiresAt != null
                 ? DateFormat(
                     'dd/MM/yyyy',
@@ -175,9 +176,9 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Tự động gia hạn',
+                          AppStrings.pDBSAutoRenewLabel.tr(),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -186,7 +187,7 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Tự động gia hạn khi đến kỳ',
+                          AppStrings.pDBSAutoRenewDescription.tr(),
                           style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ],
@@ -232,9 +233,9 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Gói của bạn đã đến kì hạn thanh toán',
+                          AppStrings.pDBSPaymentDueWarningTitle.tr(),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -243,7 +244,7 @@ class _PlanDetailBottomSheetState extends State<PlanDetailBottomSheet> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Tài khoản thanh toán của bạn không đủ tiền để tiếp tục gia hạn. Vui lòng nạp thêm tiền vào tài khoản.',
+                          AppStrings.pDBSPaymentDueWarningContent.tr(),
                           style: TextStyle(color: Colors.grey, fontSize: 11),
                         ),
                       ],

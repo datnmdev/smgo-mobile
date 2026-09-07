@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/features/delivery_route/data/models/extracted_order_info_model.dart';
 import 'package:smgo/features/delivery_route/domain/entities/extracted_order_info_entity.dart';
 
@@ -65,8 +67,9 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
           } else {
             setState(() {
               _isValid = false;
-              _errorMessage =
-                  'Phần tử thứ ${i + 1} thiếu trường hoặc sai định dạng chuỗi.';
+              _errorMessage = AppStrings.jIBSInvalidListItemFormatContent.tr(
+                namedArgs: {'index': (i + 1).toString()},
+              );
               _parsedOrders = [];
             });
             return;
@@ -78,8 +81,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
         } else {
           setState(() {
             _isValid = false;
-            _errorMessage =
-                'Dữ liệu thiếu các trường bắt buộc (orderCode, orderName, contactName, contactPhone, address)';
+            _errorMessage = AppStrings.jIBSMissingRequiredFieldsContent.tr();
             _parsedOrders = [];
           });
           return;
@@ -87,7 +89,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
       } else {
         setState(() {
           _isValid = false;
-          _errorMessage = 'Dữ liệu phải là danh sách [ ] hoặc đối tượng { }';
+          _errorMessage = AppStrings.jIBSInvalidDataTypeContent.tr();
           _parsedOrders = [];
         });
         return;
@@ -109,8 +111,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
     } catch (e) {
       setState(() {
         _isValid = false;
-        _errorMessage =
-            'Cấu trúc JSON không hợp lệ. Vui lòng kiểm tra lại cú pháp.';
+        _errorMessage = AppStrings.jIBSInvalidJsonStructureContent.tr();
         _parsedOrders = [];
       });
     }
@@ -154,8 +155,8 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Nhập dữ liệu JSON',
+              Text(
+                AppStrings.jIBSTitle.tr(),
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -178,7 +179,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  'Lấy lệnh',
+                  AppStrings.jIBSGetPromptButtonLabel.tr(),
                   style: TextStyle(
                     color: AppColors.primary,
                     fontSize: 13,
@@ -190,7 +191,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Dán nội dung JSON chứa thông tin đơn hàng vào ô bên dưới.',
+            AppStrings.jIBSDescription.tr(),
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 20),
@@ -198,7 +199,7 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
           // Textfield nhập JSON
           InputDecorator(
             decoration: InputDecoration(
-              labelText: 'Dữ liệu JSON',
+              labelText: AppStrings.jIBSJsonDataLabel.tr(),
               labelStyle: TextStyle(
                 color: primaryColor,
                 fontWeight: FontWeight.w600,
@@ -273,8 +274,8 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'JSON hợp lệ',
+                        Text(
+                          AppStrings.jIBSValidJsonTitle.tr(),
                           style: TextStyle(
                             color: Color(0xFF2E7D32),
                             fontWeight: FontWeight.bold,
@@ -282,7 +283,11 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                           ),
                         ),
                         Text(
-                          'Tìm thấy ${_parsedOrders.length} đơn hàng trong dữ liệu',
+                          AppStrings.jIBSFoundOrdersContent.tr(
+                            namedArgs: {
+                              'quantity': _parsedOrders.length.toString(),
+                            },
+                          ),
                           style: TextStyle(
                             color: Colors.grey.shade700,
                             fontSize: 13,
@@ -312,8 +317,8 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'JSON không hợp lệ',
+                          Text(
+                            AppStrings.jIBSInvalidJsonTitle.tr(),
                             style: TextStyle(
                               color: Color(0xFFC62828),
                               fontWeight: FontWeight.bold,
@@ -350,8 +355,8 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Hủy',
+                    child: Text(
+                      AppStrings.jIBSCancelButtonLabel.tr(),
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.black87,
@@ -398,8 +403,8 @@ class _JsonImportBottomSheetState extends State<JsonImportBottomSheet> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Xác nhận',
+                    child: Text(
+                      AppStrings.jIBSConfirmButtonLabel.tr(),
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -541,8 +546,8 @@ KIỂM TRA TRƯỚC KHI TRẢ KẾT QUẢ:
       await Clipboard.setData(ClipboardData(text: prompt));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã sao chép lệnh'),
+          SnackBar(
+            content: Text(AppStrings.jIBSPromptCopiedMessage.tr()),
             duration: Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),

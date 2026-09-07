@@ -169,14 +169,20 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
                             AppDialogUtils.showSuccess(
                               context: context,
-                              title: 'Tạo địa điểm thành công!',
-                              subtitle: 'Thông tin địa điểm đã được lưu.',
+                              title: AppStrings.aLPCreateLocationSuccessTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .aLPCreateLocationSuccessSubtitle
+                                  .tr(),
                             );
                           } else if (state is AddLocationFormFailed) {
                             AppDialogUtils.showError(
                               context: context,
-                              title: 'Tạo địa điểm thất bại!',
-                              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại...',
+                              title: AppStrings.aLPCreateLocationFailedTitle
+                                  .tr(),
+                              subtitle: AppStrings
+                                  .aLPCreateLocationFailedSubtitle
+                                  .tr(),
                             );
                           }
                         },
@@ -431,7 +437,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Vị trí',
+                            AppStrings.aLPLocationLabel.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,

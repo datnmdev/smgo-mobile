@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/shared/presentation/widgets/smgo_onboarding_carousel.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -34,9 +36,9 @@ class OnboardingPage extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text(
-                  'Bắt đầu ngay',
+                  AppStrings.oPStartNowBtnLabel.tr(),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 8),

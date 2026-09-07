@@ -1,33 +1,35 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
 
 class PlanUiHelper {
   // Các hàm helper
   static String getPlanName(String? productId) {
     if (productId == ProductId.basic.value) {
-      return 'Gói Cơ bản';
+      return AppStrings.pUHBasicPlanName.tr();
     } else if (productId == ProductId.standard.value) {
-      return 'Gói Tiêu chuẩn';
+      return AppStrings.pUHStandardPlanName.tr();
     } else if (productId == ProductId.plus.value) {
-      return 'Gói Plus';
+      return AppStrings.pUHPlusPlanName.tr();
     } else if (productId == ProductId.premium.value) {
-      return 'Gói Cao cấp';
+      return AppStrings.pUHPremiumPlanName.tr();
     } else {
-      return 'Không xác định';
+      return AppStrings.pUHUnknownPlanName.tr();
     }
   }
 
   static String getStatusName(String? status) {
     if (status == SubscriptionStatus.active.value ||
         status == SubscriptionStatus.canceled.value) {
-      return 'Đang hoạt động';
+      return AppStrings.pUHActiveStatusName.tr();
     } else if (status == SubscriptionStatus.inGracePeriod.value ||
         status == SubscriptionStatus.onHold.value) {
-      return 'Chờ thanh toán';
+      return AppStrings.pUHPaymentPendingStatusName.tr();
     } else if (status == SubscriptionStatus.expired.value) {
-      return 'Đã hết hạn';
+      return AppStrings.pUHExpiredStatusName.tr();
     } else {
-      return 'Không xác định';
+      return AppStrings.pUHUnknownStatusName.tr();
     }
   }
 

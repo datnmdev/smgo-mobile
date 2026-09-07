@@ -134,8 +134,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
               if (state is UpdateDeliveryOrderFormDone) {
                 AppDialogUtils.showSuccess(
                   context: context,
-                  title: 'Cập nhật thành công!',
-                  subtitle: 'Thông tin đơn hàng của bạn đã được lưu.',
+                  title: AppStrings.uDOPUpdateSuccessTitle.tr(),
+                  subtitle: AppStrings.uDOPUpdateSuccessSubtitle.tr(),
                 );
                 getDeliveryRoutesCubitInDODP.call(
                   params: getDeliveryRoutesUsecaseParamsInDODP,
@@ -143,8 +143,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
               } else if (state is UpdateDeliveryOrderFormFailed) {
                 AppDialogUtils.showError(
                   context: context,
-                  title: 'Cập nhật thất bại!',
-                  subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại',
+                  title: AppStrings.uDOPUpdateFailedTitle.tr(),
+                  subtitle: AppStrings.uDOPUpdateFailedSubtitle.tr(),
                 );
               }
             },
@@ -163,7 +163,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Cập nhật đơn hàng',
+                      AppStrings.uDOPPageTitle.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -182,7 +182,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                     builder: (context, onPressed) {
                       return _buildHeaderAction(
                         icon: Icons.document_scanner,
-                        label: 'Quét nhanh',
+                        label: AppStrings.uDOPQuickScanLabel.tr(),
                         onTap: onPressed,
                       );
                     },
@@ -288,7 +288,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
 
                   _buildHeaderAction(
                     icon: Icons.save_outlined,
-                    label: 'Lưu',
+                    label: AppStrings.uDOPSaveLabel.tr(),
                     isLoading: state is UpdateDeliveryOrderFormLoading,
                     onTap: () {
                       context.read<UpdateDeliveryOrderFormCubit>().submit(
@@ -318,7 +318,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
 
   Future<String> _runInference(String ocrText) async {
     if (_isGenerating) {
-      throw Exception('AI đang xử lý yêu cầu trước đó');
+      throw Exception(AppStrings.uDOPAiProcessingPreviousRequestError.tr());
     }
     try {
       _isGenerating = true;
@@ -329,7 +329,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
           .join('\n');
 
       if (cleanOcrText.isEmpty) {
-        throw Exception('OCR không nhận diện được nội dung');
+        throw Exception(AppStrings.uDOPOcrNoContentError.tr());
       }
 
       final dataState = await di<ExtractOrderInfoUsecase>().call(
@@ -398,13 +398,16 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(Icons.qr_code, 'Thông tin đơn hàng'),
+          _buildSectionHeader(
+            Icons.qr_code,
+            AppStrings.uDOPOrderInfoSectionTitle.tr(),
+          ),
           const SizedBox(height: 16),
           Column(
             children: [
               _buildInputField(
-                label: 'Mã vận đơn *',
-                placeholder: 'Nhập mã vận đơn',
+                label: AppStrings.uDOPOrderCodeLabel.tr(),
+                placeholder: AppStrings.uDOPOrderCodePlaceholder.tr(),
                 onChanged: updateDeliveryOrderFormCubit.orderCodeInputChanged,
                 controller: orderCodeInputController,
                 isLocked: lockedFields.contains(LockableField.orderCode),
@@ -424,21 +427,25 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                       .displayError !=
                   null) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Mã vận đơn không được bỏ trống'),
+                M3ErrorText(
+                  errorText: AppStrings.uDOPOrderCodeRequiredError.tr(),
+                ),
               ],
               if (updateDeliveryOrderFormCubit.isOrderCodeDuplicated(
                 oldOrderCode: deliveryOrder.orderCode,
                 existingDeliveryOrders: deliveryRoute.orders,
               )) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Mã vận đơn đã tồn tại'),
+                M3ErrorText(
+                  errorText: AppStrings.uDOPOrderCodeDuplicatedError.tr(),
+                ),
               ],
             ],
           ),
           const SizedBox(height: 12),
           _buildInputField(
-            label: 'Tên sản phẩm',
-            placeholder: 'Nhập tên sản phẩm',
+            label: AppStrings.uDOPOrderNameLabel.tr(),
+            placeholder: AppStrings.uDOPOrderNamePlaceholder.tr(),
             onChanged: updateDeliveryOrderFormCubit.orderNameInputChanged,
             controller: orderNameInputController,
             isLocked: lockedFields.contains(LockableField.orderName),
@@ -453,8 +460,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
             },
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Ảnh chụp của đơn hàng',
+          Text(
+            AppStrings.uDOPOrderImageLabel.tr(),
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -496,13 +503,16 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(Icons.person_outline, 'Thông tin người nhận'),
+          _buildSectionHeader(
+            Icons.person_outline,
+            AppStrings.uDOPRecipientInfoSectionTitle.tr(),
+          ),
           const SizedBox(height: 16),
           Column(
             children: [
               _buildInputField(
-                label: 'Tên người nhận *',
-                placeholder: 'Nhập tên người nhận',
+                label: AppStrings.uDOPRecipientNameLabel.tr(),
+                placeholder: AppStrings.uDOPRecipientNamePlaceholder.tr(),
                 onChanged: updateDeliveryOrderFormCubit.contactNameInputChanged,
                 controller: contactNameInputController,
                 isLocked: lockedFields.contains(LockableField.contactName),
@@ -522,7 +532,9 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                       .displayError !=
                   null) ...[
                 SizedBox(height: 4),
-                M3ErrorText(errorText: 'Tên người nhận không được bỏ trống'),
+                M3ErrorText(
+                  errorText: AppStrings.uDOPRecipientNameRequiredError.tr(),
+                ),
               ],
             ],
           ),
@@ -530,8 +542,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
           Column(
             children: [
               _buildInputField(
-                label: 'Số điện thoại *',
-                placeholder: 'Nhập số điện thoại',
+                label: AppStrings.uDOPPhoneNumberLabel.tr(),
+                placeholder: AppStrings.uDOPPhoneNumberPlaceholder.tr(),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
@@ -565,13 +577,17 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                         .contactPhoneInput
                         .displayError ==
                     ContactPhoneInputValidationError.empty)
-                  M3ErrorText(errorText: 'Số điện thoại không được bỏ trống'),
+                  M3ErrorText(
+                    errorText: AppStrings.uDOPPhoneNumberRequiredError.tr(),
+                  ),
                 if (updateDeliveryOrderFormCubit
                         .state
                         .contactPhoneInput
                         .displayError ==
                     ContactPhoneInputValidationError.invalid)
-                  M3ErrorText(errorText: 'Số điện thoại không hợp lệ'),
+                  M3ErrorText(
+                    errorText: AppStrings.uDOPPhoneNumberInvalidError.tr(),
+                  ),
               ],
             ],
           ),
@@ -579,8 +595,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
           Column(
             children: [
               _buildInputField(
-                label: 'Địa chỉ người nhận *',
-                placeholder: 'Nhập địa chỉ',
+                label: AppStrings.uDOPRecipientAddressLabel.tr(),
+                placeholder: AppStrings.uDOPRecipientAddressPlaceholder.tr(),
                 onChanged: (value) {
                   updateDeliveryOrderFormCubit.addressInputChanged(value);
                   context.read<GetLocationSuggestionsCubit>().call(
@@ -610,7 +626,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   null) ...[
                 SizedBox(height: 4),
                 M3ErrorText(
-                  errorText: 'Địa chỉ người nhận không được bỏ trống',
+                  errorText: AppStrings.uDOPRecipientAddressRequiredError.tr(),
                 ),
               ],
             ],
@@ -655,8 +671,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
 
           const SizedBox(height: 12),
 
-          const Text(
-            'Vị trí người nhận *',
+          Text(
+            AppStrings.uDOPRecipientLocationLabel.tr(),
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -693,7 +709,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                     null) ...[
                   SizedBox(height: 4),
                   M3ErrorText(
-                    errorText: 'Vui lòng chọn vị trí người dùng trên bản đồ',
+                    errorText: AppStrings.uDOPSelectUserLocationOnMapError.tr(),
                   ),
                 ],
               ],
@@ -848,7 +864,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
               children: [
                 // Phần Tiêu đề
                 Row(
-                  children: const [
+                  children: [
                     Icon(
                       Icons.lightbulb_outline,
                       color: primaryGreen,
@@ -860,7 +876,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Gợi ý vị trí chính xác',
+                            AppStrings.uDOPLocationSuggestionsTitle.tr(),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: primaryGreen,
@@ -868,7 +884,7 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                             ),
                           ),
                           Text(
-                            'Vị trí này được lưu lại bởi bạn hoặc được chia sẻ bởi cộng đồng',
+                            AppStrings.uDOPLocationSuggestionsSubtitle.tr(),
                             style: TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
@@ -891,11 +907,11 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                   )
                 else if (suggestions.isEmpty)
                   // (Tùy chọn) Hiển thị thông báo khi không có dữ liệu
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     child: Center(
                       child: Text(
-                        'Không tìm thấy gợi ý nào',
+                        AppStrings.uDOPNoLocationSuggestions.tr(),
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ),
@@ -986,8 +1002,9 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                                                   borderRadius:
                                                       BorderRadius.circular(4),
                                                 ),
-                                                child: const Text(
-                                                  'Tốt nhất',
+                                                child: Text(
+                                                  AppStrings.uDOPBestChoiceLabel
+                                                      .tr(),
                                                   style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.bold,
@@ -1017,8 +1034,12 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
                                                 child: Text(
                                                   suggestions[index].userId ==
                                                           state.profile?.id
-                                                      ? 'Lưu bởi tôi'
-                                                      : 'Cộng đồng',
+                                                      ? AppStrings
+                                                            .uDOPSavedByMeLabel
+                                                            .tr()
+                                                      : AppStrings
+                                                            .uDOPCommunityLabel
+                                                            .tr(),
                                                   style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w500,

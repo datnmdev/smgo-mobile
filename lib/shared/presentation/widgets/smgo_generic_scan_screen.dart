@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 /// Định nghĩa kiểu dữ liệu callback (Cho phép T? nullable)
 typedef ScanHandlerCallback<T> = Future<T?> Function(String rawValue);
@@ -101,7 +103,7 @@ class _SmgoGenericScanScreenState<T> extends State<SmgoGenericScanScreen<T>> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withOpacity(0.4),
+                    color: Colors.greenAccent.withAlpha((0.4 * 255).round()),
                     blurRadius: 16,
                     spreadRadius: 2,
                     offset: const Offset(0, -6),
@@ -130,8 +132,8 @@ class _SmgoGenericScanScreenState<T> extends State<SmgoGenericScanScreen<T>> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          "Kết quả phân tích",
+                        Text(
+                          AppStrings.gSSAnalysisResultTitle.tr(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -199,7 +201,7 @@ class _SmgoGenericScanScreenState<T> extends State<SmgoGenericScanScreen<T>> {
 
               ColorFiltered(
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.5),
+                  Colors.black.withAlpha((0.5 * 255).round()),
                   BlendMode.srcOut,
                 ),
                 child: Stack(
@@ -249,10 +251,10 @@ class _SmgoGenericScanScreenState<T> extends State<SmgoGenericScanScreen<T>> {
 
               Positioned(bottom: 40, child: _buildFlashButton()),
 
-              const Positioned(
+              Positioned(
                 bottom: 100,
                 child: Text(
-                  "Đưa mã QR hoặc Barcode vào vùng quét",
+                  AppStrings.gSSScanInstruction.tr(),
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ),
@@ -277,7 +279,7 @@ class _SmgoGenericScanScreenState<T> extends State<SmgoGenericScanScreen<T>> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.6),
+          color: Colors.black.withAlpha((0.6 * 255).round()),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -382,7 +384,7 @@ class _ScannerLaserAnimationState extends State<_ScannerLaserAnimation>
               color: Colors.greenAccent,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.greenAccent.withOpacity(0.8),
+                  color: Colors.greenAccent.withAlpha((0.8 * 255).round()),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),

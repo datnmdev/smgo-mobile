@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/delivery_route/domain/entities/delivery_order_entity.dart';
 import 'package:smgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
@@ -19,7 +21,7 @@ import 'package:smgo/shared/utils/app_audio_utils.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class SearchDeliveryOrderPage extends StatefulWidget {
-  const SearchDeliveryOrderPage({Key? key}) : super(key: key);
+  const SearchDeliveryOrderPage({super.key});
 
   @override
   State<SearchDeliveryOrderPage> createState() =>
@@ -71,250 +73,274 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
             });
           }
         },
-        child: BlocConsumer<SearchDeliveryOrdersCubit, SearchDeliveryOrdersState>(
-          listener: (context, state) {
-            if (state is SearchDeliveryOrdersDone) {
-              if (getDeliveryRoutesCubitInDOP != null &&
-                  getDeliveryRoutesUsecaseParamsInDOP != null) {
-                getDeliveryRoutesCubitInDOP.call(
-                  params: getDeliveryRoutesUsecaseParamsInDOP,
-                );
-              }
-              context.read<GetDeliveryRoutesCubit>().call(
-                params: GetDeliveryRoutesUsecaseParams(
-                  pageNumber: 1,
-                  pageSize: 1,
-                  id: _deliveryRoute!.id,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            final searchDeliveryOrdersCubit = context
-                .read<SearchDeliveryOrdersCubit>();
-            final isLoading = state is SearchDeliveryOrdersLoading;
-            final orders = state is SearchDeliveryOrdersDone ? state.data : [];
-
-            return Scaffold(
-              backgroundColor: const Color(0xFFF5F6F8),
-              body: Column(
-                children: [
-                  // Header màu xanh lá cây
-                  Container(
-                    color: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+        child:
+            BlocConsumer<SearchDeliveryOrdersCubit, SearchDeliveryOrdersState>(
+              listener: (context, state) {
+                if (state is SearchDeliveryOrdersDone) {
+                  if (getDeliveryRoutesCubitInDOP != null &&
+                      getDeliveryRoutesUsecaseParamsInDOP != null) {
+                    getDeliveryRoutesCubitInDOP.call(
+                      params: getDeliveryRoutesUsecaseParamsInDOP,
+                    );
+                  }
+                  context.read<GetDeliveryRoutesCubit>().call(
+                    params: GetDeliveryRoutesUsecaseParams(
+                      pageNumber: 1,
+                      pageSize: 1,
+                      id: _deliveryRoute!.id,
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: MediaQuery.paddingOf(context).top),
-                        Row(
+                  );
+                }
+              },
+              builder: (context, state) {
+                final searchDeliveryOrdersCubit = context
+                    .read<SearchDeliveryOrdersCubit>();
+                final isLoading = state is SearchDeliveryOrdersLoading;
+                final orders = state is SearchDeliveryOrdersDone
+                    ? state.data
+                    : [];
+
+                return Scaffold(
+                  backgroundColor: const Color(0xFFF5F6F8),
+                  body: Column(
+                    children: [
+                      // Header màu xanh lá cây
+                      Container(
+                        color: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Column(
                           children: [
-                            // Nút back
-                            IconButton(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              icon: const Icon(
-                                Icons.arrow_back_ios,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Tiêu đề
-                            const Expanded(
-                              child: Text(
-                                'Tìm kiếm đơn hàng',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 32,
-                            ), // Cân bằng khoảng trống với nút back
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Thanh tìm kiếm
-                  Container(
-                    color: AppColors.primary,
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextField(
-                        autofocus: true,
-                        controller: _searchController,
-                        onChanged: (value) {
-                          searchDeliveryOrdersCubit.searchTextChanged(value);
-                          searchDeliveryOrdersCubit.submit(
-                            deliveryRouteId: _deliveryRoute!.id,
-                          );
-                        },
-                        onTapOutside: (event) {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
-                        decoration: InputDecoration(
-                          hintText:
-                              'Nhập mã, tên đơn hàng hoặc tên ,số điện thoại, địa chỉ của người nhận hàng...',
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          prefixIconConstraints: const BoxConstraints(
-                            minWidth: 44,
-                            minHeight: 44,
-                          ),
-                          prefixIcon: state is SearchDeliveryOrdersLoading
-                              ? const UnconstrainedBox(
-                                  child: SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                )
-                              : const Icon(Icons.search, color: Colors.grey),
-                          suffixIcon: state.searchText.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(
-                                    Icons.clear,
-                                    color: Colors.grey,
-                                  ),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    searchDeliveryOrdersCubit.reset();
-                                    searchDeliveryOrdersCubit.submit(
-                                      deliveryRouteId: _deliveryRoute!.id,
-                                    );
-                                  },
-                                )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.only(
-                            top: 12,
-                            bottom: 12,
-                            right: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Skeletonizer(
-                      enabled: isLoading,
-                      child: Column(
-                        children: [
-                          // Thanh kết quả tìm kiếm
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            SizedBox(height: MediaQuery.paddingOf(context).top),
+                            Row(
                               children: [
-                                Text(
-                                  isLoading
-                                      ? 'Kết quả tìm kiếm (---)'
-                                      : 'Kết quả tìm kiếm (${orders.length})',
-                                  style: const TextStyle(
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                // Nút back
+                                IconButton(
+                                  onPressed: () {
+                                    context.pop();
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_back_ios,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
+                                const SizedBox(width: 12),
+                                // Tiêu đề
+                                Expanded(
+                                  child: Text(
+                                    AppStrings.sDOPTitle.tr(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 32,
+                                ), // Cân bằng khoảng trống với nút back
                               ],
                             ),
-                          ),
-
-                          // Danh sách đơn hàng
-                          Expanded(
-                            child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              itemCount: isLoading ? 5 : orders.length,
-                              itemBuilder: (context, index) {
-                                if (isLoading) {
-                                  return _buildSkeletonOrderCard();
-                                }
-
-                                final order = orders[index];
-
-                                return _buildOrderCard(
-                                  order: order,
-                                  deliveryRouteData: _deliveryRoute!,
-                                  context: context,
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Phần quét mã vạch ở dưới cùng
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Không tìm thấy đơn hàng?',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              _openOrderScanScreenToFindOrder(
-                                context: context,
-                                deliveryRoute: _deliveryRoute!,
+                      ),
+
+                      // Thanh tìm kiếm
+                      Container(
+                        color: AppColors.primary,
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            autofocus: true,
+                            controller: _searchController,
+                            onChanged: (value) {
+                              searchDeliveryOrdersCubit.searchTextChanged(
+                                value,
+                              );
+                              searchDeliveryOrdersCubit.submit(
+                                deliveryRouteId: _deliveryRoute!.id,
                               );
                             },
-                            icon: const Icon(
-                              Icons.qr_code_scanner,
-                              color: Color(0xFF10A142),
-                            ),
-                            label: const Text(
-                              'Quét mã đơn hàng',
-                              style: TextStyle(
-                                color: Color(0xFF10A142),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                            onTapOutside: (event) {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            decoration: InputDecoration(
+                              hintText: AppStrings.sDOPSearchHintText.tr(),
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              prefixIconConstraints: const BoxConstraints(
+                                minWidth: 44,
+                                minHeight: 44,
                               ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF10A142)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                              prefixIcon: state is SearchDeliveryOrdersLoading
+                                  ? const UnconstrainedBox(
+                                      child: SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.search,
+                                      color: Colors.grey,
+                                    ),
+                              suffixIcon: state.searchText.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.clear,
+                                        color: Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        searchDeliveryOrdersCubit.reset();
+                                        searchDeliveryOrdersCubit.submit(
+                                          deliveryRouteId: _deliveryRoute!.id,
+                                        );
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.only(
+                                top: 12,
+                                bottom: 12,
+                                right: 16,
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+
+                      Expanded(
+                        child: Skeletonizer(
+                          enabled: isLoading,
+                          child: Column(
+                            children: [
+                              // Thanh kết quả tìm kiếm
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      isLoading
+                                          ? AppStrings
+                                                .sDOPSearchResultLoadingContent
+                                                .tr()
+                                          : AppStrings
+                                                .sDOPSearchResultCountContent
+                                                .tr(
+                                                  namedArgs: {
+                                                    'quantity': orders.length
+                                                        .toString(),
+                                                  },
+                                                ),
+                                      style: const TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Danh sách đơn hàng
+                              Expanded(
+                                child: ListView.builder(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  itemCount: isLoading ? 0 : orders.length,
+                                  itemBuilder: (context, index) {
+                                    if (isLoading) {
+                                      return _buildSkeletonOrderCard();
+                                    }
+
+                                    final order = orders[index];
+
+                                    return _buildOrderCard(
+                                      order: order,
+                                      deliveryRouteData: _deliveryRoute!,
+                                      context: context,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Phần quét mã vạch ở dưới cùng
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              AppStrings.sDOPOrderNotFoundQuestion.tr(),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  _openOrderScanScreenToFindOrder(
+                                    context: context,
+                                    deliveryRoute: _deliveryRoute!,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.qr_code_scanner,
+                                  color: Color(0xFF10A142),
+                                ),
+                                label: Text(
+                                  AppStrings.sDOPScanOrderButtonLabel.tr(),
+                                  style: TextStyle(
+                                    color: Color(0xFF10A142),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Color(0xFF10A142),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
       ),
     );
   }
@@ -327,7 +353,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
       context,
       MaterialPageRoute(
         builder: (_) => SmgoGenericScanScreen<DeliveryOrderEntity?>(
-          title: "Quét thông tin đơn hàng",
+          title: AppStrings.sDOPScanOrderTitle.tr(),
           onHandleScan: (rawValue) async {
             if (rawValue.isNotEmpty) {
               return deliveryRoute.orders
@@ -359,8 +385,8 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "Không tìm thấy đơn hàng",
+                    Text(
+                      AppStrings.sDOPOrderNotFoundTitle.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -368,8 +394,8 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      "Mã này không tồn tại hoặc không phù hợp với hệ thống. Vui lòng thử lại.",
+                    Text(
+                      AppStrings.sDOPOrderNotFoundContent.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
@@ -388,8 +414,8 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          "Quét mã khác",
+                        child: Text(
+                          AppStrings.sDOPScanAnotherOrderButtonLabel.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -410,7 +436,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                     children: [
                       _buildInfoRow(
                         Icons.view_column,
-                        "Mã vận đơn",
+                        AppStrings.sDOPOrderCodeLabel.tr(),
                         order.orderCode,
                         showCopy: true,
                         context: context,
@@ -420,10 +446,10 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
 
                       _buildInfoRow(
                         Icons.inventory_2_outlined,
-                        "Tên sản phẩm",
+                        AppStrings.sDOPProductNameLabel.tr(),
                         order.orderName?.isNotEmpty == true
                             ? order.orderName!
-                            : 'Không có tên đơn hàng',
+                            : AppStrings.sDOPNoOrderName.tr(),
                         showCopy: true,
                         context: context,
                       ),
@@ -432,7 +458,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
 
                       _buildInfoRow(
                         Icons.person_outline,
-                        "Tên người nhận",
+                        AppStrings.sDOPRecipientNameLabel.tr(),
                         order.contactName,
                         showCopy: true,
                         context: context,
@@ -441,7 +467,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
 
                       _buildInfoRow(
                         Icons.phone_outlined,
-                        "Số điện thoại",
+                        AppStrings.sDOPPhoneNumberLabel.tr(),
                         order.contactPhone,
                         showCopy: true,
                         context: context,
@@ -450,14 +476,17 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
 
                       _buildInfoRow(
                         Icons.location_on_outlined,
-                        "Địa chỉ nhận",
+                        AppStrings.sDOPDeliveryAddressLabel.tr(),
                         order.address,
                         showCopy: true,
                         context: context,
                       ),
                       const Divider(height: 24, color: Colors.black12),
 
-                      _buildImageRow("Ảnh đơn hàng", order.orderMediaUrl ?? ''),
+                      _buildImageRow(
+                        AppStrings.sDOPOrderImageLabel.tr(),
+                        order.orderMediaUrl ?? '',
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -485,7 +514,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                           onPressed: () {
                             context.pop();
                           },
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
@@ -495,7 +524,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Quét lại",
+                                AppStrings.sDOPScanAgainButtonLabel.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -536,7 +565,7 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Xem chi tiết",
+                                AppStrings.sDOPViewDetailButtonLabel.tr(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -779,42 +808,42 @@ class _SearchDeliveryOrderPageState extends State<SearchDeliveryOrderPage> {
 
     switch (status) {
       case DeliveryOrderStatus.pending:
-        text = 'Chờ kiểm tra';
+        text = AppStrings.sDOPPendingStatusLabel.tr();
         bgColor = const Color(0xFFE8F5E9);
         textColor = const Color(0xFF10A142);
         break;
       case DeliveryOrderStatus.checked:
-        text = 'Đã kiểm tra';
+        text = AppStrings.sDOPCheckedStatusLabel.tr();
         bgColor = const Color(0xFFE3F2FD);
         textColor = const Color(0xFF1976D2);
         break;
       case DeliveryOrderStatus.sorting:
-        text = 'Đang sắp xếp';
+        text = AppStrings.sDOPSortingStatusLabel.tr();
         bgColor = const Color(0xFFFFF3E0);
         textColor = const Color(0xFFF57C00);
         break;
       case DeliveryOrderStatus.sorted:
-        text = 'Đã sắp xếp';
+        text = AppStrings.sDOPSortedStatusLabel.tr();
         bgColor = const Color(0xFFE0F7FA);
         textColor = const Color(0xFF00838F);
         break;
       case DeliveryOrderStatus.delivering:
-        text = 'Đang giao';
+        text = AppStrings.sDOPDeliveringStatusLabel.tr();
         bgColor = const Color(0xFFF3E5F5);
         textColor = const Color(0xFF7B1FA2);
         break;
       case DeliveryOrderStatus.delivered:
-        text = 'Giao thành công';
+        text = AppStrings.sDOPDeliveredStatusLabel.tr();
         bgColor = const Color(0xFFE8EAF6);
         textColor = const Color(0xFF3F51B5);
         break;
       case DeliveryOrderStatus.cancelled:
-        text = 'Giao thất bại';
+        text = AppStrings.sDOPCancelledStatusLabel.tr();
         bgColor = const Color(0xFFFFEBEE);
         textColor = const Color(0xFFC62828);
         break;
       case DeliveryOrderStatus.rescheduled:
-        text = 'Hẹn giao sau';
+        text = AppStrings.sDOPRescheduledStatusLabel.tr();
         bgColor = const Color(0xFFFFFDE7);
         textColor = const Color(0xFFFBC02D);
         break;
@@ -970,8 +999,8 @@ void _copyToClipboard({
     return;
   }
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Đã sao chép vào bộ nhớ tạm!'),
+    SnackBar(
+      content: Text(AppStrings.sDOPCopiedToClipboardMessage.tr()),
       duration: Duration(seconds: 2),
     ),
   );
@@ -1009,9 +1038,9 @@ Widget _buildImageRow(String label, String imageUrl) {
           child: Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Center(
+            errorBuilder: (_, _, _) => Center(
               child: Text(
-                "Không có ảnh",
+                AppStrings.sDOPNoImage.tr(),
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),

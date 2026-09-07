@@ -2146,7 +2146,7 @@ class _SortingViewState extends State<SortingView> {
         const _SortingGuide(),
         TotalDistanceCard(
           distanceText:
-              '${_deliveryRoute.isAllOrdersRouted ? '${((_deliveryRoute.totalDistance ?? 0) / 1000).toStringAsFixed(2)}' : '----'} km',
+              '${_deliveryRoute.isAllOrdersRouted ? ((_deliveryRoute.totalDistance ?? 0) / 1000).toStringAsFixed(2) : '----'} km',
         ),
         Expanded(
           child: ListView.builder(

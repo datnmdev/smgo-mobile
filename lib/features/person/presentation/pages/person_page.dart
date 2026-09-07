@@ -8,6 +8,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
@@ -55,8 +56,8 @@ class PersonPage extends StatelessWidget {
                 backgroundColor: primaryColor,
                 elevation: 0,
                 centerTitle: true,
-                title: const Text(
-                  'Cá nhân',
+                title: Text(
+                  AppStrings.pPAppBarTitle.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -115,15 +116,15 @@ class PersonPage extends StatelessWidget {
                 } else if (state is SignoutFailed) {
                   AppDialogUtils.showError(
                     context: context,
-                    title: 'Đăng xuất thất bại!',
-                    subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                    title: AppStrings.pPSignoutFailedTitle.tr(),
+                    subtitle: AppStrings.pPSignoutFailedSubtitle.tr(),
                   );
                 }
               },
               builder: (context, state) => SmgoLoadingScreen(
                 isLoading: state is SignoutLoading,
-                title: 'Đang đăng xuất...',
-                subtitle: 'Vui lòng chờ',
+                title: AppStrings.pPSignoutLoadingTitle.tr(),
+                subtitle: AppStrings.pPSignoutLoadingSubtitle.tr(),
                 icon: Icon(
                   Icons.logout_outlined,
                   color: AppColors.primary,
@@ -162,7 +163,7 @@ class PersonPage extends StatelessWidget {
             avatarUrl: profile?.avatarUrl,
             defaultAvatarAsset: AppAssets.defaultAvatar,
             primaryColor: primaryColor,
-            EditTap: () => _showUpdateProfileBottomSheet(context),
+            editTap: () => _showUpdateProfileBottomSheet(context),
             size: 80,
           ),
           const SizedBox(width: 16),
@@ -186,7 +187,9 @@ class PersonPage extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'ID: ${profile?.uuid ?? '---'}',
+                        AppStrings.pPUserIdLabel.tr(
+                          namedArgs: {'uuid': profile?.uuid ?? '---'},
+                        ),
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -205,8 +208,10 @@ class PersonPage extends StatelessWidget {
                         await Clipboard.setData(ClipboardData(text: uuid));
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đã sao chép ID!'),
+                            SnackBar(
+                              content: Text(
+                                AppStrings.pPCopyUserIdSuccessMessage.tr(),
+                              ),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -232,7 +237,7 @@ class PersonPage extends StatelessWidget {
     required String? avatarUrl,
     required String defaultAvatarAsset,
     required Color primaryColor,
-    required VoidCallback EditTap,
+    required VoidCallback editTap,
     double size = 80,
   }) {
     return SizedBox(
@@ -275,7 +280,7 @@ class PersonPage extends StatelessWidget {
               color: Colors.transparent,
               shape: const CircleBorder(),
               child: InkWell(
-                onTap: EditTap,
+                onTap: editTap,
                 customBorder: const CircleBorder(),
                 child: Container(
                   padding: const EdgeInsets.all(3),
@@ -331,7 +336,7 @@ class PersonPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Gói hiện tại',
+                  AppStrings.pPCurrentPlanTitle.tr(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -409,8 +414,14 @@ class PersonPage extends StatelessWidget {
                               currentPlan != null
                                   ? (currentPlan.productId ==
                                             ProductId.basic.value
-                                        ? 'Không thời hạn'
-                                        : 'Hiệu lực đến ${DateFormat('dd/MM/yyyy').format(currentPlan.expiresAt!).toString()}')
+                                        ? AppStrings.pPUnlimitedDuration.tr()
+                                        : AppStrings.pPPlanExpiresAtContent.tr(
+                                            namedArgs: {
+                                              'date': DateFormat(
+                                                'dd/MM/yyyy',
+                                              ).format(currentPlan.expiresAt!),
+                                            },
+                                          ))
                                   : '---',
                               style: TextStyle(
                                 fontSize: 12,
@@ -428,7 +439,7 @@ class PersonPage extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Text(
-                                    'Xem chi tiết',
+                                    AppStrings.pPViewDetailLabel.tr(),
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -472,9 +483,9 @@ class PersonPage extends StatelessWidget {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Bạn muốn tăng hạn mức đơn hàng và trải nghiệm thêm nhiều tính năng cao cấp?',
+                            AppStrings.pPUpgradePlanSuggestionContent.tr(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.black87,
@@ -497,8 +508,8 @@ class PersonPage extends StatelessWidget {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Mua gói ngay',
+                          child: Text(
+                            AppStrings.pPBuyPlanNowButtonLabel.tr(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white,
@@ -538,36 +549,36 @@ class PersonPage extends StatelessWidget {
       {
         'name': MenuItem.plan,
         'icon': Icons.shopping_bag_outlined,
-        'title': 'Đăng ký gói',
+        'title': AppStrings.pPMenuPlanTitle.tr(),
         'color': const Color(0xFFFEF3C7),
         'iconColor': Colors.orange,
       },
       {
         'name': MenuItem.language,
         'icon': Icons.language,
-        'title': 'Ngôn ngữ',
-        'trailingText': 'Tiếng Việt',
+        'title': AppStrings.pPMenuLanguageTitle.tr(),
+        'trailingText': AppStrings.pPMenuVietnameseTrailingText.tr(),
         'color': const Color(0xFFDCFCE7),
         'iconColor': primaryColor,
       },
       {
         'name': MenuItem.group,
         'icon': Icons.groups_outlined,
-        'title': 'Tham gia cộng đồng SmGo',
+        'title': AppStrings.pPMenuGroupTitle.tr(),
         'color': const Color(0xFFE0F2FE),
         'iconColor': Colors.blue,
       },
       {
         'name': MenuItem.guide,
         'icon': Icons.menu_book_outlined,
-        'title': 'Hướng dẫn sử dụng',
+        'title': AppStrings.pPMenuGuideTitle.tr(),
         'color': const Color(0xFFE0E7FF),
         'iconColor': Colors.indigo,
       },
       {
         'name': MenuItem.signout,
         'icon': Icons.logout,
-        'title': 'Đăng xuất',
+        'title': AppStrings.pPMenuSignoutTitle.tr(),
         'color': const Color(0xFFFEE2E2),
         'iconColor': Colors.red,
       },
@@ -640,12 +651,12 @@ class PersonPage extends StatelessWidget {
                     case MenuItem.signout:
                       AppDialogUtils.showCustomDialog(
                         context: context,
-                        title: 'Bạn có chắc chắn muốn đăng xuất tài khoản?',
+                        title: AppStrings.pPSignoutConfirmDialogTitle.tr(),
                         iconData: Icons.logout,
                         actions: [
                           SmgoButton(
                             isOutlined: true,
-                            text: 'Huỷ',
+                            text: AppStrings.pPSignoutCancelButtonLabel.tr(),
                             primaryColor: AppColors.primary,
                             onPressed: () {
                               context.pop();
@@ -653,7 +664,7 @@ class PersonPage extends StatelessWidget {
                           ),
                           SmgoButton(
                             primaryColor: AppColors.primary,
-                            text: 'Xác nhận',
+                            text: AppStrings.pPSignoutConfirmButtonLabel.tr(),
                             onPressed: () {
                               context.read<SignoutCubit>().call();
                               context.pop();

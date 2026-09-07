@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:smgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/payment/presentation/widgets/subscription_error.dart';
 import 'package:smgo/shared/domain/entities/subscription_entity.dart';
@@ -30,26 +32,26 @@ extension ProductIdX on ProductId {
   String get displayTitle {
     switch (this) {
       case ProductId.basic:
-        return 'Gói Basic';
+        return AppStrings.sPPBasicDisplayTitle.tr();
       case ProductId.standard:
-        return 'Gói Standard';
+        return AppStrings.sPPStandardDisplayTitle.tr();
       case ProductId.plus:
-        return 'Gói Plus';
+        return AppStrings.sPPPlusDisplayTitle.tr();
       case ProductId.premium:
-        return 'Gói Premium';
+        return AppStrings.sPPPremiumDisplayTitle.tr();
     }
   }
 
   String get subtitle {
     switch (this) {
       case ProductId.basic:
-        return 'Phù hợp cho nhu cầu cơ bản';
+        return AppStrings.sPPBasicSubtitle.tr();
       case ProductId.standard:
-        return 'Hỗ trợ công việc hàng ngày';
+        return AppStrings.sPPStandardSubtitle.tr();
       case ProductId.plus:
-        return 'Hiệu quả hơn, kết nối tốt hơn';
+        return AppStrings.sPPPlusSubtitle.tr();
       case ProductId.premium:
-        return 'Không giới hạn, trải nghiệm tối ưu';
+        return AppStrings.sPPPremiumSubtitle.tr();
     }
   }
 
@@ -57,26 +59,26 @@ extension ProductIdX on ProductId {
   String get limitTitle {
     switch (this) {
       case ProductId.basic:
-        return 'Tối đa 10 đơn / 1 lộ trình giao';
+        return AppStrings.sPPBasicLimitTitle.tr();
       case ProductId.standard:
-        return 'Tối đa 30 đơn / 1 lộ trình giao';
+        return AppStrings.sPPStandardLimitTitle.tr();
       case ProductId.plus:
-        return 'Tối đa 50 đơn / 1 lộ trình giao';
+        return AppStrings.sPPPlusLimitTitle.tr();
       case ProductId.premium:
-        return 'Không giới hạn số lượng đơn hàng';
+        return AppStrings.sPPPremiumLimitTitle.tr();
     }
   }
 
   String get limitSubtitle {
     switch (this) {
       case ProductId.basic:
-        return 'Dành cho nhu cầu trải nghiệm';
+        return AppStrings.sPPBasicLimitSubtitle.tr();
       case ProductId.standard:
-        return 'Phù hợp cho nhu cầu giao hàng cơ bản';
+        return AppStrings.sPPStandardLimitSubtitle.tr();
       case ProductId.plus:
-        return 'Nâng cao hiệu suất';
+        return AppStrings.sPPPlusLimitSubtitle.tr();
       case ProductId.premium:
-        return 'Dành cho nhu cầu lớn';
+        return AppStrings.sPPPremiumLimitSubtitle.tr();
     }
   }
 
@@ -99,30 +101,30 @@ extension ProductIdX on ProductId {
         return [
           PlanFeature(
             icon: Icons.auto_awesome,
-            title: 'Quét thông tin đơn hàng bằng AI',
-            subtitle: 'Nhập liệu nhanh chóng chỉ bằng một lần chụp',
+            title: AppStrings.sPPBasicAiScanFeatureTitle.tr(),
+            subtitle: AppStrings.sPPBasicAiScanFeatureSubtitle.tr(),
             iconColor: Colors.purple,
             bgColor: const Color(0xFFF3E5F5),
           ),
           PlanFeature(
             icon: Icons.insert_drive_file_outlined,
-            title: 'Nhập dữ liệu bằng JSON',
-            subtitle: 'Linh hoạt và tiện lợi',
+            title: AppStrings.sPPBasicJsonInputFeatureTitle.tr(),
+            subtitle: AppStrings.sPPBasicJsonInputFeatureSubtitle.tr(),
             iconColor: Colors.blue,
             bgColor: const Color(0xFFE3F2FD),
           ),
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
-            title: 'Lưu vị trí người nhận',
-            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
+            title: AppStrings.sPPBasicSaveLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPBasicSaveLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
 
           PlanFeature(
             icon: Icons.explore_outlined,
-            title: 'Gợi ý vị trí thông minh',
-            subtitle: 'Gợi ý tọa độ chuẩn từ cộng đồng tài xế đã giao',
+            title: AppStrings.sPPBasicSmartLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPBasicSmartLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFFFB8C00),
             bgColor: const Color(0xFFFFE0B2),
           ),
@@ -131,36 +133,36 @@ extension ProductIdX on ProductId {
         return [
           PlanFeature(
             icon: Icons.auto_awesome,
-            title: 'Quét thông tin đơn hàng bằng AI',
-            subtitle: 'Nhập liệu nhanh chóng chỉ bằng một lần chụp',
+            title: AppStrings.sPPStandardAiScanFeatureTitle.tr(),
+            subtitle: AppStrings.sPPStandardAiScanFeatureSubtitle.tr(),
             iconColor: Colors.purple,
             bgColor: const Color(0xFFF3E5F5),
           ),
           PlanFeature(
             icon: Icons.insert_drive_file_outlined,
-            title: 'Nhập dữ liệu bằng JSON',
-            subtitle: 'Linh hoạt và tiện lợi',
+            title: AppStrings.sPPStandardJsonInputFeatureTitle.tr(),
+            subtitle: AppStrings.sPPStandardJsonInputFeatureSubtitle.tr(),
             iconColor: Colors.blue,
             bgColor: const Color(0xFFE3F2FD),
           ),
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
-            title: 'Lưu vị trí người nhận',
-            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
+            title: AppStrings.sPPStandardSaveLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPStandardSaveLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
           PlanFeature(
             icon: Icons.explore_outlined,
-            title: 'Gợi ý vị trí thông minh',
-            subtitle: 'Gợi ý tọa độ chuẩn từ cộng đồng tài xế đã giao',
+            title: AppStrings.sPPStandardSmartLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPStandardSmartLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFFFB8C00),
             bgColor: const Color(0xFFFFE0B2),
           ),
           PlanFeature(
             icon: Icons.headset_mic_outlined,
-            title: 'Hỗ trợ cơ bản',
-            subtitle: 'Giải đáp trong giờ hành chính',
+            title: AppStrings.sPPStandardBasicSupportFeatureTitle.tr(),
+            subtitle: AppStrings.sPPStandardBasicSupportFeatureSubtitle.tr(),
             iconColor: Colors.teal,
             bgColor: const Color(0xFFE0F2F1),
           ),
@@ -169,44 +171,43 @@ extension ProductIdX on ProductId {
         return [
           PlanFeature(
             icon: Icons.auto_awesome,
-            title: 'Quét thông tin đơn hàng bằng AI',
-            subtitle: 'Nhập liệu nhanh chóng chỉ bằng một lần chụp',
+            title: AppStrings.sPPPlusAiScanFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusAiScanFeatureSubtitle.tr(),
             iconColor: Colors.purple,
             bgColor: const Color(0xFFF3E5F5),
           ),
           PlanFeature(
             icon: Icons.insert_drive_file_outlined,
-            title: 'Nhập dữ liệu bằng JSON',
-            subtitle: 'Linh hoạt và tiện lợi',
+            title: AppStrings.sPPPlusJsonInputFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusJsonInputFeatureSubtitle.tr(),
             iconColor: Colors.blue,
             bgColor: const Color(0xFFE3F2FD),
           ),
           PlanFeature(
             icon: Icons.location_on_outlined,
-            title: 'Lấy chính xác vị trí người nhận',
-            subtitle:
-                'Yêu cầu khách định vị và chỉ đường dễ dàng và nhanh chóng',
+            title: AppStrings.sPPPlusPreciseLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusPreciseLocationFeatureSubtitle.tr(),
             iconColor: Colors.green,
             bgColor: const Color(0xFFE8F5E9),
           ),
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
-            title: 'Lưu vị trí người nhận',
-            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
+            title: AppStrings.sPPPlusSaveLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusSaveLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
           PlanFeature(
             icon: Icons.explore_outlined,
-            title: 'Gợi ý vị trí thông minh',
-            subtitle: 'Gợi ý tọa độ chuẩn từ cộng đồng tài xế đã giao',
+            title: AppStrings.sPPPlusSmartLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusSmartLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFFFB8C00),
             bgColor: const Color(0xFFFFE0B2),
           ),
           PlanFeature(
             icon: Icons.headset_mic_outlined,
-            title: 'Hỗ trợ ưu tiên 24/7',
-            subtitle: 'Luôn sẵn sàng hỗ trợ bạn mọi lúc',
+            title: AppStrings.sPPPlusPrioritySupportFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPlusPrioritySupportFeatureSubtitle.tr(),
             iconColor: Colors.blueAccent,
             bgColor: const Color(0xFFE3F2FD),
           ),
@@ -215,44 +216,43 @@ extension ProductIdX on ProductId {
         return [
           PlanFeature(
             icon: Icons.auto_awesome,
-            title: 'Quét thông tin đơn hàng bằng AI',
-            subtitle: 'Nhập liệu nhanh chóng chỉ bằng một lần chụp',
+            title: AppStrings.sPPPremiumAiScanFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumAiScanFeatureSubtitle.tr(),
             iconColor: Colors.purple,
             bgColor: const Color(0xFFF3E5F5),
           ),
           PlanFeature(
             icon: Icons.insert_drive_file_outlined,
-            title: 'Nhập dữ liệu bằng JSON',
-            subtitle: 'Linh hoạt và tiện lợi',
+            title: AppStrings.sPPPremiumJsonInputFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumJsonInputFeatureSubtitle.tr(),
             iconColor: Colors.blue,
             bgColor: const Color(0xFFE3F2FD),
           ),
           PlanFeature(
             icon: Icons.location_on_outlined,
-            title: 'Lấy chính xác vị trí người nhận',
-            subtitle:
-                'Yêu cầu khách định vị và chỉ đường dễ dàng và nhanh chóng',
+            title: AppStrings.sPPPremiumPreciseLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumPreciseLocationFeatureSubtitle.tr(),
             iconColor: Colors.green,
             bgColor: const Color(0xFFE8F5E9),
           ),
           PlanFeature(
             icon: Icons.bookmark_added_outlined,
-            title: 'Lưu vị trí người nhận',
-            subtitle: 'Lưu tọa độ chính xác cho các lần giao sau',
+            title: AppStrings.sPPPremiumSaveLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumSaveLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFF00ACC1),
             bgColor: const Color(0xFFE0F7FA),
           ),
           PlanFeature(
             icon: Icons.explore_outlined,
-            title: 'Gợi ý vị trí thông minh',
-            subtitle: 'Gợi ý tọa độ chuẩn từ cộng đồng tài xế đã giao',
+            title: AppStrings.sPPPremiumSmartLocationFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumSmartLocationFeatureSubtitle.tr(),
             iconColor: const Color(0xFFFB8C00),
             bgColor: const Color(0xFFFFE0B2),
           ),
           PlanFeature(
             icon: Icons.headset_mic_outlined,
-            title: 'Hỗ trợ ưu tiên 24/7',
-            subtitle: 'Đội ngũ hỗ trợ chuyên biệt, phản hồi nhanh nhất',
+            title: AppStrings.sPPPremiumPrioritySupportFeatureTitle.tr(),
+            subtitle: AppStrings.sPPPremiumPrioritySupportFeatureSubtitle.tr(),
             iconColor: Colors.orange,
             bgColor: const Color(0xFFFFF3E0),
           ),
@@ -340,24 +340,26 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   _getCurrentPlanCubit.call();
                   AppDialogUtils.showSuccess(
                     context: context,
-                    title: 'Thanh toán thành công!',
+                    title: AppStrings.sPPPaymentSuccessTitle.tr(),
                   );
                 } else if (state.status == SubscriptionPurchaseStatus.error) {
                   if (state.error is AppException &&
                       (state.error as AppException).code == 'PAYMENT_FAILED') {
                     AppDialogUtils.showError(
                       context: context,
-                      title: 'Thanh toán thất bại!',
+                      title: AppStrings.sPPPaymentFailedTitle.tr(),
                     );
                   }
                 }
               },
               builder: (context, state) {
                 final priceMap = <String, String>{
-                  ProductId.basic.value: '0đ/tháng',
+                  ProductId.basic.value: AppStrings.sPPBasicPriceContent.tr(),
                 };
                 for (var p in state.products) {
-                  priceMap[p.id] = '${p.price}/tháng';
+                  priceMap[p.id] = AppStrings.sPPPriceContent.tr(
+                    namedArgs: {'price': p.price},
+                  );
                 }
 
                 Widget body = Skeletonizer(
@@ -390,9 +392,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  'Nâng cấp gói để mở khóa tính năng nâng cao và tăng giới hạn đơn hàng cho mỗi lộ trình.',
+                                  AppStrings.sPPUpgradePlanContent.tr(),
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Color(0xFF333333),
@@ -455,8 +457,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       ),
                       onPressed: () => context.pop(),
                     ),
-                    title: const Text(
-                      'Chọn gói đăng ký',
+                    title: Text(
+                      AppStrings.sPPUpgradePlanTitle.tr(),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -498,8 +500,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         ),
-        child: const Text(
-          'Huỷ gia hạn',
+        child: Text(
+          AppStrings.sPPCancelRenewalButtonLabel.tr(),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -520,9 +522,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  content: const Text(
-                    'Không tìm thấy thông tin gói dịch vụ. Vui lòng tải lại trang!',
-                  ),
+                  content: Text(AppStrings.sPPProductNotFoundContent.tr()),
                   backgroundColor: Colors.red.shade700,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -535,8 +535,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         ),
-        child: const Text(
-          'Đăng ký ngay',
+        child: Text(
+          AppStrings.sPPSubscribeNowButtonLabel.tr(),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -550,8 +550,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: const Text(
-          'Không khả dụng',
+        child: Text(
+          AppStrings.sPPUnavailableButtonLabel.tr(),
           style: TextStyle(color: Colors.grey, fontSize: 13),
         ),
       );
@@ -729,8 +729,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Các tính năng nổi bật',
+                    Text(
+                      AppStrings.sPPFeaturedFeaturesTitle.tr(),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -817,11 +817,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   bottomLeft: Radius.circular(10),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'GÓI ĐANG SỬ DỤNG',
+                    AppStrings.sPPActivePlanBadgeLabel.tr(),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 9,

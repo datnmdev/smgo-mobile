@@ -397,15 +397,20 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
 
                                     AppDialogUtils.showSuccess(
                                       context: context,
-                                      title: 'Xoá lộ trình thành công!',
+                                      title: AppStrings
+                                          .rDPDeleteRouteSuccessMessage
+                                          .tr(),
                                     );
                                   } else if (dialogState
                                       is DeleteDeliveryRoutesFailed) {
                                     AppDialogUtils.showError(
                                       context: context,
-                                      title: 'Xoá lộ trình thất bại!',
-                                      subtitle:
-                                          'Đã xảy ra lỗi. Vui lòng thử lại.',
+                                      title: AppStrings
+                                          .rDPDeleteRouteFailedMessage
+                                          .tr(),
+                                      subtitle: AppStrings
+                                          .rDPDeleteRouteErrorMessage
+                                          .tr(),
                                     );
                                   }
                                 },
@@ -751,8 +756,8 @@ class _DeliveryRouteDetailPageState extends State<DeliveryRouteDetailPage> {
   void _copyToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã sao chép vào bộ nhớ tạm!'),
+      SnackBar(
+        content: Text(AppStrings.rDPCopiedToClipboardMessage.tr()),
         duration: Duration(seconds: 2),
       ),
     );

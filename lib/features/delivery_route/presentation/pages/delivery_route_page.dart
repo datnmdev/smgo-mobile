@@ -19,7 +19,7 @@ import 'package:smgo/shared/presentation/widgets/smgo_checkbox.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 class DeliveryRoutePage extends StatefulWidget {
-  const DeliveryRoutePage({Key? key}) : super(key: key);
+  const DeliveryRoutePage({super.key});
 
   @override
   State<DeliveryRoutePage> createState() => _DeliveryRoutePageState();
@@ -110,8 +110,10 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
 
                     AppDialogUtils.showSuccess(
                       context: context,
-                      title: 'Xoá lộ trình thành công',
-                      subtitle: '${_selectedIds.length} lộ trình đã bị xoá',
+                      title: AppStrings.rPDeleteRoutesSuccessMessage.tr(),
+                      subtitle: AppStrings.rPDeletedRoutesCountMessage.tr(
+                        namedArgs: {'quantity': _selectedIds.length.toString()},
+                      ),
                     );
 
                     // Giữ nguyên clear selection
@@ -122,8 +124,8 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                   } else if (state is DeleteDeliveryRoutesFailed) {
                     AppDialogUtils.showError(
                       context: context,
-                      title: 'Xoá lộ trình thất bại!',
-                      subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                      title: AppStrings.rPDeleteRoutesFailedMessage.tr(),
+                      subtitle: AppStrings.rPDeleteRoutesErrorMessage.tr(),
                     );
                   }
                 },
@@ -243,7 +245,9 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                 children: [
                   RouteListTabView<PendingRouteCardItem>(
                     routes: state.routes
-                        .where((e) => e.status == 'pending')
+                        .where(
+                          (e) => e.status == DeliveryRouteStatus.pending.value,
+                        )
                         .toList(),
                     hasError: state is GetDeliveryRoutesFailed,
                     isLoading:
@@ -255,7 +259,9 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                   ),
                   RouteListTabView<SortingRouteCardItem>(
                     routes: state.routes
-                        .where((e) => e.status == 'sorting')
+                        .where(
+                          (e) => e.status == DeliveryRouteStatus.sorting.value,
+                        )
                         .toList(),
                     hasError: state is GetDeliveryRoutesFailed,
                     isLoading:
@@ -267,7 +273,10 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                   ),
                   RouteListTabView<DeliveringRouteCardItem>(
                     routes: state.routes
-                        .where((e) => e.status == 'delivering')
+                        .where(
+                          (e) =>
+                              e.status == DeliveryRouteStatus.delivering.value,
+                        )
                         .toList(),
                     hasError: state is GetDeliveryRoutesFailed,
                     isLoading:
@@ -279,7 +288,10 @@ class _DeliveryRoutePageState extends State<DeliveryRoutePage>
                   ),
                   RouteListTabView<DeliveringRouteCardItem>(
                     routes: state.routes
-                        .where((e) => e.status == 'completed')
+                        .where(
+                          (e) =>
+                              e.status == DeliveryRouteStatus.completed.value,
+                        )
                         .toList(),
                     hasError: state is GetDeliveryRoutesFailed,
                     isLoading:

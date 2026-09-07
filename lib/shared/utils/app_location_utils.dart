@@ -1,12 +1,14 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class AppLocationUtils {
   static Future<Position?> getCurrentPosition(BuildContext context) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       if (context.mounted) {
-        _showSnackbar(context, 'Vui lòng bật GPS trên thiết bị của bạn.');
+        _showSnackbar(context, AppStrings.aLUEnableGpsSnackbarContent.tr());
       }
       return null;
     }
@@ -18,7 +20,7 @@ class AppLocationUtils {
         if (context.mounted) {
           _showSnackbar(
             context,
-            'Ứng dụng cần quyền truy cập vị trí để tối ưu tuyến đường từ điểm bạn đang đứng.',
+            AppStrings.aLULocationPermissionDeniedSnackbarContent.tr(),
           );
         }
         return null;
@@ -29,7 +31,7 @@ class AppLocationUtils {
       if (context.mounted) {
         _showSnackbar(
           context,
-          'Vui lòng vào Cài đặt để cấp quyền vị trí cho ứng dụng.',
+          AppStrings.aLULocationPermissionDeniedForeverSnackbarContent.tr(),
         );
       }
       return null;
@@ -41,7 +43,10 @@ class AppLocationUtils {
       );
     } catch (e) {
       if (context.mounted) {
-        _showSnackbar(context, 'Không thể lấy được vị trí hiện tại của bạn.');
+        _showSnackbar(
+          context,
+          AppStrings.aLUGetCurrentLocationFailedSnackbarContent.tr(),
+        );
       }
       return null;
     }

@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/shared/presentation/widgets/smgo_loading.dart';
 
 class SmgoLoadingScreen extends StatelessWidget {
@@ -30,8 +32,8 @@ class SmgoLoadingScreen extends StatelessWidget {
         child: Container(
           color: barrierColor,
           child: SmgoLoading(
-            title: title ?? 'Đang xử lý...',
-            subtitle: subtitle ?? 'Vui lòng chờ trong giây lát',
+            title: title ?? AppStrings.sLSDefaultTitle.tr(),
+            subtitle: subtitle ?? AppStrings.sLSDefaultSubtitle.tr(),
             icon:
                 icon ??
                 const Icon(

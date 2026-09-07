@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class LocationRequestCard extends StatelessWidget {
   final VoidCallback? onRequestLocation;
@@ -33,11 +35,11 @@ class LocationRequestCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Icon(Icons.location_on, color: primaryGreen, size: 22),
               SizedBox(width: 8),
               Text(
-                'Yêu cầu lấy vị trí người nhận',
+                AppStrings.lRCLocationRequestTitle.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -75,11 +77,11 @@ class LocationRequestCard extends StatelessWidget {
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.link, color: Colors.white),
                         SizedBox(width: 8),
                         Text(
-                          'Yêu cầu lấy vị trí',
+                          AppStrings.lRCRequestLocationButtonLabel.tr(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -99,24 +101,23 @@ class LocationRequestCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
-              children: const [
+              children: [
                 _StepRow(
                   stepNumber: '1',
                   icon: Icons.link,
-                  text: 'Nhấn "Yêu cầu lấy vị trí" để tạo link.',
+                  text: AppStrings.lRCStep1Content.tr(),
                 ),
                 SizedBox(height: 12),
                 _StepRow(
                   stepNumber: '2',
                   icon: Icons.near_me_outlined,
-                  text: 'Gửi link cho người nhận và yêu cầu họ cấp vị trí.',
+                  text: AppStrings.lRCStep2Content.tr(),
                 ),
                 SizedBox(height: 12),
                 _StepRow(
                   stepNumber: '3',
                   icon: Icons.my_location,
-                  text:
-                      'Truy cập lại link đã gửi để nhận vị trí và xem chỉ đường chính xác.',
+                  text: AppStrings.lRCStep3Content.tr(),
                 ),
               ],
             ),

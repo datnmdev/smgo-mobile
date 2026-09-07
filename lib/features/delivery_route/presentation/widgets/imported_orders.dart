@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/features/delivery_route/domain/entities/delivery_route_entity.dart';
 import 'package:smgo/features/delivery_route/domain/entities/extracted_order_info_entity.dart';
 
@@ -59,8 +61,10 @@ class _ImportedOrdersState extends State<ImportedOrders> {
       widget.onItemSelected?.call(selectedItem);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã áp dụng lên biểu mẫu'),
+        SnackBar(
+          content: Text(
+            AppStrings.importedOrdersAppliedToFormSnackBarContent.tr(),
+          ),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -96,7 +100,11 @@ class _ImportedOrdersState extends State<ImportedOrders> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Đã nhập ${_extractedOrderInfos.length} đơn hàng từ JSON',
+                      AppStrings.importedOrdersImportedOrdersFromJsonContent.tr(
+                        namedArgs: {
+                          'quantity': _extractedOrderInfos.length.toString(),
+                        },
+                      ),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -105,7 +113,7 @@ class _ImportedOrdersState extends State<ImportedOrders> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Chọn 1 đơn để áp dụng vào form',
+                      AppStrings.importedOrdersSelectOrderToApplyContent.tr(),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -136,7 +144,7 @@ class _ImportedOrdersState extends State<ImportedOrders> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  'Áp dụng',
+                  AppStrings.importedOrdersApplyButtonLabel.tr(),
                   style: TextStyle(
                     color: isApplyEnabled ? primaryColor : Colors.grey.shade400,
                     fontSize: 13,
@@ -159,8 +167,8 @@ class _ImportedOrdersState extends State<ImportedOrders> {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  'Đóng',
+                child: Text(
+                  AppStrings.importedOrdersCloseButtonLabel.tr(),
                   style: TextStyle(
                     color: Colors.red,
                     fontSize: 13,
@@ -248,7 +256,11 @@ class _ImportedOrdersState extends State<ImportedOrders> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                isUsed ? 'Đã dùng' : 'Chưa dùng',
+                                isUsed
+                                    ? AppStrings.importedOrdersUsedStatusLabel
+                                          .tr()
+                                    : AppStrings.importedOrdersUnusedStatusLabel
+                                          .tr(),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,

@@ -1,10 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:smgo/core/resources/app_colors.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 
 class SubscriptionError extends StatelessWidget {
   final VoidCallback? onRetry;
 
-  const SubscriptionError({Key? key, this.onRetry}) : super(key: key);
+  const SubscriptionError({super.key, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,8 @@ class SubscriptionError extends StatelessWidget {
             const SizedBox(height: 20),
 
             // 2. Tiêu đề (Size: 17px)
-            const Text(
-              'Không thể tải gói đăng ký',
+            Text(
+              AppStrings.subscriptionErrorTitle.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17,
@@ -37,8 +39,8 @@ class SubscriptionError extends StatelessWidget {
             const SizedBox(height: 8),
 
             // 3. Nội dung mô tả (Size: 13px)
-            const Text(
-              'Đã xảy ra lỗi khi tải thông tin gói. Vui lòng thử lại.',
+            Text(
+              AppStrings.subscriptionErrorContent.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -65,11 +67,11 @@ class SubscriptionError extends StatelessWidget {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(Icons.refresh_rounded, color: primaryColor, size: 18),
                     SizedBox(width: 6),
                     Text(
-                      'Tải lại',
+                      AppStrings.subscriptionErrorRetryBtnLabel.tr(),
                       style: TextStyle(
                         color: primaryColor,
                         fontSize: 14,
@@ -90,8 +92,7 @@ class SubscriptionError extends StatelessWidget {
 class CloudErrorIllustration extends StatelessWidget {
   final Color primaryColor;
 
-  const CloudErrorIllustration({Key? key, required this.primaryColor})
-    : super(key: key);
+  const CloudErrorIllustration({super.key, required this.primaryColor});
 
   @override
   Widget build(BuildContext context) {

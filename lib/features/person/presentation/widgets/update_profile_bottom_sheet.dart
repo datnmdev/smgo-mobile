@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/core/resources/data_state.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/person/presentation/bloc/update_profile_form/update_profile_form_cubit.dart';
@@ -89,13 +91,13 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
             context.pop();
             AppDialogUtils.showSuccess(
               context: widget.context,
-              title: 'Cập nhật hồ sơ thành công!',
+              title: AppStrings.uPUpdateProfileSuccessTitle.tr(),
             );
           } else if (state is UpdateProfileFormFailed) {
             AppDialogUtils.showSuccess(
               context: widget.context,
-              title: 'Cập nhật hồ sơ thất bại!',
-              subtitle: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+              title: AppStrings.uPUpdateProfileFailedTitle.tr(),
+              subtitle: AppStrings.uPUpdateProfileFailedSubtitle.tr(),
             );
           }
         },
@@ -136,8 +138,8 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Cập nhật thông tin cá nhân',
+                          Text(
+                            AppStrings.uPTitle.tr(),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -160,7 +162,7 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
 
                       // 3. Mô tả
                       Text(
-                        'Cập nhật thông tin để mọi người dễ dàng nhận diện bạn hơn.',
+                        AppStrings.uPDescription.tr(),
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[600],
@@ -176,8 +178,8 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Ảnh đại diện',
+                              Text(
+                                AppStrings.uPAvatarLabel.tr(),
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -215,7 +217,7 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
 
                               Center(
                                 child: Text(
-                                  'Nhấn vào ảnh để thay đổi',
+                                  AppStrings.uPChangeAvatarHint.tr(),
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.grey[600],
@@ -224,8 +226,8 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                               ),
                               const SizedBox(height: 24),
 
-                              const Text(
-                                'Họ và tên',
+                              Text(
+                                AppStrings.uPFullNameLabel.tr(),
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -266,7 +268,7 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Tên hiển thị sẽ được sử dụng trong ứng dụng SmGo.',
+                                AppStrings.uPDisplayNameHint.tr(),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[500],
@@ -274,8 +276,9 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                               ),
                               if (state.nameInput.displayError != null) ...[
                                 const SizedBox(height: 6),
-                                const M3ErrorText(
-                                  errorText: 'Trường này không được bỏ trống',
+                                M3ErrorText(
+                                  errorText: AppStrings.uPNameRequiredError
+                                      .tr(),
                                 ),
                               ],
                               const SizedBox(height: 16),
@@ -316,8 +319,8 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Hủy',
+                                child: Text(
+                                  AppStrings.uPCancelButtonLabel.tr(),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -353,8 +356,9 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : const Text(
-                                        'Lưu thay đổi',
+                                    : Text(
+                                        AppStrings.uPSaveChangesButtonLabel
+                                            .tr(),
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
