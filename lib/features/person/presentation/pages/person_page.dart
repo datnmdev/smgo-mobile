@@ -34,6 +34,7 @@ import 'package:smgo/shared/presentation/bloc/signout/signout_state.dart';
 import 'package:smgo/shared/presentation/widgets/smgo_button.dart';
 import 'package:smgo/shared/presentation/widgets/smgo_loading_screen.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
+import 'package:smgo/shared/utils/app_url_utils.dart';
 
 enum MenuItem { plan, language, group, guide, signout }
 
@@ -697,6 +698,9 @@ class PersonPage extends StatelessWidget {
                       _showSmGoCommunityBottomSheet(context: context);
                       break;
                     case MenuItem.guide:
+                      AppUrlUtils.launchLink(
+                        'https://zalo.me/g/2367ucr5janxotvrrhpt',
+                      );
                       break;
                     case MenuItem.signout:
                       AppDialogUtils.showCustomDialog(
