@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmGo - Giao nhanh & Nhẹ việc</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Thư viện AOS CSS cho hiệu ứng cuộn mượt -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Lexend", sans-serif;
+      }
+
+      body {
+        background-color: #f4f5f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      /* Container mô phỏng màn hình điện thoại */
+      .app-container {
+        width: 100%;
+        max-width: 414px;
+        background: #ffffff;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        position: relative;
+        user-select: none; /* Vô hiệu hóa bôi đen văn bản */
+      }
+
+      /* Cho phép tương tác lại đối với các nút và link */
+      a,
+      button,
+      .social-btn,
+      .upgrade-btn,
+      .cta-btn {
+        pointer-events: auto !important;
+      }
+
+      /* Helper class cho hình ảnh icon */
+      .img-icon {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+      }
+
+      /* Hero Banner Section với Ảnh Nền Shipper */
+      .hero-section {
+        background-image: url("../images/bg-header.png");
+        background-repeat: no-repeat;
+        background-position: left bottom;
+        background-size: cover, cover;
+        padding: 24px 20px 20px;
+        position: relative;
+        overflow: hidden;
+        min-height: 200px;
+        pointer-events: none;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #00a86b;
+        font-weight: 700;
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
+      .logo-img {
+        width: 28px;
+        height: 28px;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .hero-content {
+        width: 60%;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+
+      .hero-subtitle {
+        font-size: 17px;
+        font-weight: 700;
+        color: #00a86b;
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+
+      .hero-desc {
+        font-size: 11px;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      /* Main Section */
+      .main-content {
+        padding: 0 16px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        pointer-events: none;
+      }
+
+      .section-icon {
+        width: 14px;
+        height: 14px;
+        animation: pulse-icon 2s infinite ease-in-out;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+
+      .section-desc {
+        font-size: 11px;
+        color: #777;
+        margin-bottom: 16px;
+        pointer-events: none;
+      }
+
+      /* Feature Cards Grid */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .card {
+        background-color: #f7faf9;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #eef5f2;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: default;
+        pointer-events: none;
+      }
+
+      .card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background-color: #e0f2ed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        padding: 6px;
+        transition: background-color 0.3s ease;
+      }
+
+      .card-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 6px;
+        line-height: 1.3;
+      }
+
+      .card-desc {
+        font-size: 10px;
+        color: #666;
+        line-height: 1.3;
+      }
+
+      .full-card {
+        background-color: #f7faf9;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #eef5f2;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: default;
+        pointer-events: none;
+      }
+
+      /* Community Section */
+      .community-card {
+        background-color: #f7faf9;
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid #eef5f2;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .community-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+        pointer-events: none;
+      }
+
+      .community-icon {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+      }
+
+      .community-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+
+      .community-desc {
+        font-size: 10px;
+        color: #666;
+        margin-top: 2px;
+        line-height: 1.3;
+      }
+
+      .social-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: space-between;
+      }
+
+      .social-btn {
+        flex: 1;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 20px;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: #333;
+        font-size: 9px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        cursor: pointer;
+      }
+
+      .social-btn:hover {
+        border-color: #00a86b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .social-btn:active {
+        transform: scale(0.96);
+      }
+
+      .social-btn-content {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .social-icon-img {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+
+      .arrow-icon {
+        width: 8px;
+        height: 8px;
+        object-fit: contain;
+        opacity: 0.6;
+        transition: transform 0.2s ease;
+      }
+
+      .social-btn:hover .arrow-icon {
+        transform: translateX(2px);
+        opacity: 1;
+      }
+
+      /* Upgrade Plan Banner & Animations */
+      .upgrade-card {
+        background-image: url("../images/bg-primary-card.png");
+        background-repeat: no-repeat;
+        background-position: left bottom;
+        background-size: cover;
+        border-radius: 16px;
+        padding: 16px;
+        margin: 16px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #d0ebd8;
+        box-shadow: 0 4px 15px rgba(0, 168, 107, 0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* Hiệu ứng ánh sáng quét nhẹ qua Upgrade Card */
+      .upgrade-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          60deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.25) 50%,
+          transparent 70%
+        );
+        transform: rotate(30deg);
+        animation: shimmer 4s infinite linear;
+        pointer-events: none;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%) rotate(30deg);
+        }
+        100% {
+          transform: translateX(100%) rotate(30deg);
+        }
+      }
+
+      .upgrade-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        pointer-events: none;
+      }
+
+      .upgrade-crown-icon {
+        width: 44px;
+        height: 44px;
+        background-color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        animation: float-crown 3s ease-in-out infinite;
+      }
+
+      @keyframes float-crown {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
+      .upgrade-crown-icon img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .upgrade-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+
+      .upgrade-subtitle {
+        font-size: 15px;
+        font-weight: 700;
+        color: #128054;
+        margin-top: 2px;
+      }
+
+      .upgrade-desc {
+        font-size: 11px;
+        color: #555555;
+        line-height: 1.4;
+        max-width: 100%;
+        pointer-events: none;
+      }
+
+      .upgrade-btn {
+        align-self: flex-end;
+        background-color: #128054;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 2px 6px rgba(18, 128, 84, 0.2);
+        transition: all 0.3s ease;
+        z-index: 2;
+        cursor: pointer;
+      }
+
+      .upgrade-btn:hover {
+        background-color: #0d613f;
+        transform: scale(1.05);
+      }
+
+      .upgrade-btn:hover svg {
+        transform: translateX(3px);
+      }
+
+      .upgrade-btn svg {
+        transition: transform 0.2s ease;
+      }
+
+      @keyframes pulse-icon {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.15);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Hero Section với Ảnh Nền Shipper liền khối -->
+      <div class="hero-section" data-aos="fade-down" data-aos-duration="600">
+        <div class="logo">
+          <img src="../images/logo.png" alt="SmGo Logo" class="logo-img" />
+          <img
+            src="../images/logo_text.png"
+            alt="SmGo Logo"
+            style="width: 64px"
+          />
+        </div>
+        <div class="hero-content">
+          <div class="hero-title">Xin chào!</div>
+          <div class="hero-subtitle">Rất vui được đồng hành cùng bạn!</div>
+          <div class="hero-desc">
+            SmGo – Ứng dụng hỗ trợ shipper tối ưu hành trình, quản lý đơn hàng
+            và giao hàng nhanh chóng, hiệu quả.
+          </div>
+        </div>
+      </div>
+
+      <!-- Upgrade Plan Card -->
+      <div class="upgrade-card" data-aos="zoom-in" data-aos-duration="400">
+        <div class="upgrade-header">
+          <div class="upgrade-crown-icon">
+            <img src="../icons/diamond.png" alt="Crown" />
+          </div>
+          <div>
+            <div class="upgrade-title">Nâng cấp gói</div>
+            <div class="upgrade-subtitle">Mở khóa toàn bộ tính năng</div>
+          </div>
+        </div>
+        <div class="upgrade-desc">
+          Tận hưởng đầy đủ công cụ, giao hàng nhanh hơn và làm việc hiệu quả
+          hơn.
+        </div>
+        <a href="smgo://upgrade" class="upgrade-btn">
+          <span>Nâng cấp ngay</span>
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Section Title -->
+        <div
+          class="section-header"
+          data-aos="fade-right"
+          data-aos-duration="400"
+        >
+          <img src="../icons/outstanding.png" alt="icon" class="section-icon" />
+          <span class="section-title">Tính năng nổi bật</span>
+        </div>
+        <div class="section-desc" data-aos="fade-right" data-aos-duration="400">
+          Những tính năng giúp công việc giao hàng của bạn trở nên dễ dàng hơn
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid-2">
+          <!-- Card 1 -->
+          <div class="card" data-aos="fade-up" data-aos-duration="350">
+            <div class="card-icon">
+              <img
+                src="../icons/smart-sort.png"
+                alt="Icon Box"
+                class="img-icon"
+              />
+            </div>
+            <div class="card-title">Sắp xếp hàng hoá thông minh</div>
+            <div class="card-desc">
+              Giúp bạn phân loại, sắp xếp đơn hàng khoa học, tiết kiệm thời gian
+              và công sức.
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="card" data-aos="fade-up" data-aos-duration="350">
+            <div class="card-icon">
+              <img
+                src="../icons/optimized-distance.png"
+                alt="Icon Route"
+                class="img-icon"
+              />
+            </div>
+            <div class="card-title">Tạo lộ trình tối ưu quãng đường</div>
+            <div class="card-desc">
+              Giúp giao hàng nhanh hơn và tiết kiệm được chi phí đi lại.
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="card" data-aos="fade-up" data-aos-duration="350">
+            <div class="card-icon">
+              <img
+                src="../icons/save-location.png"
+                alt="Icon Location"
+                class="img-icon"
+              />
+            </div>
+            <div class="card-title">Lưu vị trí nhận hàng</div>
+            <div class="card-desc">
+              Gợi ý vị trí của người nhận dựa trên dữ liệu được chia sẻ bởi
+              shipper khác hoặc đã lưu bởi bản thân.
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="card" data-aos="fade-up" data-aos-duration="350">
+            <div class="card-icon">
+              <img
+                src="../icons/require-share-location.png"
+                alt="Icon GPS Phone"
+                class="img-icon"
+              />
+            </div>
+            <div class="card-title">
+              Yêu cầu người nhận cấp vị trí chính xác
+            </div>
+            <div class="card-desc">
+              Chỉ với 1 cú click và chỉ đường bài bản tương ứng.
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 (Full Width) -->
+        <div class="full-card" data-aos="fade-up" data-aos-duration="350">
+          <div class="card-icon" style="margin-bottom: 0">
+            <img src="../icons/ai-scan.png" alt="Icon AI" class="img-icon" />
+          </div>
+          <div>
+            <div class="card-title">Nhập thông tin đơn hàng nhanh chóng</div>
+            <div class="card-desc">
+              Sử dụng AI, JSON để nhập thông tin đơn hàng tự động, chính xác và
+              tiết kiệm thời gian.
+            </div>
+          </div>
+        </div>
+
+        <!-- Community Card -->
+        <div class="community-card" data-aos="zoom-in" data-aos-duration="350">
+          <div class="community-header">
+            <div class="community-icon">
+              <img
+                src="../icons/community.png"
+                alt="Icon Community"
+                class="img-icon"
+              />
+            </div>
+            <div>
+              <div class="community-title">Tham gia cộng đồng SmGo</div>
+              <div class="community-desc">
+                Cùng nhau chia sẻ, hỗ trợ và giải đáp thắc mắc khi bạn gặp khó
+                khăn trong quá trình sử dụng nhé!
+              </div>
+            </div>
+          </div>
+          <div class="social-buttons">
+            <!-- Facebook Button -->
+            <a
+              href="https://www.facebook.com/share/g/1DQgHbxfey/"
+              class="social-btn"
+              target="_blank"
+            >
+              <div class="social-btn-content">
+                <img
+                  src="../icons/facebook.png"
+                  alt="FB"
+                  class="social-icon-img"
+                />
+                <span>Facebook</span>
+              </div>
+              <img src="../icons/chevron.png" alt=">" class="arrow-icon" />
+            </a>
+
+            <!-- Zalo Button -->
+            <a
+              href="https://zalo.me/g/2367ucr5janxotvrrhpt"
+              class="social-btn"
+              target="_blank"
+            >
+              <div class="social-btn-content">
+                <img
+                  src="../icons/zalo.png"
+                  alt="Zalo"
+                  class="social-icon-img"
+                />
+                <span>Zalo</span>
+              </div>
+              <img src="../icons/chevron.png" alt=">" class="arrow-icon" />
+            </a>
+
+            <!-- Messenger Button -->
+            <a
+              href="https://m.me/cm/RHQR-ncMtB6kPOxI/?send_source=cm%3Acopy_invite_link"
+              class="social-btn"
+              target="_blank"
+            >
+              <div class="social-btn-content">
+                <img
+                  src="../icons/messenger.png"
+                  alt="Messenger"
+                  class="social-icon-img"
+                />
+                <span>Messenger</span>
+              </div>
+              <img src="../icons/chevron.png" alt=">" class="arrow-icon" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script AOS JS Tối Ưu Tốc Độ -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init({
+        once: false,
+        offset: 10,
+        duration: 350,
+        easing: "ease-out-quad",
+        anchorPlacement: "top-bottom",
+      });
+    </script>
+  </body>
+</html>
