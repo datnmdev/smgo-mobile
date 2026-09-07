@@ -26,11 +26,13 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestInterceptorHandler handler,
   ) async {
     final accessToken = await tokenRepository.getAccessToken();
-    final localeTag = await localizationRepository.getLocaleTag();
+    final localeDataState = await localizationRepository.getLocale();
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
-    options.queryParameters.addAll({"locale": localeTag});
+    options.queryParameters.addAll({
+      "locale": localeDataState.data?.toLanguageTag(),
+    });
     handler.next(options);
   }
 

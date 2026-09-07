@@ -3,6 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:smgo/core/localization/data/data_sources/localization_data_source.dart';
 import 'package:smgo/core/localization/data/repository/localization_repository_impl.dart';
 import 'package:smgo/core/localization/domain/repository/localization_repository.dart';
+import 'package:smgo/core/localization/domain/usecases/get_locale_usecase.dart';
+import 'package:smgo/core/localization/domain/usecases/set_locale_usecase.dart';
+import 'package:smgo/core/localization/presentation/bloc/get_locale/get_locale_cubit.dart';
+import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
 import 'package:smgo/core/network/dio_client.dart';
 import 'package:smgo/core/security/token/data/data_sources/token_data_source.dart';
 import 'package:smgo/core/security/token/data/repository/token_repository_impl.dart';
@@ -345,6 +349,14 @@ Future<void> initializeDependencies() async {
       shareLocationRepository: di<ShareLocationRepository>(),
     ),
   );
+  di.registerLazySingleton<GetLocaleUsecase>(
+    () =>
+        GetLocaleUsecase(localizationRepository: di<LocalizationRepository>()),
+  );
+  di.registerLazySingleton<SetLocaleUsecase>(
+    () =>
+        SetLocaleUsecase(localizationRepository: di<LocalizationRepository>()),
+  );
 
   // Đăng ký các bloc
   di.registerFactory<SignInBloc>(
@@ -522,5 +534,11 @@ Future<void> initializeDependencies() async {
     () => GetShareLocationUrlCubit(
       getShareLocationUrlUsecase: di<GetShareLocationUrlUsecase>(),
     ),
+  );
+  di.registerFactory<GetLocaleCubit>(
+    () => GetLocaleCubit(getLocaleUsecase: di<GetLocaleUsecase>()),
+  );
+  di.registerFactory<SetLocaleCubit>(
+    () => SetLocaleCubit(setLocaleUsecase: di<SetLocaleUsecase>()),
   );
 }

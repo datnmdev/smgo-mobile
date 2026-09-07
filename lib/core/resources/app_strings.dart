@@ -1381,6 +1381,12 @@ abstract class AppStrings {
       'person_page.signout_cancel_button_label';
   static const String pPSignoutConfirmButtonLabel =
       'person_page.signout_confirm_button_label';
+  static const String pPChangeLanguageSuccessTitle =
+      'person_page.change_language_success_title';
+  static const String pPChangeLanguageFailedTitle =
+      'person_page.change_language_failed_title';
+  static const String pPChangeLanguageFailedSubtitle =
+      'person_page.change_language_failed_subtitle';
 
   // Avatar uploader
   static const String aUErrorPickImageContent =
@@ -1500,4 +1506,29 @@ abstract class AppStrings {
       'plan_ui_helper.expired_status_name';
   static const String pUHUnknownStatusName =
       'plan_ui_helper.unknown_status_name';
+
+  // Language Bottom Sheet
+  static const String lBSSelectLanguageTitle =
+      'language_bottom_sheet.select_language_title';
+  static const String lBSSelectLanguageContent =
+      'language_bottom_sheet.select_language_content';
+  static const String lBSConfirmButtonTitle =
+      'language_bottom_sheet.confirm_button_title';
+
+  // SmGo Community Bottom Sheet
+  static const String sGCBSHeaderTitle =
+      'smgo_community_bottom_sheet.header_title';
+  static const String sGCBSHeaderContent =
+      'smgo_community_bottom_sheet.header_content';
+  static const String sGCBSFacebookTitle =
+      'smgo_community_bottom_sheet.facebook_title';
+  static const String sGCBSFacebookSubtitle =
+      'smgo_community_bottom_sheet.facebook_subtitle';
+  static const String sGCBSZaloTitle = 'smgo_community_bottom_sheet.zalo_title';
+  static const String sGCBSZaloSubtitle =
+      'smgo_community_bottom_sheet.zalo_subtitle';
+  static const String sGCBSMessengerTitle =
+      'smgo_community_bottom_sheet.messenger_title';
+  static const String sGCBSMessengerSubtitle =
+      'smgo_community_bottom_sheet.messenger_subtitle';
 }

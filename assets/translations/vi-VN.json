@@ -250,7 +250,6 @@
     "delete_routes_failed_message": "Xoá lộ trình thất bại!",
     "delete_routes_error_message": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
-
   "add_delivery_order_page": {
     "create_order_success_dialog_title": "Tạo đơn hàng thành công!",
     "create_order_success_dialog_subtitle": "Đơn hàng của bạn đã được lưu thành công.",
@@ -360,7 +359,6 @@
     "delete_button_label": "Xoá",
     "copied_to_clipboard_message": "Đã sao chép vào bộ nhớ tạm!"
   },
-
   "delivery_order_page": {
     "delete_selected_orders_dialog_tile": "Xác nhận xoá",
     "delete_selected_orders_dialog_content": "Bạn có chắc chắn muốn xóa {quantity} đơn hàng đã chọn không?",
@@ -778,7 +776,10 @@
     "menu_signout_title": "Đăng xuất",
     "signout_confirm_dialog_title": "Bạn có chắc chắn muốn đăng xuất tài khoản?",
     "signout_cancel_button_label": "Huỷ",
-    "signout_confirm_button_label": "Xác nhận"
+    "signout_confirm_button_label": "Xác nhận",
+    "change_language_success_title": "Thay đổi ngôn ngữ thành công",
+    "change_language_failed_title": "Thay đổi ngôn ngữ thất bại!",
+    "change_language_failed_subtitle": "Đã xảy ra lỗi. Vui lòng thử lại"
   },
   "avatar_uploader": {
     "error_pick_image_content": "Không thể chọn ảnh: {error}",
@@ -858,5 +859,20 @@
     "payment_pending_status_name": "Chờ thanh toán",
     "expired_status_name": "Đã hết hạn",
     "unknown_status_name": "Không xác định"
+  },
+  "language_bottom_sheet": {
+    "select_language_title": "Chọn ngôn ngữ",
+    "select_language_content": "Vui lòng chọn ngôn ngữ bạn muốn sử dụng trong ứng dụng",
+    "confirm_button_title": "Xác nhận"
+  },
+  "smgo_community_bottom_sheet": {
+    "header_title": "Tham gia cộng đồng SmGo",
+    "header_content": "Kết nối, cập nhật thông tin mới nhất và nhận nhiều ưu đãi hấp dẫn!",
+    "facebook_title": "Tham gia nhóm Facebook",
+    "facebook_subtitle": "Cập nhật tin tức, chia sẻ kinh nghiệm cùng cộng đồng SmGo",
+    "zalo_title": "Tham gia nhóm Zalo",
+    "zalo_subtitle": "Trao đổi nhanh chóng, nhận hỗ trợ trực tiếp từ đội ngũ SmGo",
+    "messenger_title": "Tham gia nhóm Messenger",
+    "messenger_subtitle": "Kết nối và nhận thông báo mới nhất từ SmGo"
   }
 }

@@ -4,15 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/localization/presentation/bloc/get_locale/get_locale_cubit.dart';
+import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
+import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_state.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
+import 'package:smgo/features/person/domain/entities/language_entity.dart';
+import 'package:smgo/features/person/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
+import 'package:smgo/features/person/presentation/widgets/smgo_community_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/update_profile_bottom_sheet.dart';
 import 'package:smgo/shared/helpers/plan_ui_helper.dart';
 import 'package:smgo/features/person/presentation/widgets/plan_detail_bottom_sheet.dart';
@@ -31,7 +38,7 @@ import 'package:smgo/shared/utils/app_dialog_utils.dart';
 enum MenuItem { plan, language, group, guide, signout }
 
 class PersonPage extends StatelessWidget {
-  const PersonPage({Key? key}) : super(key: key);
+  const PersonPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +53,10 @@ class PersonPage extends StatelessWidget {
         BlocProvider<GetCurrentPlanCubit>(
           create: (context) => di<GetCurrentPlanCubit>()..call(),
         ),
+        BlocProvider<GetLocaleCubit>(
+          create: (context) => di<GetLocaleCubit>()..call(),
+        ),
+        BlocProvider<SetLocaleCubit>(create: (context) => di<SetLocaleCubit>()),
       ],
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
         builder: (context, state) => Stack(
@@ -92,11 +103,42 @@ class PersonPage extends StatelessWidget {
                         const SizedBox(height: 16),
 
                         // Danh sách Menu
-                        _buildMenuList(
-                          primaryColor: primaryColor,
-                          context: context,
+                        BlocConsumer<SetLocaleCubit, SetLocaleState>(
+                          listener: (context, state) async {
+                            final getLocaleCubit = context
+                                .read<GetLocaleCubit>();
+                            if (state is SetLocaleDone) {
+                              await getLocaleCubit.call();
+                              if (!context.mounted) {
+                                return;
+                              }
+                              await context.setLocale(
+                                getLocaleCubit.state.locale ??
+                                    Locale('vi', 'VN'),
+                              );
+                              if (!context.mounted) {
+                                return;
+                              }
+                              context.pop();
+                              await Restart.restartApp();
+                            } else if (state is SetLocaleFailed) {
+                              AppDialogUtils.showError(
+                                context: context,
+                                title: AppStrings.pPChangeLanguageFailedTitle
+                                    .tr(),
+                                subtitle: AppStrings
+                                    .pPChangeLanguageFailedSubtitle
+                                    .tr(),
+                              );
+                            }
+                          },
+                          builder: (context, state) => _buildMenuList(
+                            primaryColor: primaryColor,
+                            context: context,
+                          ),
                         ),
-                        const SizedBox(height: 24),
+
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
@@ -557,7 +599,13 @@ class PersonPage extends StatelessWidget {
         'name': MenuItem.language,
         'icon': Icons.language,
         'title': AppStrings.pPMenuLanguageTitle.tr(),
-        'trailingText': AppStrings.pPMenuVietnameseTrailingText.tr(),
+        'trailingText':
+            appLanguageNativeNameMap[context
+                    .read<GetLocaleCubit>()
+                    .state
+                    .locale
+                    ?.languageCode ??
+                'vi'],
         'color': const Color(0xFFDCFCE7),
         'iconColor': primaryColor,
       },
@@ -643,8 +691,10 @@ class PersonPage extends StatelessWidget {
                       context.pushNamed(AppRouteNames.subscription);
                       break;
                     case MenuItem.language:
+                      _showLanguageBottomSheet(context: context);
                       break;
                     case MenuItem.group:
+                      _showSmGoCommunityBottomSheet(context: context);
                       break;
                     case MenuItem.guide:
                       break;
@@ -706,6 +756,46 @@ class PersonPage extends StatelessWidget {
           context: context,
         ),
       ),
+    );
+  }
+
+  // Hàm tiện ích để gọi BottomSheet ở bất kỳ đâu
+  void _showLanguageBottomSheet({required BuildContext context}) {
+    final getLocaleCubit = context.read<GetLocaleCubit>();
+    final setLocaleCubit = context.read<SetLocaleCubit>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: getLocaleCubit),
+            BlocProvider.value(value: setLocaleCubit),
+          ],
+          child: BlocBuilder<SetLocaleCubit, SetLocaleState>(
+            builder: (_, state) => LanguageBottomSheet(
+              isSubmitting: state is SetLocaleLoading,
+              selectedCode: getLocaleCubit.state.locale?.languageCode ?? 'vi',
+              onSelected: (language) {
+                setLocaleCubit.call(
+                  locale: Locale(language.code, language.countryCode),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Tuỳ chọn cộng đồng SmGo
+  void _showSmGoCommunityBottomSheet({required BuildContext context}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SmGoCommunityBottomSheet(),
     );
   }
 }

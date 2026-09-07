@@ -12,7 +12,7 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('vi', 'VN')],
+      supportedLocales: const [Locale('vi', 'VN'), Locale('en', 'US')],
       fallbackLocale: const Locale('vi', 'VN'),
       startLocale: const Locale('vi', 'VN'),
       path: AppAssets.translations,
