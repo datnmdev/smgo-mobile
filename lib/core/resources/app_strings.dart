@@ -1,9 +1,6 @@
 abstract class AppStrings {
   AppStrings._();
 
-  // String values
-  static const String appName = 'SmGo';
-
   // Translation keys
   static const String appTitle = 'app_title';
   static const String signInWithGoogle = 'sign_in_with_google';

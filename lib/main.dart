@@ -5,6 +5,7 @@ import 'package:smgo/app_router.dart';
 import 'package:smgo/core/localization/domain/entities/locale_entity.dart';
 import 'package:smgo/core/localization/domain/repository/localization_repository.dart';
 import 'package:smgo/core/resources/app_assets.dart';
+import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/core/resources/app_theme.dart';
 import 'package:smgo/dependency_injection.dart';
 
@@ -38,6 +39,7 @@ class App extends StatelessWidget {
         statusBarBrightness: Brightness.light,
       ),
       child: MaterialApp.router(
+        title: AppStrings.appTitle.tr(),
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.light,
