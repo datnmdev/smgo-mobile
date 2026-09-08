@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/exceptions/app_exception.dart';
+import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
+import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_state.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
@@ -12,6 +15,9 @@ import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
+import 'package:smgo/shared/presentation/widgets/language_selector_button.dart';
+import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({super.key});
@@ -31,9 +37,65 @@ class SignInPage extends StatelessWidget {
         ),
         child: MultiBlocProvider(
           providers: [BlocProvider(create: (context) => di<SignInBloc>())],
-          child: _MainContent(),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              _MainContent(),
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 16,
+                right: 16,
+                child: LanguageSelectorButton(
+                  languageCode: context.locale.languageCode.toUpperCase(),
+                  onTap: () {
+                    _showLanguageBottomSheet(context: context);
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  // Hàm tiện ích để gọi BottomSheet ở bất kỳ đâu
+  void _showLanguageBottomSheet({required BuildContext context}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return MultiBlocProvider(
+          providers: [BlocProvider(create: (context) => di<SetLocaleCubit>())],
+          child: BlocConsumer<SetLocaleCubit, SetLocaleState>(
+            listener: (context, state) async {
+              if (state is SetLocaleDone) {
+                if (!context.mounted) {
+                  return;
+                }
+                context.pop();
+                await Restart.restartApp();
+              } else if (state is SetLocaleFailed) {
+                AppDialogUtils.showError(
+                  context: context,
+                  title: AppStrings.pPChangeLanguageFailedTitle.tr(),
+                  subtitle: AppStrings.pPChangeLanguageFailedSubtitle.tr(),
+                );
+              }
+            },
+
+            builder: (context, state) => LanguageBottomSheet(
+              isSubmitting: state is SetLocaleLoading,
+              selectedCode: context.locale.languageCode,
+              onSelected: (language) {
+                context.read<SetLocaleCubit>().call(
+                  locale: Locale(language.code, language.countryCode),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

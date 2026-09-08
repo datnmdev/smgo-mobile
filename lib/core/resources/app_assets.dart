@@ -12,10 +12,17 @@ abstract class AppAssets {
   static const String bgSplash = '$_imagesPath/bg_splash.png';
   static const String locationEmpty =
       '$_imagesPath/map_location_empty_state.png';
-  static const String carousel1 = '$_imagesPath/carousel_1.png';
-  static const String carousel2 = '$_imagesPath/carousel_2.png';
-  static const String carousel3 = '$_imagesPath/carousel_3.png';
   static const String defaultAvatar = '$_imagesPath/default_avatar.png';
+  static String getSmartSortingCarousel({required String lang}) =>
+      '$_imagesPath/smart_sorting_$lang.png';
+  static String getOptimizedRouteCarousel({required String lang}) =>
+      '$_imagesPath/optimized_route_$lang.png';
+  static String getSaveLocationSmartCarousel({required String lang}) =>
+      '$_imagesPath/save_location_smart_$lang.png';
+  static String getRequireShareLocationCarousel({required String lang}) =>
+      '$_imagesPath/require_share_location_$lang.png';
+  static String getImportOrderInfoFastCarousel({required String lang}) =>
+      '$_imagesPath/import_order_info_fast_$lang.png';
 
   // --- Icons ---
   static const String icGoogle = '$_iconsPath/google.png';

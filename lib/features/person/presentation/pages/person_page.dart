@@ -17,7 +17,7 @@ import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/person/domain/entities/language_entity.dart';
-import 'package:smgo/features/person/presentation/widgets/language_bottom_sheet.dart';
+import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
 import 'package:smgo/features/person/presentation/widgets/smgo_community_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/update_profile_bottom_sheet.dart';
@@ -106,17 +106,7 @@ class PersonPage extends StatelessWidget {
                         // Danh sách Menu
                         BlocConsumer<SetLocaleCubit, SetLocaleState>(
                           listener: (context, state) async {
-                            final getLocaleCubit = context
-                                .read<GetLocaleCubit>();
                             if (state is SetLocaleDone) {
-                              await getLocaleCubit.call();
-                              if (!context.mounted) {
-                                return;
-                              }
-                              await context.setLocale(
-                                getLocaleCubit.state.locale ??
-                                    Locale('vi', 'VN'),
-                              );
                               if (!context.mounted) {
                                 return;
                               }
