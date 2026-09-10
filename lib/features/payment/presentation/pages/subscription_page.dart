@@ -501,8 +501,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       // Loading
                       SmgoLoadingScreen(
                         isLoading: state.isPaymentFlowActive,
-                        title: 'Đang thanh toán...',
-                        subtitle: 'Vui lòng đợi trong giây lát',
+                        title: AppStrings.sPPPaymentLoadingTitle.tr(),
+                        subtitle: AppStrings.sPPPaymentLoadingSubtitle.tr(),
                       ),
                     ],
                   ),

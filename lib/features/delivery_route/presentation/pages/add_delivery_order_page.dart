@@ -18,6 +18,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_rout
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_location_suggestions/get_location_suggestions_state.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/features/delivery_route/presentation/widgets/imported_orders.dart';
@@ -191,6 +192,7 @@ class _AddDeliveryOrderPageState extends State<AddDeliveryOrderPage> {
                     address: '',
                   );
                 } else if (state is AddDeliveryOrderFormFailed) {
+                  di<GetCurrentPlanCubit>().call();
                   if (state.error is DioException &&
                       (state.error as DioException)
                               .response

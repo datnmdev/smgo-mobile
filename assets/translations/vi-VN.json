@@ -6,6 +6,10 @@
   "sign_in": {
     "loading": "Đang đăng nhập..."
   },
+  "sign_in_agreement_prefix": "Bằng việc tiếp tục, bạn đồng ý với",
+  "sign_in_agreement_and": "và",
+  "terms_of_service": "Điều khoản dịch vụ",
+  "privacy_policy": "Chính sách quyền riêng tư",
   "check_app_version": {
     "initial": "Chuẩn bị kiểm tra cập nhật",
     "loading": "Đang kiểm tra bản cập nhật...",
@@ -747,7 +751,9 @@
     "subscribe_now_button_label": "Đăng ký ngay",
     "unavailable_button_label": "Không khả dụng",
     "featured_features_title": "Các tính năng nổi bật",
-    "active_plan_badge_label": "GÓI ĐANG SỬ DỤNG"
+    "active_plan_badge_label": "GÓI ĐANG SỬ DỤNG",
+    "payment_loading_title": "Đang xử lý thanh toán...",
+    "payment_loading_subtitle": "Vui lòng đợi trong giây lát"
   },
   "subscription_error": {
     "title": "Không thể tải gói đăng ký",
@@ -773,6 +779,10 @@
     "menu_vietnamese_trailing_text": "Tiếng Việt",
     "menu_group_title": "Tham gia cộng đồng SmGo",
     "menu_guide_title": "Hướng dẫn sử dụng",
+    "menu_terms_of_service_title": "Điều khoản sử dụng dịch vụ",
+    "menu_privacy_policy_title": "Chính sách quyền riêng tư",
+    "menu_share_app_title": "Chia sẻ ứng dụng SmGo",
+    "menu_delete_account_title": "Xóa tài khoản",
     "menu_signout_title": "Đăng xuất",
     "signout_confirm_dialog_title": "Bạn có chắc chắn muốn đăng xuất tài khoản?",
     "signout_cancel_button_label": "Huỷ",
@@ -879,5 +889,15 @@
   "cancel_subscription_card": {
     "title": "Huỷ gói",
     "subtitle": "Ngừng sử dụng gói hiện tại"
+  },
+  "smgo_share_app_bottom_sheet": {
+    "header_title": "Chia sẻ ứng dụng SmGo",
+    "header_content": "Chọn cửa hàng ứng dụng bạn muốn chia sẻ.",
+    "google_play_title": "Google Play",
+    "google_play_subtitle": "Chia sẻ liên kết tải SmGo cho Android",
+    "app_store_title": "App Store",
+    "app_store_subtitle": "Chia sẻ liên kết tải SmGo cho iPhone và iPad",
+    "share_title": "Chia sẻ SmGo",
+    "share_content": "Tải SmGo trên {store}:\n{url}"
   }
 }

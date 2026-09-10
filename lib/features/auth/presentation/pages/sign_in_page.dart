@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/config/env.dart';
 import 'package:smgo/core/exceptions/app_exception.dart';
 import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
 import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_state.dart';
+import 'package:smgo/core/network/external_links.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
@@ -20,6 +22,7 @@ import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription
 import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/shared/presentation/widgets/language_selector_button.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
+import 'package:smgo/shared/utils/app_url_utils.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({super.key});
@@ -272,7 +275,61 @@ class _SocialLoginContentSection extends StatelessWidget {
             context.read<SignInBloc>().add(SignInWithFacebook());
           },
         ),
+        const SizedBox(height: 16),
+        const _TermsAndPrivacySection(),
       ],
+    );
+  }
+}
+
+class _TermsAndPrivacySection extends StatelessWidget {
+  const _TermsAndPrivacySection();
+
+  @override
+  Widget build(BuildContext context) {
+    const textStyle = TextStyle(
+      fontSize: 12,
+      color: Color(0xFF64748B),
+      height: 1.5,
+    );
+
+    const linkStyle = TextStyle(
+      fontSize: 12,
+      color: AppColors.primary,
+      fontWeight: FontWeight.w600,
+      height: 1.5,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(AppStrings.signInAgreementPrefix.tr(), style: textStyle),
+          InkWell(
+            onTap: () {
+              AppUrlUtils.launchLink(ExternalLinks.termsOfService);
+            },
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+              child: Text(AppStrings.termsOfService.tr(), style: linkStyle),
+            ),
+          ),
+          Text(AppStrings.signInAgreementAnd.tr(), style: textStyle),
+          InkWell(
+            onTap: () {
+              AppUrlUtils.launchLink(ExternalLinks.privacyPolicy);
+            },
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+              child: Text(AppStrings.privacyPolicy.tr(), style: linkStyle),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

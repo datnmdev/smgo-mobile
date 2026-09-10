@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:smgo/core/config/app_route_names.dart';
+import 'package:smgo/core/network/external_links.dart';
 import 'package:smgo/shared/utils/app_url_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -35,11 +38,15 @@ class _HomePageState extends State<HomePage> {
               });
             }
           },
-          onPageFinished: (String url) {
-            if (mounted && _isLoading) {
-              setState(() {
-                _isLoading = false;
-              });
+          onPageFinished: (String url) async {
+            try {
+              await _injectExternalLinks();
+            } finally {
+              if (mounted && _isLoading) {
+                setState(() {
+                  _isLoading = false;
+                });
+              }
             }
           },
           onNavigationRequest: (NavigationRequest request) async {
@@ -201,5 +208,25 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  Future<void> _injectExternalLinks() async {
+    final controller = _webViewController;
+    if (controller == null) return;
+    final externalLinksJson = jsonEncode({
+      'homepage': ExternalLinks.homepage,
+      'termsOfService': ExternalLinks.termsOfService,
+      'privacyPolicy': ExternalLinks.privacyPolicy,
+      'accountDeletion': ExternalLinks.accountDeletion,
+      'facebookGroup': ExternalLinks.facebookGroup,
+      'zaloGroup': ExternalLinks.zaloGroup,
+      'messengerGroup': ExternalLinks.messengerGroup,
+      'guide': ExternalLinks.guide,
+    });
+    await controller.runJavaScript('''
+    if (typeof window.setExternalLinks === 'function') {
+      window.setExternalLinks($externalLinksJson);
+    }
+  ''');
   }
 }

@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SmGo - Fast Delivery & Easy Tasks</title>
+    <title>SmGo - Fast Delivery & Less Work</title>
     <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Thư viện AOS CSS cho hiệu ứng cuộn mượt -->
+    <!-- AOS CSS library for smooth scroll effects -->
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
     <style>
@@ -28,7 +28,7 @@
         min-height: 100vh;
       }
 
-      /* Container mô phỏng màn hình điện thoại */
+      /* Container simulating a phone screen */
       .app-container {
         width: 100%;
         max-width: 414px;
@@ -36,10 +36,10 @@
         overflow: hidden;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         position: relative;
-        user-select: none; /* Vô hiệu hóa bôi đen văn bản */
+        user-select: none; /* Disable text selection */
       }
 
-      /* Cho phép tương tác lại đối với các nút và link */
+      /* Re-enable interaction for buttons and links */
       a,
       button,
       .social-btn,
@@ -48,7 +48,7 @@
         pointer-events: auto !important;
       }
 
-      /* Helper class cho hình ảnh icon */
+      /* Helper class for icon images */
       .img-icon {
         width: 100%;
         height: 100%;
@@ -56,7 +56,7 @@
         transition: transform 0.3s ease;
       }
 
-      /* Hero Banner Section với Ảnh Nền Shipper */
+      /* Hero Banner Section with Shipper Background */
       .hero-section {
         background-image: url("../images/bg-header.png");
         background-repeat: no-repeat;
@@ -204,6 +204,104 @@
         pointer-events: none;
       }
 
+      /* External resource cards */
+      .resource-section {
+        margin-top: 18px;
+        margin-bottom: 12px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .resource-card {
+        background: linear-gradient(145deg, #f7faf9 0%, #eff9f5 100%);
+        border: 1px solid #e1f1e9;
+        border-radius: 14px;
+        padding: 13px;
+        min-height: 154px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.25s ease;
+      }
+
+      .resource-card:hover {
+        transform: translateY(-2px);
+        border-color: #bfe4d2;
+        box-shadow: 0 6px 14px rgba(18, 128, 84, 0.08);
+      }
+
+      .resource-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: #e0f2ed;
+        color: #128054;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+      }
+
+      .resource-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .resource-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.3;
+        margin-bottom: 5px;
+      }
+
+      .resource-desc {
+        font-size: 10px;
+        color: #666;
+        line-height: 1.35;
+        margin-bottom: 11px;
+        flex: 1;
+      }
+
+      .resource-btn {
+        width: 100%;
+        min-height: 32px;
+        padding: 7px 10px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #cfe8dc;
+        color: #128054;
+        text-decoration: none;
+        font-size: 9.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .resource-btn:hover {
+        background: #128054;
+        border-color: #128054;
+        color: #ffffff;
+      }
+
+      .resource-btn:active {
+        transform: scale(0.97);
+      }
+
+      .resource-btn svg {
+        width: 10px;
+        height: 10px;
+        flex-shrink: 0;
+      }
+
       /* Community Section */
       .community-card {
         background-color: #f7faf9;
@@ -318,7 +416,7 @@
         gap: 10px;
       }
 
-      /* Hiệu ứng ánh sáng quét nhẹ qua Upgrade Card */
+      /* Subtle light sweep effect across Upgrade Card */
       .upgrade-card::before {
         content: "";
         position: absolute;
@@ -447,7 +545,7 @@
   </head>
   <body>
     <div class="app-container">
-      <!-- Hero Section với Ảnh Nền Shipper liền khối -->
+      <!-- Hero Section with seamless Shipper Background -->
       <div class="hero-section" data-aos="fade-down" data-aos-duration="600">
         <div class="logo">
           <img src="../images/logo.png" alt="SmGo Logo" class="logo-img" />
@@ -459,10 +557,10 @@
         </div>
         <div class="hero-content">
           <div class="hero-title">Hello!</div>
-          <div class="hero-subtitle">Glad to accompany you!</div>
+          <div class="hero-subtitle">Glad to be with you!</div>
           <div class="hero-desc">
-            SmGo – An application supporting couriers to optimize routes, manage
-            orders, and deliver quickly and efficiently.
+            SmGo – The app that helps shippers optimize routes, manage orders
+            and deliver faster and more efficiently.
           </div>
         </div>
       </div>
@@ -474,12 +572,13 @@
             <img src="../icons/diamond.png" alt="Crown" />
           </div>
           <div>
-            <div class="upgrade-title">Upgrade Plan</div>
+            <div class="upgrade-title">Upgrade plan</div>
             <div class="upgrade-subtitle">Unlock all features</div>
           </div>
         </div>
         <div class="upgrade-desc">
-          Enjoy full access to tools, deliver faster, and work more efficiently.
+          Access every tool, deliver faster, and work more efficiently every
+          day.
         </div>
         <a href="smgo://upgrade" class="upgrade-btn">
           <span>Upgrade now</span>
@@ -507,10 +606,10 @@
           data-aos-duration="400"
         >
           <img src="../icons/outstanding.png" alt="icon" class="section-icon" />
-          <span class="section-title">Key Features</span>
+          <span class="section-title">Key features</span>
         </div>
         <div class="section-desc" data-aos="fade-right" data-aos-duration="400">
-          Features that make your delivery work much easier
+          Features that make your delivery work easier
         </div>
 
         <!-- Features Grid -->
@@ -524,10 +623,9 @@
                 class="img-icon"
               />
             </div>
-            <div class="card-title">Smart Cargo Sorting</div>
+            <div class="card-title">Smart parcel sorting</div>
             <div class="card-desc">
-              Helps you categorize and organize orders systematically, saving
-              time and effort.
+              Organize and sort orders efficiently to save time and effort.
             </div>
           </div>
 
@@ -540,9 +638,9 @@
                 class="img-icon"
               />
             </div>
-            <div class="card-title">Route Optimization</div>
+            <div class="card-title">Optimized delivery routes</div>
             <div class="card-desc">
-              Delivers orders faster and saves travel costs.
+              Deliver faster while reducing travel costs.
             </div>
           </div>
 
@@ -555,10 +653,10 @@
                 class="img-icon"
               />
             </div>
-            <div class="card-title">Save Delivery Locations</div>
+            <div class="card-title">Save delivery locations</div>
             <div class="card-desc">
-              Suggests recipient locations based on data shared by other
-              couriers or saved by yourself.
+              Get recipient location suggestions from data shared by other
+              shippers or saved by you.
             </div>
           </div>
 
@@ -571,9 +669,9 @@
                 class="img-icon"
               />
             </div>
-            <div class="card-title">Request Accurate Recipient Location</div>
+            <div class="card-title">Request the recipient’s exact location</div>
             <div class="card-desc">
-              With just 1 click and proper turn-by-turn navigation.
+              Get an exact location and clear directions in one click.
             </div>
           </div>
         </div>
@@ -584,10 +682,116 @@
             <img src="../icons/ai-scan.png" alt="Icon AI" class="img-icon" />
           </div>
           <div>
-            <div class="card-title">Quick Order Data Entry</div>
+            <div class="card-title">Quick order entry</div>
             <div class="card-desc">
-              Uses AI and JSON to import order details automatically,
-              accurately, and quickly.
+              Use AI and JSON to enter order details automatically, accurately,
+              and save time.
+            </div>
+          </div>
+        </div>
+
+        <!-- Helpful Links -->
+        <div class="resource-section">
+          <div
+            class="section-header"
+            data-aos="fade-right"
+            data-aos-duration="400"
+          >
+            <img
+              src="../icons/outstanding.png"
+              alt="icon"
+              class="section-icon"
+            />
+            <span class="section-title">Explore SmGo</span>
+          </div>
+          <div
+            class="section-desc"
+            data-aos="fade-right"
+            data-aos-duration="400"
+          >
+            View detailed guides or learn more on the SmGo website
+          </div>
+
+          <div class="resource-grid">
+            <!-- Guide Card -->
+            <div
+              class="resource-card"
+              data-aos="fade-up"
+              data-aos-duration="350"
+            >
+              <div class="resource-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path
+                    d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"
+                  />
+                </svg>
+              </div>
+              <div class="resource-title">User guide</div>
+              <div class="resource-desc">
+                Follow step-by-step guides to use SmGo quickly and effectively.
+              </div>
+              <a id="guide-link" class="resource-btn">
+                <span>View guide</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
+            </div>
+
+            <!-- Website Card -->
+            <div
+              class="resource-card"
+              data-aos="fade-up"
+              data-aos-duration="350"
+            >
+              <div class="resource-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"
+                  />
+                </svg>
+              </div>
+              <div class="resource-title">SmGo website</div>
+              <div class="resource-desc">
+                Explore SmGo features, information, and the latest updates.
+              </div>
+              <a id="homepage-link" class="resource-btn">
+                <span>Visit website</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -603,20 +807,16 @@
               />
             </div>
             <div>
-              <div class="community-title">Join the SmGo Community</div>
+              <div class="community-title">Join the SmGo community</div>
               <div class="community-desc">
-                Share, support, and get answers whenever you face difficulties
-                during usage!
+                Share experiences, get support, and find answers whenever you
+                need help using SmGo!
               </div>
             </div>
           </div>
           <div class="social-buttons">
             <!-- Facebook Button -->
-            <a
-              href="https://www.facebook.com/share/g/1DQgHbxfey/"
-              class="social-btn"
-              target="_blank"
-            >
+            <a id="facebook-link" class="social-btn">
               <div class="social-btn-content">
                 <img
                   src="../icons/facebook.png"
@@ -629,11 +829,7 @@
             </a>
 
             <!-- Zalo Button -->
-            <a
-              href="https://zalo.me/g/2367ucr5janxotvrrhpt"
-              class="social-btn"
-              target="_blank"
-            >
+            <a id="zalo-link" class="social-btn">
               <div class="social-btn-content">
                 <img
                   src="../icons/zalo.png"
@@ -646,11 +842,7 @@
             </a>
 
             <!-- Messenger Button -->
-            <a
-              href="https://m.me/cm/RHQR-ncMtB6kPOxI/?send_source=cm%3Acopy_invite_link"
-              class="social-btn"
-              target="_blank"
-            >
+            <a id="messenger-link" class="social-btn">
               <div class="social-btn-content">
                 <img
                   src="../icons/messenger.png"
@@ -666,7 +858,32 @@
       </div>
     </div>
 
-    <!-- Script AOS JS Tối Ưu Tốc Độ -->
+    <script>
+      // The actual URLs are passed from Flutter after the WebView finishes loading.
+      // HTML does not hard-code social / guide / homepage links.
+      window.setExternalLinks = function (links) {
+        const linkMap = {
+          "facebook-link": links.facebookGroup,
+          "zalo-link": links.zaloGroup,
+          "messenger-link": links.messengerGroup,
+          "guide-link": links.guide,
+          "homepage-link": links.homepage,
+        };
+
+        Object.entries(linkMap).forEach(([elementId, url]) => {
+          const element = document.getElementById(elementId);
+          if (!element) return;
+
+          if (typeof url === "string" && url.trim().length > 0) {
+            element.setAttribute("href", url);
+          } else {
+            element.removeAttribute("href");
+          }
+        });
+      };
+    </script>
+
+    <!-- Optimized AOS JS Script -->
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
       AOS.init({

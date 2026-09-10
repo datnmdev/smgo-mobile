@@ -32,6 +32,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_pa
 import 'package:smgo/features/delivery_route/presentation/bloc/delivery_order_page/delivery_order_page_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_routes/get_delivery_routes_state.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/recheck_delivery_orders/recheck_delivery_orders_state.dart';
@@ -154,9 +155,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
         BlocProvider<CreateDeliveryRouteWithOrdersCubit>(
           create: ((context) => di<CreateDeliveryRouteWithOrdersCubit>()),
         ),
-        BlocProvider.value(
-          value: di<GetProfileCubit>()..call(),
-        ),
+        BlocProvider.value(value: di<GetProfileCubit>()..call()),
         BlocProvider<ConfirmSortedDeliveryOrdersCubit>(
           create: (_) => di<ConfirmSortedDeliveryOrdersCubit>(),
         ),
@@ -510,6 +509,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                           },
                         );
                       } else if (state is CreateDeliveryRouteWithOrdersFailed) {
+                        di<GetCurrentPlanCubit>().call();
                         if (state.error is DioException &&
                             (state.error as DioException)
                                     .response

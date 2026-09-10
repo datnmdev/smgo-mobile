@@ -50,6 +50,7 @@ dependencies:
   cached_network_image: ^4.0.0
   restart_app: ^1.9.1
   in_app_purchase_android: ^0.5.3
+  share_plus: ^13.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

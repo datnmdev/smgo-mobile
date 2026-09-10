@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:smgo/core/network/external_links.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_strings.dart';
 import 'package:smgo/shared/utils/app_url_utils.dart';
@@ -81,9 +82,7 @@ class SmGoCommunityBottomSheet extends StatelessWidget {
             title: AppStrings.sGCBSFacebookTitle.tr(),
             subtitle: AppStrings.sGCBSFacebookSubtitle.tr(),
             onTap: () {
-              AppUrlUtils.launchLink(
-                'https://www.facebook.com/share/g/1DQgHbxfey/',
-              );
+              AppUrlUtils.launchLink(ExternalLinks.facebookGroup);
             },
           ),
           const SizedBox(height: 12),
@@ -93,7 +92,7 @@ class SmGoCommunityBottomSheet extends StatelessWidget {
             title: AppStrings.sGCBSZaloTitle.tr(),
             subtitle: AppStrings.sGCBSZaloSubtitle.tr(),
             onTap: () {
-              AppUrlUtils.launchLink('https://zalo.me/g/2367ucr5janxotvrrhpt');
+              AppUrlUtils.launchLink(ExternalLinks.zaloGroup);
             },
           ),
           const SizedBox(height: 12),
@@ -103,9 +102,7 @@ class SmGoCommunityBottomSheet extends StatelessWidget {
             title: AppStrings.sGCBSMessengerTitle.tr(),
             subtitle: AppStrings.sGCBSMessengerSubtitle.tr(),
             onTap: () {
-              AppUrlUtils.launchLink(
-                'https://m.me/cm/RHQR-ncMtB6kPOxI/?send_source=cm%3Acopy_invite_link',
-              );
+              AppUrlUtils.launchLink(ExternalLinks.messengerGroup);
             },
           ),
           const SizedBox(height: 16),

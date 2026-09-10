@@ -22,6 +22,7 @@ import 'package:smgo/features/delivery_route/presentation/bloc/get_delivery_rout
 import 'package:smgo/features/delivery_route/presentation/bloc/get_share_location_url/get_share_location_url_cubit.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/get_share_location_url/get_share_location_url_state.dart';
 import 'package:smgo/features/delivery_route/presentation/widgets/location_request_card.dart';
+import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_state.dart';
 import 'package:smgo/features/delivery_route/presentation/bloc/search_delivery_orders/search_delivery_orders_cubit.dart';
@@ -600,6 +601,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                               .tr(),
                         );
                       } else if (state is GetShareLocationUrlFailed) {
+                        di<GetCurrentPlanCubit>().call();
                         if (state.error is DioException &&
                             (state.error as DioException)
                                     .response
@@ -624,7 +626,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
                           );
                           return;
                         }
-                        AppDialogUtils.showSuccess(
+                        AppDialogUtils.showError(
                           context: context,
                           title: AppStrings.dODPGetShareLocationFailedTitle
                               .tr(),

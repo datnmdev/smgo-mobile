@@ -10,6 +10,7 @@ import 'package:smgo/core/config/app_route_names.dart';
 import 'package:smgo/core/localization/presentation/bloc/get_locale/get_locale_cubit.dart';
 import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
 import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_state.dart';
+import 'package:smgo/core/network/external_links.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
@@ -21,6 +22,7 @@ import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription
 import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
 import 'package:smgo/features/person/presentation/widgets/smgo_community_bottom_sheet.dart';
+import 'package:smgo/features/person/presentation/widgets/smgo_share_app_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/update_profile_bottom_sheet.dart';
 import 'package:smgo/shared/helpers/plan_ui_helper.dart';
 import 'package:smgo/features/person/presentation/widgets/plan_detail_bottom_sheet.dart';
@@ -37,7 +39,17 @@ import 'package:smgo/shared/presentation/widgets/smgo_loading_screen.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
 import 'package:smgo/shared/utils/app_url_utils.dart';
 
-enum MenuItem { plan, language, group, guide, signout }
+enum MenuItem {
+  plan,
+  language,
+  group,
+  shareApp,
+  guide,
+  termsOfService,
+  privacyPolicy,
+  deleteAccount,
+  signout,
+}
 
 class PersonPage extends StatelessWidget {
   const PersonPage({super.key});
@@ -626,11 +638,39 @@ class PersonPage extends StatelessWidget {
         'iconColor': Colors.blue,
       },
       {
+        'name': MenuItem.shareApp,
+        'icon': Icons.share_outlined,
+        'title': AppStrings.pPMenuShareAppTitle.tr(),
+        'color': const Color(0xFFE8F5E9),
+        'iconColor': AppColors.primary,
+      },
+      {
         'name': MenuItem.guide,
         'icon': Icons.menu_book_outlined,
         'title': AppStrings.pPMenuGuideTitle.tr(),
         'color': const Color(0xFFE0E7FF),
         'iconColor': Colors.indigo,
+      },
+      {
+        'name': MenuItem.termsOfService,
+        'icon': Icons.description_outlined,
+        'title': AppStrings.pPMenuTermsOfServiceTitle.tr(),
+        'color': const Color(0xFFFFF7ED),
+        'iconColor': Colors.deepOrange,
+      },
+      {
+        'name': MenuItem.privacyPolicy,
+        'icon': Icons.privacy_tip_outlined,
+        'title': AppStrings.pPMenuPrivacyPolicyTitle.tr(),
+        'color': const Color(0xFFF3E8FF),
+        'iconColor': Colors.purple,
+      },
+      {
+        'name': MenuItem.deleteAccount,
+        'icon': Icons.delete_forever_outlined,
+        'title': AppStrings.pPMenuDeleteAccountTitle.tr(),
+        'color': const Color(0xFFFEE2E2),
+        'iconColor': Colors.red,
       },
       {
         'name': MenuItem.signout,
@@ -705,11 +745,24 @@ class PersonPage extends StatelessWidget {
                     case MenuItem.group:
                       _showSmGoCommunityBottomSheet(context: context);
                       break;
-                    case MenuItem.guide:
-                      AppUrlUtils.launchLink(
-                        'https://zalo.me/g/2367ucr5janxotvrrhpt',
-                      );
+                    case MenuItem.shareApp:
+                      _showSmGoShareAppBottomSheet(context: context);
                       break;
+                    case MenuItem.guide:
+                      AppUrlUtils.launchLink(ExternalLinks.guide);
+                      break;
+                    case MenuItem.termsOfService:
+                      AppUrlUtils.launchLink(ExternalLinks.termsOfService);
+                      break;
+
+                    case MenuItem.privacyPolicy:
+                      AppUrlUtils.launchLink(ExternalLinks.privacyPolicy);
+                      break;
+
+                    case MenuItem.deleteAccount:
+                      AppUrlUtils.launchLink(ExternalLinks.accountDeletion);
+                      break;
+
                     case MenuItem.signout:
                       AppDialogUtils.showCustomDialog(
                         context: context,
@@ -808,6 +861,16 @@ class PersonPage extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const SmGoCommunityBottomSheet(),
+    );
+  }
+
+  // Chia sẻ ứng dụng SmGo
+  void _showSmGoShareAppBottomSheet({required BuildContext context}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SmGoShareAppBottomSheet(),
     );
   }
 }

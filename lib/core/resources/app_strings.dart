@@ -36,6 +36,12 @@ abstract class AppStrings {
   static const String gMPScceptButtonTitle =
       'google_map_picker_screen.accept_button_title';
 
+  // Điều khoản sử dụng dịch vụ và chính sách quyền riêng tư
+  static const String signInAgreementPrefix = 'sign_in_agreement_prefix';
+  static const String signInAgreementAnd = 'sign_in_agreement_and';
+  static const String termsOfService = 'terms_of_service';
+  static const String privacyPolicy = 'privacy_policy';
+
   // M3 image picker
   static const String m3Map = 'maintenance_app.title';
   static const String m3MSelectLocationError = 'm3_map.select_location_error';
@@ -1337,6 +1343,10 @@ abstract class AppStrings {
       'subscription_page.featured_features_title';
   static const String sPPActivePlanBadgeLabel =
       'subscription_page.active_plan_badge_label';
+  static const String sPPPaymentLoadingTitle =
+      'subscription_page.payment_loading_title';
+  static const String sPPPaymentLoadingSubtitle =
+      'subscription_page.payment_loading_subtitle';
 
   // Subscription error
   static const String subscriptionErrorTitle = 'subscription_error.title';
@@ -1384,6 +1394,13 @@ abstract class AppStrings {
       'person_page.change_language_failed_title';
   static const String pPChangeLanguageFailedSubtitle =
       'person_page.change_language_failed_subtitle';
+  static const String pPMenuTermsOfServiceTitle =
+      'person_page.menu_terms_of_service_title';
+  static const String pPMenuPrivacyPolicyTitle =
+      'person_page.menu_privacy_policy_title';
+  static const String pPMenuDeleteAccountTitle =
+      'person_page.menu_delete_account_title';
+  static const pPMenuShareAppTitle = 'person_page.menu_share_app_title';
 
   // Avatar uploader
   static const String aUErrorPickImageContent =
@@ -1535,4 +1552,19 @@ abstract class AppStrings {
       'cancel_subscription_card.title';
   static const String cancelSubscriptionCardSubtitle =
       'cancel_subscription_card.subtitle';
+
+  // Smgo share app bottom sheet
+  static const sSABSHeaderTitle = 'smgo_share_app_bottom_sheet.header_title';
+  static const sSABSHeaderContent =
+      'smgo_share_app_bottom_sheet.header_content';
+  static const sSABSGooglePlayTitle =
+      'smgo_share_app_bottom_sheet.google_play_title';
+  static const sSABSGooglePlaySubtitle =
+      'smgo_share_app_bottom_sheet.google_play_subtitle';
+  static const sSABSAppStoreTitle =
+      'smgo_share_app_bottom_sheet.app_store_title';
+  static const sSABSAppStoreSubtitle =
+      'smgo_share_app_bottom_sheet.app_store_subtitle';
+  static const sSABSShareTitle = 'smgo_share_app_bottom_sheet.share_title';
+  static const sSABSShareContent = 'smgo_share_app_bottom_sheet.share_content';
 }
