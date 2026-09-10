@@ -160,7 +160,6 @@ class _M3ImagePickerGridState extends State<M3ImagePickerGrid> {
   Future<void> _pickFromCamera() async {
     final hasPermission = await _requestPermission(Permission.camera);
     if (!hasPermission) return;
-
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       _handleNewSelectedFiles([photo]);
@@ -169,17 +168,6 @@ class _M3ImagePickerGridState extends State<M3ImagePickerGrid> {
 
   // 2. Chọn từ Thư viện
   Future<void> _pickFromGallery() async {
-    Permission permissionToRequest = Platform.isAndroid
-        ? Permission.photos
-        : Permission.photos;
-
-    bool hasPermission = await _requestPermission(permissionToRequest);
-    if (!hasPermission && Platform.isAndroid) {
-      hasPermission = await _requestPermission(Permission.storage);
-    }
-
-    if (!hasPermission) return;
-
     final List<XFile> selected = await _picker.pickMultiImage();
     if (selected.isNotEmpty) {
       _handleNewSelectedFiles(selected);
