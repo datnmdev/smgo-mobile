@@ -13,6 +13,7 @@ import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_
 import 'package:smgo/shared/presentation/bloc/get_current_plan/get_current_plan_state.dart';
 import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
 import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_state.dart';
+import 'package:smgo/shared/presentation/widgets/smgo_loading_screen.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
 
 extension ProductIdX on ProductId {
@@ -299,15 +300,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   @override
   void initState() {
     super.initState();
-    _subscriptionPurchaseCubit = di<SubscriptionPurchaseCubit>()..initialize();
+    _subscriptionPurchaseCubit = di<SubscriptionPurchaseCubit>();
     _getCurrentPlanCubit = di<GetCurrentPlanCubit>()..call();
-  }
-
-  @override
-  void dispose() {
-    _subscriptionPurchaseCubit.close();
-    _getCurrentPlanCubit.close();
-    super.dispose();
   }
 
   int get _activePlanLevel {
@@ -328,20 +322,42 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       child: BlocConsumer<GetCurrentPlanCubit, GetCurrentPlanState>(
         listener: (context, state) {
           if (state is GetCurrentPlanDone && mounted) {
+            final String productId =
+                state.subscription?.productId ?? ProductId.basic.value;
+
+            if (productId == ProductId.basic.value) {
+              _subscriptionPurchaseCubit.clearCurrentPurchase();
+            }
+
             setState(() {
-              activePlanId = state.subscription!.productId;
+              activePlanId = productId;
             });
           }
         },
         builder: (_, getCurrentPlanState) =>
             BlocConsumer<SubscriptionPurchaseCubit, SubscriptionPurchaseState>(
-              listener: (context, state) {
+              listener: (context, state) async {
                 if (state.status == SubscriptionPurchaseStatus.success) {
-                  _getCurrentPlanCubit.call();
-                  AppDialogUtils.showSuccess(
-                    context: context,
-                    title: AppStrings.sPPPaymentSuccessTitle.tr(),
-                  );
+                  if (state.verifiedProductId != null && mounted) {
+                    setState(() {
+                      activePlanId = state.verifiedProductId;
+                    });
+                  }
+
+                  await _getCurrentPlanCubit.call();
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  // Restore khi mở lại app chỉ dùng để recover token chưa verify,
+                  // không hiển thị lại dialog "thanh toán thành công" cũ.
+                  if (!state.isRestoredPurchase) {
+                    AppDialogUtils.showSuccess(
+                      context: context,
+                      title: AppStrings.sPPPaymentSuccessTitle.tr(),
+                    );
+                  }
                 } else if (state.status == SubscriptionPurchaseStatus.error) {
                   if (state.error is AppException &&
                       (state.error as AppException).code == 'PAYMENT_FAILED') {
@@ -362,10 +378,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   );
                 }
 
+                final bool isPageLoading =
+                    state.status == SubscriptionPurchaseStatus.loading ||
+                    (getCurrentPlanState is GetCurrentPlanLoading &&
+                        activePlanId == null);
+
                 Widget body = Skeletonizer(
-                  enabled:
-                      state.status == SubscriptionPurchaseStatus.loading ||
-                      getCurrentPlanState is GetCurrentPlanLoading,
+                  enabled: isPageLoading,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16.0),
@@ -434,7 +453,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                             child: SubscriptionError(
                               onRetry: () {
                                 _getCurrentPlanCubit.call();
-                                _subscriptionPurchaseCubit.initialize();
                               },
                             ),
                           ),
@@ -467,15 +485,26 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     ),
                     centerTitle: true,
                   ),
-                  body: RefreshIndicator(
-                    onRefresh: () async {
-                      activePlanId = null;
-                      await Future.wait([
-                        _getCurrentPlanCubit.call(),
-                        _subscriptionPurchaseCubit.initialize(),
-                      ]);
-                    },
-                    child: body,
+                  body: Stack(
+                    children: [
+                      RefreshIndicator(
+                        onRefresh: () async {
+                          setState(() {
+                            activePlanId = null;
+                          });
+
+                          await _getCurrentPlanCubit.call();
+                        },
+                        child: body,
+                      ),
+
+                      // Loading
+                      SmgoLoadingScreen(
+                        isLoading: state.isPaymentFlowActive,
+                        title: 'Đang thanh toán...',
+                        subtitle: 'Vui lòng đợi trong giây lát',
+                      ),
+                    ],
                   ),
                 );
               },
@@ -486,37 +515,28 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   Widget _buildActionButton({
     required ProductId productEnum,
-    required bool isActive,
     required BuildContext context,
   }) {
     final themeColor = PlanUiHelper.getPlanIconColor(productEnum.value);
-
-    if (isActive && productEnum != ProductId.basic) {
-      return OutlinedButton(
-        onPressed: () {},
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.red,
-          side: const BorderSide(color: Colors.red),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        ),
-        child: Text(
-          AppStrings.sPPCancelRenewalButtonLabel.tr(),
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      );
-    }
 
     if (productEnum.level > _activePlanLevel &&
         productEnum != ProductId.basic) {
       return OutlinedButton(
         onPressed: () {
           final subscriptionPurchaseCubit = _subscriptionPurchaseCubit;
+
           final productDetails = subscriptionPurchaseCubit.state.products
               .where((product) => product.id == productEnum.value)
               .firstOrNull;
+
           if (productDetails != null) {
-            subscriptionPurchaseCubit.buyProduct(productDetails);
+            final bool isUpgrade =
+                activePlanId != null && activePlanId != ProductId.basic.value;
+
+            subscriptionPurchaseCubit.buyProduct(
+              productDetails,
+              isUpgrade: isUpgrade,
+            );
           } else {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -538,21 +558,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         child: Text(
           AppStrings.sPPSubscribeNowButtonLabel.tr(),
           style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      );
-    }
-
-    if (productEnum != ProductId.basic) {
-      return ElevatedButton(
-        onPressed: null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey.shade200,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Text(
-          AppStrings.sPPUnavailableButtonLabel.tr(),
-          style: TextStyle(color: Colors.grey, fontSize: 13),
         ),
       );
     }
@@ -794,7 +799,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   alignment: Alignment.centerRight,
                   child: _buildActionButton(
                     productEnum: productEnum,
-                    isActive: isActive,
                     context: context,
                   ),
                 ),

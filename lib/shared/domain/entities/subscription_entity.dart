@@ -32,7 +32,8 @@ enum SubscriptionStatus {
   inGracePeriod(value: 'IN_GRACE_PERIOD'),
   canceled(value: 'CANCELED'),
   expired(value: 'EXPIRED'),
-  onHold(value: 'ON_HOLD');
+  onHold(value: 'ON_HOLD'),
+  paused(value: 'PAUSED');
 
   final String value;
 

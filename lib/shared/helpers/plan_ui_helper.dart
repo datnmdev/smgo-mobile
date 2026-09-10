@@ -26,6 +26,8 @@ class PlanUiHelper {
     } else if (status == SubscriptionStatus.inGracePeriod.value ||
         status == SubscriptionStatus.onHold.value) {
       return AppStrings.pUHPaymentPendingStatusName.tr();
+    } else if (status == SubscriptionStatus.paused.value) {
+      return AppStrings.pUHPausedStatusName.tr();
     } else if (status == SubscriptionStatus.expired.value) {
       return AppStrings.pUHExpiredStatusName.tr();
     } else {
@@ -40,6 +42,8 @@ class PlanUiHelper {
     } else if (status == SubscriptionStatus.inGracePeriod.value ||
         status == SubscriptionStatus.onHold.value) {
       return Colors.orange;
+    } else if (status == SubscriptionStatus.paused.value) {
+      return Colors.amber.shade700;
     } else if (status == SubscriptionStatus.expired.value) {
       return Colors.red;
     } else {

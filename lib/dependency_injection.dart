@@ -12,6 +12,7 @@ import 'package:smgo/core/security/token/data/data_sources/token_data_source.dar
 import 'package:smgo/core/security/token/data/repository/token_repository_impl.dart';
 import 'package:smgo/core/security/token/domain/repository/token_repository.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
+import 'package:smgo/core/utils/platform_util.dart';
 import 'package:smgo/features/auth/data/data_sources/auth_api_service.dart';
 import 'package:smgo/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:smgo/features/auth/domain/repository/auth_repository.dart';
@@ -158,6 +159,15 @@ Future<void> initializeDependencies() async {
   di.registerLazySingleton<ShareLocationApiService>(
     () => ShareLocationApiService(di<Dio>()),
   );
+  di.registerLazySingleton<PurchasePlatformService>(() {
+    final platform = PlatformUtil.getPlatformName();
+    switch (platform) {
+      case 'android':
+        return AndroidPurchasePlatformService();
+      default:
+        throw UnsupportedError('Unsupported purchase platform: $platform');
+    }
+  });
 
   // Đăng ký các repository
   di.registerLazySingleton<TokenRepository>(
@@ -440,8 +450,8 @@ Future<void> initializeDependencies() async {
       deleteDeliveryOrdersUsecase: di<DeleteDeliveryOrdersUsecase>(),
     ),
   );
-  di.registerFactory<GetProfileCubit>(
-    () => GetProfileCubit(getProfileUsecase: di<GetProfileUsecase>()),
+  di.registerSingleton<GetProfileCubit>(
+    GetProfileCubit(getProfileUsecase: di<GetProfileUsecase>())..call(),
   );
   di.registerFactory<RecheckDeliveryOrdersCubit>(
     () => RecheckDeliveryOrdersCubit(
@@ -515,15 +525,16 @@ Future<void> initializeDependencies() async {
   di.registerFactory<SignoutCubit>(
     () => SignoutCubit(signoutUsecase: di<SignoutUsecase>()),
   );
-  di.registerFactory<SubscriptionPurchaseCubit>(
+  di.registerLazySingleton<SubscriptionPurchaseCubit>(
     () => SubscriptionPurchaseCubit(
       verifySubscriptionUsecase: di<VerifySubscriptionUsecase>(),
+      purchasePlatformService: di<PurchasePlatformService>(),
     ),
   );
-  di.registerFactory<GetCurrentPlanCubit>(
-    () => GetCurrentPlanCubit(
+  di.registerSingleton<GetCurrentPlanCubit>(
+    GetCurrentPlanCubit(
       getCurrentSubscriptionUsecase: di<GetCurrentSubscriptionUsecase>(),
-    ),
+    )..call(),
   );
   di.registerFactory<UpdateProfileFormCubit>(
     () => UpdateProfileFormCubit(

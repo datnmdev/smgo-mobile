@@ -2,10 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:smgo/core/config/app_route_names.dart';
-import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_cubit.dart';
-import 'package:smgo/core/localization/presentation/bloc/set_locale/set_locale_state.dart';
 import 'package:smgo/core/resources/app_assets.dart';
 import 'package:smgo/core/resources/app_colors.dart';
 import 'package:smgo/core/resources/app_strings.dart';
@@ -16,6 +13,8 @@ import 'package:smgo/features/splash/presentation/bloc/check_session/check_sessi
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_bloc.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_event.dart';
 import 'package:smgo/features/splash/presentation/bloc/check_app_version/check_app_version_state.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -56,11 +55,38 @@ class _MainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<CheckSessionCubit, CheckSessionState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is CheckSessionDone) {
           if (state is Authenticated) {
+            final getProfileCubit = di<GetProfileCubit>();
+
+            await getProfileCubit.call();
+
+            final String? userId = getProfileCubit.state.profile?.id;
+
+            if (userId != null && userId.isNotEmpty) {
+              /*
+              * Không await.
+              *
+              * Purchase recovery chạy song song phía sau.
+              */
+              di<SubscriptionPurchaseCubit>().initialize(userId: userId);
+            }
+
+            if (!context.mounted) {
+              return;
+            }
+
             context.replaceNamed(AppRouteNames.home);
           } else {
+            /*
+            * Không authenticated.
+            *
+            * Reset purchase session phòng trường hợp
+            * singleton đang giữ user cũ.
+            */
+            di<SubscriptionPurchaseCubit>().reset();
+
             context.replaceNamed(AppRouteNames.onboarding);
           }
         }

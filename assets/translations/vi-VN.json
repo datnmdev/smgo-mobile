@@ -858,6 +858,7 @@
     "active_status_name": "Đang hoạt động",
     "payment_pending_status_name": "Chờ thanh toán",
     "expired_status_name": "Đã hết hạn",
+    "paused_status_name": "Đang tạm dừng",
     "unknown_status_name": "Không xác định"
   },
   "language_bottom_sheet": {
@@ -874,5 +875,9 @@
     "zalo_subtitle": "Trao đổi nhanh chóng, nhận hỗ trợ trực tiếp từ đội ngũ SmGo",
     "messenger_title": "Tham gia nhóm Messenger",
     "messenger_subtitle": "Kết nối và nhận thông báo mới nhất từ SmGo"
+  },
+  "cancel_subscription_card": {
+    "title": "Huỷ gói",
+    "subtitle": "Ngừng sử dụng gói hiện tại"
   }
 }

@@ -1503,6 +1503,7 @@ abstract class AppStrings {
       'plan_ui_helper.expired_status_name';
   static const String pUHUnknownStatusName =
       'plan_ui_helper.unknown_status_name';
+  static const String pUHPausedStatusName = 'plan_ui_helper.paused_status_name';
 
   // Language Bottom Sheet
   static const String lBSSelectLanguageTitle =
@@ -1528,4 +1529,10 @@ abstract class AppStrings {
       'smgo_community_bottom_sheet.messenger_title';
   static const String sGCBSMessengerSubtitle =
       'smgo_community_bottom_sheet.messenger_subtitle';
+
+  // Cancel subscription card
+  static const String cancelSubscriptionCardTitle =
+      'cancel_subscription_card.title';
+  static const String cancelSubscriptionCardSubtitle =
+      'cancel_subscription_card.subtitle';
 }

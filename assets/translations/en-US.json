@@ -874,5 +874,9 @@
     "zalo_subtitle": "Chat quickly and get direct support from SmGo",
     "messenger_title": "Join Messenger group",
     "messenger_subtitle": "Connect and get the latest SmGo updates"
+  },
+  "cancel_subscription_card": {
+    "title": "Cancel subscription",
+    "subtitle": "Stop using current plan"
   }
 }

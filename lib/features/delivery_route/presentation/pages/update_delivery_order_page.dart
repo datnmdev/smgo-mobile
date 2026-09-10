@@ -849,8 +849,8 @@ class _UpdateDeliveryOrderPageState extends State<UpdateDeliveryOrderPage> {
     required ValueChanged<String> onItemSelected,
     bool isLoading = false,
   }) {
-    return BlocProvider<GetProfileCubit>(
-      create: (context) => di<GetProfileCubit>()..call(),
+    return BlocProvider.value(
+      value: di<GetProfileCubit>()..call(),
       child: BlocBuilder<GetProfileCubit, GetProfileState>(
         builder: (context, state) {
           return Container(

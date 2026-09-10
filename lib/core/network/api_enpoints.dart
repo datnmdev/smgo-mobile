@@ -63,6 +63,7 @@ abstract class ApiEndpoints {
   // Subscription
   static const String getCurrentSubscription = '$subscriptionBaseUrl/current';
   static const String verify = '$subscriptionBaseUrl/verify';
+  static const String cancelSubscription= '$subscriptionBaseUrl/cancel';
 
   // Ai
   static const String extractOrderInfo = '$aiBaseUrl/extract/order-info';

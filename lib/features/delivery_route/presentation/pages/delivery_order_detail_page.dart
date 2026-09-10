@@ -74,9 +74,7 @@ class _DeliveryOrderDetailPageState extends State<DeliveryOrderDetailPage> {
         BlocProvider<GetDeliveryRoutesCubit>(
           create: (context) => di<GetDeliveryRoutesCubit>(),
         ),
-        BlocProvider<GetProfileCubit>(
-          create: (_) => di<GetProfileCubit>()..call(),
-        ),
+        BlocProvider.value(value: di<GetProfileCubit>()..call()),
         BlocProvider<GetShareLocationUrlCubit>(
           create: (_) => di<GetShareLocationUrlCubit>(),
         ),

@@ -15,6 +15,8 @@ import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_event.dart';
 import 'package:smgo/features/auth/presentation/bloc/sign_in/sign_in_state.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:smgo/shared/presentation/bloc/get_profile/get_profile_cubit.dart';
+import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
 import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/shared/presentation/widgets/language_selector_button.dart';
 import 'package:smgo/shared/utils/app_dialog_utils.dart';
@@ -160,16 +162,32 @@ class _SocialLoginSection extends StatelessWidget {
     return MultiBlocListener(
       listeners: [
         BlocListener<SignInBloc, SignInState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is SignInDone) {
+              final getProfileCubit = di<GetProfileCubit>();
+
+              await getProfileCubit.call();
+
+              final String? userId = getProfileCubit.state.profile?.id;
+
+              if (userId != null && userId.isNotEmpty) {
+                di<SubscriptionPurchaseCubit>().initialize(userId: userId);
+              }
+
+              if (!context.mounted) {
+                return;
+              }
+
               context.goNamed(AppRouteNames.home);
             } else if (state is SignInError) {
-              String message = "";
+              String message = '';
+
               if (state.error is DioException) {
-                message = (state.error as DioException).message ?? "";
+                message = (state.error as DioException).message ?? '';
               } else if (state.error is AppException) {
                 message = (state.error as AppException).message;
               }
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(message),

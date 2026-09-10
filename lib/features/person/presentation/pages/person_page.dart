@@ -17,6 +17,7 @@ import 'package:smgo/core/resources/usecase.dart';
 import 'package:smgo/core/security/token/domain/usecases/clear_token_usecase.dart';
 import 'package:smgo/dependency_injection.dart';
 import 'package:smgo/features/person/domain/entities/language_entity.dart';
+import 'package:smgo/shared/presentation/bloc/subscription_purchase/subscription_purchase_cubit.dart';
 import 'package:smgo/shared/presentation/widgets/language_bottom_sheet.dart';
 import 'package:smgo/features/person/presentation/widgets/premium_banner_card.dart';
 import 'package:smgo/features/person/presentation/widgets/smgo_community_bottom_sheet.dart';
@@ -47,12 +48,10 @@ class PersonPage extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GetProfileCubit>(
-          create: (context) => di<GetProfileCubit>()..call(),
-        ),
+        BlocProvider.value(value: di<GetProfileCubit>()..call()),
         BlocProvider<SignoutCubit>(create: (context) => di<SignoutCubit>()),
-        BlocProvider<GetCurrentPlanCubit>(
-          create: (context) => di<GetCurrentPlanCubit>()..call(),
+        BlocProvider<GetCurrentPlanCubit>.value(
+          value: di<GetCurrentPlanCubit>()..call(),
         ),
         BlocProvider<GetLocaleCubit>(
           create: (context) => di<GetLocaleCubit>()..call(),
@@ -79,7 +78,10 @@ class PersonPage extends StatelessWidget {
               ),
               body: RefreshIndicator(
                 onRefresh: () async {
-                  await context.read<GetProfileCubit>().call();
+                  await Future.wait([
+                    context.read<GetProfileCubit>().call(),
+                    context.read<GetCurrentPlanCubit>().call(),
+                  ]);
                 },
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -141,10 +143,23 @@ class PersonPage extends StatelessWidget {
             BlocConsumer<SignoutCubit, SignoutState>(
               listener: (context, state) async {
                 if (state is SignoutDone) {
+                  /*
+                  * Reset purchase session của user hiện tại.
+                  *
+                  * Không close cubit vì đây là singleton sống xuyên app.
+                  * User khác login sau đó sẽ reuse cùng instance và initialize lại.
+                  */
+                  di<SubscriptionPurchaseCubit>().reset();
+
+                  /*
+                  * Xoá auth token sau khi đã reset các state gắn với user cũ.
+                  */
                   await di<ClearTokenUsecase>().call(params: NoParams());
+
                   if (!context.mounted) {
                     return;
                   }
+
                   context.goNamed(AppRouteNames.onboarding);
                 } else if (state is SignoutFailed) {
                   AppDialogUtils.showError(
@@ -435,7 +450,10 @@ class PersonPage extends StatelessWidget {
                                     ),
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: primaryColor,
+                                      color: PlanUiHelper.getStatusColor(
+                                        currentPlan?.status,
+                                        AppColors.primary,
+                                      ),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
