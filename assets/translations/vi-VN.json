@@ -682,10 +682,10 @@
     "start_now_btn_label": "Bắt đầu ngay"
   },
   "subscription_page": {
-    "basic_display_title": "Gói Basic",
-    "standard_display_title": "Gói Standard",
-    "plus_display_title": "Gói Plus",
-    "premium_display_title": "Gói Premium",
+    "basic_display_title": "Gói Cơ bản",
+    "standard_display_title": "Gói Tiêu chuẩn",
+    "plus_display_title": "Gói Nâng cao",
+    "premium_display_title": "Gói Cao cấp",
     "basic_subtitle": "Phù hợp cho nhu cầu cơ bản",
     "standard_subtitle": "Hỗ trợ công việc hàng ngày",
     "plus_subtitle": "Hiệu quả hơn, kết nối tốt hơn",
@@ -862,7 +862,7 @@
   "plan_ui_helper": {
     "basic_plan_name": "Gói Cơ bản",
     "standard_plan_name": "Gói Tiêu chuẩn",
-    "plus_plan_name": "Gói Plus",
+    "plus_plan_name": "Gói Nâng cao",
     "premium_plan_name": "Gói Cao cấp",
     "unknown_plan_name": "Không xác định",
     "active_status_name": "Đang hoạt động",

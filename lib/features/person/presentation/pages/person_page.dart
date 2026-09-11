@@ -781,6 +781,7 @@ class PersonPage extends StatelessWidget {
                             primaryColor: AppColors.primary,
                             text: AppStrings.pPSignoutConfirmButtonLabel.tr(),
                             onPressed: () {
+                              di<SubscriptionPurchaseCubit>().reset();
                               context.read<SignoutCubit>().call();
                               context.pop();
                             },

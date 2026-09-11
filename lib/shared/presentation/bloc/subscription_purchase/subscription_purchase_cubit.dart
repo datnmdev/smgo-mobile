@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 
@@ -393,6 +394,16 @@ class SubscriptionPurchaseCubit extends Cubit<SubscriptionPurchaseState> {
             userId: currentUserId,
             oldPurchaseDetails: isUpgrade ? _currentPurchaseDetails : null,
           );
+
+      debugPrint('================ BILLING ================');
+      debugPrint('currentUserId: $currentUserId');
+      debugPrint('productId: ${productDetails.id}');
+      debugPrint('isUpgrade: $isUpgrade');
+      debugPrint('oldProductId: ${_currentPurchaseDetails?.productID}');
+      debugPrint(
+        'oldToken: ${_currentPurchaseDetails?.verificationData.serverVerificationData}',
+      );
+      debugPrint('==========================================');
 
       final bool launched = await _iap.buyNonConsumable(
         purchaseParam: purchaseParam,
