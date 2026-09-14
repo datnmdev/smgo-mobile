@@ -377,6 +377,7 @@
     "recheck_orders_failed_title": "Yêu cầu kiểm tra lại đơn hàng thất bại!",
     "common_error_content": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "confirm_orders_success_title": "Xác nhận đơn hàng thành công!",
+    "confirm_order_success_title": "Xác nhận đơn hàng thành công!",
     "confirm_orders_success_content": "{quantity} đơn hàng đã chọn đã được xác nhận thành công.",
     "confirm_orders_failed_title": "Xác nhận đơn hàng thất bại!",
     "action_failed_title": "Thao tác thất bại!",

@@ -630,6 +630,8 @@ abstract class AppStrings {
       'delivery_order_page.common_error_content';
   static const String dOPConfirmOrdersSuccessTitle =
       'delivery_order_page.confirm_orders_success_title';
+  static const String dOPConfirmOrderSuccessTitle =
+      'delivery_order_page.confirm_order_success_title';
   static const String dOPConfirmOrdersSuccessContent =
       'delivery_order_page.confirm_orders_success_content';
   static const String dOPConfirmOrdersFailedTitle =

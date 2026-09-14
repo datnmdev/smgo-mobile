@@ -377,6 +377,7 @@
     "recheck_orders_failed_title": "Recheck request failed!",
     "common_error_content": "An error occurred. Try again.",
     "confirm_orders_success_title": "Orders confirmed!",
+    "confirm_order_success_title": "Orders confirmed!",
     "confirm_orders_success_content": "{quantity} selected orders confirmed.",
     "confirm_orders_failed_title": "Order confirmation failed!",
     "action_failed_title": "Action failed!",

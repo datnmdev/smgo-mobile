@@ -563,7 +563,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         );
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                          title: AppStrings.dOPConfirmOrderSuccessTitle.tr(),
                         );
                       } else if (state is ConfirmSortedDeliveryOrdersFailed) {
                         AppDialogUtils.showError(
@@ -594,7 +594,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         );
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                          title: AppStrings.dOPConfirmOrderSuccessTitle.tr(),
                         );
                       } else if (state is ConfirmDeliveredOrderFailed) {
                         AppDialogUtils.showError(
@@ -625,7 +625,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         );
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                          title: AppStrings.dOPConfirmOrderSuccessTitle.tr(),
                         );
                       } else if (state is ConfirmCancelledOrderFailed) {
                         AppDialogUtils.showError(
@@ -656,7 +656,7 @@ class _DeliveryOrderPageState extends State<DeliveryOrderPage> {
                         );
                         AppDialogUtils.showSuccess(
                           context: context,
-                          title: AppStrings.dOPConfirmOrdersSuccessContent.tr(),
+                          title: AppStrings.dOPConfirmOrderSuccessTitle.tr(),
                         );
                       } else if (state is ConfirmRescheduledOrderFailed) {
                         AppDialogUtils.showError(
